@@ -11,24 +11,32 @@ import { useToast } from '@/hooks/use-toast';
 import { MessageSquareHeart, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFeedback, useCreateFeedback, useDeleteFeedback } from '@/hooks/api/useFeedback';
-import { useUsers } from '@/hooks/api/useUsers';
+import { useFeedbackReceived, useFeedbackSent, useCreateFeedback, useDeleteFeedback } from '@/hooks/api/useFeedback';
+import { UserSelect } from '@/components/shared/UserSelect';
+import {
+  FEEDBACK_TYPES,
+  FEEDBACK_TYPE_LABELS,
+  FEEDBACK_VISIBILITY_LABELS,
+  type PointwiseFeedbackType,
+  type FeedbackVisibility,
+} from '@/lib/enums';
 
 export default function Feedback() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const feedbackQuery = useFeedback();
-  const usersQuery = useUsers();
+  const receivedQuery = useFeedbackReceived();
+  const sentQuery = useFeedbackSent();
   const createMutation = useCreateFeedback();
   const deleteMutation = useDeleteFeedback();
 
-  const feedbacks = feedbackQuery.data ?? [];
-  const users = (usersQuery.data ?? []).filter(u => u.id !== user?.id);
+  const received = receivedQuery.data ?? [];
+  const sent = sentQuery.data ?? [];
 
   const [toUserId, setToUserId] = useState('');
+  const [type, setType] = useState<PointwiseFeedbackType>('kudos');
   const [content, setContent] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [visibility, setVisibility] = useState<FeedbackVisibility>('with_manager');
 
   const handleSend = async () => {
     if (!toUserId || !content.trim()) {
@@ -36,7 +44,7 @@ export default function Feedback() {
       return;
     }
     try {
-      await createMutation.mutateAsync({ to_user_id: toUserId, content, is_anonymous: isAnonymous });
+      await createMutation.mutateAsync({ to_user_id: toUserId, type, content, visibility });
       toast({ title: 'Feedback enviado' });
       setToUserId('');
       setContent('');
@@ -44,9 +52,6 @@ export default function Feedback() {
       toast({ title: 'Erro ao enviar', variant: 'destructive' });
     }
   };
-
-  const received = feedbacks.filter(f => f.to_user_id === user?.id);
-  const sent = feedbacks.filter(f => f.from_user_id === user?.id);
 
   return (
     <div className="space-y-6">
@@ -61,10 +66,21 @@ export default function Feedback() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Para</Label>
-            <Select value={toUserId} onValueChange={setToUserId}>
-              <SelectTrigger><SelectValue placeholder="Selecione um colega" /></SelectTrigger>
+            <UserSelect
+              value={toUserId}
+              onValueChange={setToUserId}
+              placeholder="Selecione um colega"
+              excludeId={user?.id}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Tipo</Label>
+            <Select value={type} onValueChange={v => setType(v as PointwiseFeedbackType)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {users.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+                {FEEDBACK_TYPES.map(t => (
+                  <SelectItem key={t} value={t}>{FEEDBACK_TYPE_LABELS[t]}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -73,8 +89,11 @@ export default function Feedback() {
             <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Escreva seu feedback..." rows={3} maxLength={500} />
           </div>
           <div className="flex items-center gap-3">
-            <Switch checked={isAnonymous} onCheckedChange={setIsAnonymous} />
-            <Label>Enviar anonimamente</Label>
+            <Switch
+              checked={visibility === 'with_manager'}
+              onCheckedChange={v => setVisibility(v ? 'with_manager' : 'private')}
+            />
+            <Label>{FEEDBACK_VISIBILITY_LABELS[visibility]}</Label>
           </div>
           <div className="flex justify-end">
             <Button onClick={handleSend} disabled={createMutation.isPending}>
@@ -91,9 +110,12 @@ export default function Feedback() {
           <Card><CardContent><EmptyState icon={MessageSquareHeart} title="Nenhum feedback recebido" description="Feedbacks dos seus colegas aparecem aqui." /></CardContent></Card>
         ) : received.map(f => (
           <Card key={f.id}>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 space-y-1">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">{FEEDBACK_TYPE_LABELS[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
+              </div>
               <p className="text-sm">{f.content}</p>
-              <p className="text-xs text-muted-foreground mt-2">{f.is_anonymous ? 'Anônimo' : `De: ${f.from_user_id}`} · {new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
+              <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
             </CardContent>
           </Card>
         ))}
@@ -106,9 +128,10 @@ export default function Feedback() {
         ) : sent.map(f => (
           <Card key={f.id}>
             <CardContent className="pt-4 flex items-start justify-between">
-              <div>
+              <div className="space-y-1">
+                <Badge variant="secondary">{FEEDBACK_TYPE_LABELS[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
                 <p className="text-sm">{f.content}</p>
-                <p className="text-xs text-muted-foreground mt-1">{f.is_anonymous ? 'Anônimo' : ''} · {new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
+                <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => deleteMutation.mutate(f.id)} disabled={deleteMutation.isPending}>
                 Remover

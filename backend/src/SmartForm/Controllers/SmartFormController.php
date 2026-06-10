@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Src\SmartForm\Models\SmartForm;
 use Src\SmartForm\Requests\CreateSmartFormRequest;
+use Src\SmartForm\Requests\UpdateSmartFormRequest;
 use Src\SmartForm\Requests\SubmitFormResponseRequest;
 use Src\SmartForm\Resources\SmartFormResource;
 use Src\SmartForm\Resources\SmartFormResponseResource;
@@ -40,7 +41,7 @@ class SmartFormController extends Controller
         return SmartFormResource::make($smartForm);
     }
 
-    public function update(CreateSmartFormRequest $request, SmartForm $smartForm): SmartFormResource
+    public function update(UpdateSmartFormRequest $request, SmartForm $smartForm): SmartFormResource
     {
         $this->authorize('update', $smartForm);
 

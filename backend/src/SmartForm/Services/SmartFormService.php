@@ -12,13 +12,14 @@ class SmartFormService
     public function forUser(User $user, ?string $category = null): Collection
     {
         $sectorId = $user->profile?->sector_id;
+        $isPrivileged = $user->hasAnyRole(['admin', 'gestor', 'analista']);
 
-        return SmartForm::where('status', SmartFormStatus::Active)
+        return SmartForm::when(!$isPrivileged, fn ($q) => $q->where('status', SmartFormStatus::Active))
             ->when($category, fn ($q) => $q->where('category', $category))
-            ->where(fn ($q) => $q
+            ->when(!$isPrivileged, fn ($q) => $q->where(fn ($q) => $q
                 ->whereNull('sector_id')
                 ->orWhere('sector_id', $sectorId)
-            )
+            ))
             ->get();
     }
 

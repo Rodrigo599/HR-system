@@ -38,6 +38,10 @@ export type OneOnOneStatus = typeof ONE_ON_ONE_STATUS[number];
 export const FEEDBACK_TYPES = ['kudos', 'adjustment', 'observation'] as const;
 export type PointwiseFeedbackType = typeof FEEDBACK_TYPES[number];
 
+// Visibilidade de feedback
+export const FEEDBACK_VISIBILITY = ['private', 'with_manager'] as const;
+export type FeedbackVisibility = typeof FEEDBACK_VISIBILITY[number];
+
 // Status de formulário inteligente
 export const SMART_FORM_STATUS = ['draft', 'active', 'archived'] as const;
 export type SmartFormStatus = typeof SMART_FORM_STATUS[number];
@@ -101,6 +105,11 @@ export const FEEDBACK_TYPE_LABELS: Record<PointwiseFeedbackType, string> = {
   kudos: 'Reconhecimento',
   adjustment: 'Ajuste',
   observation: 'Observação',
+};
+
+export const FEEDBACK_VISIBILITY_LABELS: Record<FeedbackVisibility, string> = {
+  private: 'Apenas eu e o destinatário',
+  with_manager: 'Eu + gestor do destinatário',
 };
 
 export const SMART_FORM_STATUS_LABELS: Record<SmartFormStatus, string> = {

@@ -35,12 +35,18 @@ export function useCreateSmartForm() {
   });
 }
 
-export function useUpdateSmartForm(id: string) {
+type UpdateSmartFormPayload = Partial<CreateSmartFormPayload> & {
+  id: string;
+  status?: string;
+  sector_id?: string | null;
+};
+
+export function useUpdateSmartForm() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<CreateSmartFormPayload> & { status?: string; sector_id?: string | null }) =>
+    mutationFn: ({ id, ...payload }: UpdateSmartFormPayload) =>
       apiClient.put<ApiItem<SmartForm>>(`/smart-forms/${id}`, payload).then((r) => r.data.data),
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       qc.invalidateQueries({ queryKey: ['smart-forms'] });
       qc.invalidateQueries({ queryKey: ['smart-forms', id] });
     },

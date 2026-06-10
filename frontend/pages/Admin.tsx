@@ -18,7 +18,7 @@ import { useSectors, useCreateSector, useUpdateSector, useDeleteSector } from '@
 import { useKpis, useCreateKpi, useUpdateKpi, useDeleteKpi } from '@/hooks/api/useKpis';
 import { useUsers, useCreateUser } from '@/hooks/api/useUsers';
 import { CreateUserDialog } from '@/components/admin/CreateUserDialog';
-import type { Sector, Kpi, AppRole } from '@/types/api';
+import type { Sector, Kpi } from '@/types/api';
 
 export default function Admin() {
   const { isAdmin } = useAuth();
@@ -336,8 +336,6 @@ export default function Admin() {
       <CreateUserDialog
         open={userDialogOpen}
         onOpenChange={setUserDialogOpen}
-        sectors={sectors}
-        gestores={users.filter(u => u.roles.includes('gestor' as AppRole)).map(u => ({ id: u.id, full_name: u.name }))}
         onSuccess={() => usersQuery.refetch()}
       />
     </div>

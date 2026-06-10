@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { FEEDBACK_TYPES, FEEDBACK_TYPE_LABELS, type PointwiseFeedbackType } from "@/lib/enums";
 import {
   MessageSquarePlus,
   Star,
@@ -25,40 +26,19 @@ import {
 } from "lucide-react";
 import { useCreateFeedback } from "@/hooks/api/useFeedback";
 
-type PointwiseFeedbackType = "kudos" | "adjustment" | "observation";
-
 const MAX_LEN = 500;
 
-interface TypeOption {
-  value: PointwiseFeedbackType;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  classes: string;
-}
+const TYPE_ICONS: Record<PointwiseFeedbackType, React.ComponentType<{ className?: string }>> = {
+  kudos: Star,
+  adjustment: MessageSquare,
+  observation: Eye,
+};
 
-const TYPES: TypeOption[] = [
-  {
-    value: "kudos",
-    label: "Kudos",
-    icon: Star,
-    classes:
-      "border-green-500 text-green-700 data-[on=true]:bg-green-500 data-[on=true]:text-white",
-  },
-  {
-    value: "adjustment",
-    label: "Ajuste",
-    icon: MessageSquare,
-    classes:
-      "border-amber-500 text-amber-700 data-[on=true]:bg-amber-500 data-[on=true]:text-white",
-  },
-  {
-    value: "observation",
-    label: "Observacao",
-    icon: Eye,
-    classes:
-      "border-blue-500 text-blue-700 data-[on=true]:bg-blue-500 data-[on=true]:text-white",
-  },
-];
+const TYPE_CLASSES: Record<PointwiseFeedbackType, string> = {
+  kudos: "border-green-500 text-green-700 data-[on=true]:bg-green-500 data-[on=true]:text-white",
+  adjustment: "border-amber-500 text-amber-700 data-[on=true]:bg-amber-500 data-[on=true]:text-white",
+  observation: "border-blue-500 text-blue-700 data-[on=true]:bg-blue-500 data-[on=true]:text-white",
+};
 
 interface GiveFeedbackProps {
   toUserId: string;
@@ -100,7 +80,7 @@ export function GiveFeedback({
   const handleSubmit = () => {
     if (!canSubmit) return;
     createFeedback.mutate(
-      { to_user_id: toUserId, content: content.trim(), is_anonymous: !withManager },
+      { to_user_id: toUserId, type, content: content.trim(), visibility: withManager ? 'with_manager' : 'private' },
       {
         onSuccess: () => {
           toast({ title: "Feedback enviado", description: `Para ${toUserName}.` });
@@ -144,22 +124,22 @@ export function GiveFeedback({
           <div className="space-y-2">
             <Label>Tipo</Label>
             <div className="grid grid-cols-3 gap-2">
-              {TYPES.map((opt) => {
-                const Icon = opt.icon;
-                const on = type === opt.value;
+              {FEEDBACK_TYPES.map((value) => {
+                const Icon = TYPE_ICONS[value];
+                const on = type === value;
                 return (
                   <button
-                    key={opt.value}
+                    key={value}
                     type="button"
                     data-on={on}
-                    onClick={() => setType(opt.value)}
+                    onClick={() => setType(value)}
                     className={cn(
                       "flex flex-col items-center gap-1 p-3 rounded-md border-2 text-xs font-medium transition-colors",
-                      opt.classes,
+                      TYPE_CLASSES[value],
                     )}
                   >
                     <Icon className="h-5 w-5" />
-                    {opt.label}
+                    {FEEDBACK_TYPE_LABELS[value]}
                   </button>
                 );
               })}
@@ -211,12 +191,12 @@ export function GiveFeedback({
           <Button
             variant="ghost"
             onClick={() => setOpen(false)}
-            disabled={giveFeedback.isPending}
+            disabled={createFeedback.isPending}
           >
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {giveFeedback.isPending ? (
+            {createFeedback.isPending ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
               <Send className="h-4 w-4 mr-2" />

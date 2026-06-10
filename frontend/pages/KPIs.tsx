@@ -8,15 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, TrendingUp, TrendingDown, Minus, Plus } from 'lucide-react';
 import { KpiEvolutionChart } from '@/components/kpis/KpiEvolutionChart';
 import { KpiComparisonChart } from '@/components/kpis/KpiComparisonChart';
 import { useKpis, useKpiResults, useUpsertKpiResult } from '@/hooks/api/useKpis';
+import { MonthSelect } from '@/components/shared/MonthSelect';
 import type { Kpi, KpiResult } from '@/types/api';
-
-const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export default function KPIs() {
   const { isAdmin, isGestor } = useAuth();
@@ -146,12 +144,7 @@ export default function KPIs() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('month')}</Label>
-                <Select value={String(registerMonth)} onValueChange={(v) => setRegisterMonth(Number(v))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {MONTHS.map(m => <SelectItem key={m} value={String(m)}>{m}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <MonthSelect value={String(registerMonth)} onValueChange={v => setRegisterMonth(Number(v))} />
               </div>
               <div className="space-y-2">
                 <Label>{t('year')}</Label>

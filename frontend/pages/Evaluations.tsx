@@ -9,17 +9,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, User, Users as UsersIcon, Plus, ClipboardList, Clock } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { EvaluationSmartForm } from "@/components/evaluations/EvaluationSmartForm";
 import { useEvaluations, useCreateEvaluation } from "@/hooks/api/useEvaluations";
-import { useSmartForms } from "@/hooks/api/useSmartForms";
-import { useTeam } from "@/hooks/api/useUsers";
+import { useUsers } from "@/hooks/api/useUsers";
+import { UserSelect } from "@/components/shared/UserSelect";
+import { MonthSelect } from "@/components/shared/MonthSelect";
+import { SmartFormSelect } from "@/components/shared/SmartFormSelect";
 import type { Evaluation } from "@/types/api";
 
-const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export default function Evaluations() {
   const { user, isAdmin, isGestor } = useAuth();
@@ -29,13 +29,11 @@ export default function Evaluations() {
   const showTeamTab = isAdmin || isGestor;
 
   const evaluationsQuery = useEvaluations();
-  const teamQuery = useTeam();
-  const formsQuery = useSmartForms({ category: 'evaluation' });
+  const usersQuery = useUsers();
   const createMutation = useCreateEvaluation();
 
   const evaluations: Evaluation[] = evaluationsQuery.data ?? [];
-  const team = teamQuery.data ?? [];
-  const evalTemplates = formsQuery.data ?? [];
+  const allUsers = usersQuery.data ?? [];
 
   const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -94,29 +92,24 @@ export default function Evaluations() {
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Label>{t('selectCollaborator')}</Label>
-                  <Select value={newAssignedTo} onValueChange={setNewAssignedTo}>
-                    <SelectTrigger><SelectValue placeholder={t('selectCollaborator')} /></SelectTrigger>
-                    <SelectContent>
-                      {team.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <UserSelect
+                    value={newAssignedTo}
+                    onValueChange={setNewAssignedTo}
+                    placeholder={t('selectCollaborator')}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Formulário</Label>
-                  <Select value={newFormId} onValueChange={setNewFormId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o formulário" /></SelectTrigger>
-                    <SelectContent>
-                      {evalTemplates.map(f => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <SmartFormSelect
+                    value={newFormId}
+                    onValueChange={setNewFormId}
+                    category="evaluation"
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>{t('month')}</Label>
-                    <Select value={String(newMonth)} onValueChange={v => setNewMonth(Number(v))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{MONTHS.map(m => <SelectItem key={m} value={String(m)}>{m}</SelectItem>)}</SelectContent>
-                    </Select>
+                    <MonthSelect value={String(newMonth)} onValueChange={v => setNewMonth(Number(v))} />
                   </div>
                   <div className="space-y-2">
                     <Label>{t('year')}</Label>
@@ -171,7 +164,7 @@ export default function Evaluations() {
             {teamEvaluations.length === 0 ? (
               <Card><CardContent><EmptyState icon={ClipboardList} title="Nenhuma avaliação criada" description="Crie a primeira avaliação para um liderado." ctaLabel="Nova avaliação" onCtaClick={() => setCreateOpen(true)} /></CardContent></Card>
             ) : teamEvaluations.map(evaluation => {
-              const member = team.find(m => m.id === evaluation.assigned_to);
+              const member = allUsers.find(m => m.id === evaluation.assigned_to);
               return (
                 <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedEvaluation(evaluation)}>
                   <CardHeader className="flex flex-row items-center justify-between">

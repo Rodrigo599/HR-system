@@ -18,13 +18,13 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateUser } from '@/hooks/api/useUsers';
+import { UserSelect } from '@/components/shared/UserSelect';
+import { SectorSelect } from '@/components/shared/SectorSelect';
 import type { AppRole } from '@/types/api';
 
 interface CreateUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  sectors: Array<{ id: string; name: string }>;
-  gestores: Array<{ id: string; full_name: string }>;
   onSuccess: () => void;
 }
 
@@ -90,8 +90,6 @@ function validate(fields: FormFields): FormErrors {
 export function CreateUserDialog({
   open,
   onOpenChange,
-  sectors,
-  gestores,
   onSuccess,
 }: CreateUserDialogProps) {
   const { toast } = useToast();
@@ -190,25 +188,14 @@ export function CreateUserDialog({
           {/* Setor */}
           <div className="space-y-1">
             <Label htmlFor="sectorId">Setor</Label>
-            <Select
+            <SectorSelect
+              id="sectorId"
               value={form.sectorId}
               onValueChange={value => handleChange('sectorId', value)}
+              placeholder="Selecionar setor"
               disabled={loading}
-            >
-              <SelectTrigger
-                id="sectorId"
-                className={errors.sectorId ? 'border-destructive focus:ring-destructive' : ''}
-              >
-                <SelectValue placeholder="Selecionar setor" />
-              </SelectTrigger>
-              <SelectContent>
-                {sectors.map(sector => (
-                  <SelectItem key={sector.id} value={sector.id}>
-                    {sector.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              className={errors.sectorId ? 'border-destructive focus:ring-destructive' : ''}
+            />
             {errors.sectorId && (
               <p className="text-xs text-destructive">{errors.sectorId}</p>
             )}
@@ -217,23 +204,14 @@ export function CreateUserDialog({
           {/* Gestor direto */}
           <div className="space-y-1">
             <Label htmlFor="managerId">Gestor direto (opcional)</Label>
-            <Select
+            <UserSelect
+              id="managerId"
               value={form.managerId}
               onValueChange={value => handleChange('managerId', value)}
+              roles={['gestor', 'admin']}
+              noneOption={{ value: '__none__', label: 'Sem gestor' }}
               disabled={loading}
-            >
-              <SelectTrigger id="managerId">
-                <SelectValue placeholder="Sem gestor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">Sem gestor</SelectItem>
-                {gestores.map(gestor => (
-                  <SelectItem key={gestor.id} value={gestor.id}>
-                    {gestor.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
 
           {/* Role */}

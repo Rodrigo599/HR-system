@@ -2,17 +2,32 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 import type { PointwiseFeedback, ApiList, ApiItem } from '@/types/api';
 
-export function useFeedback() {
+export function useFeedbackReceived() {
   return useQuery({
-    queryKey: ['feedback'],
-    queryFn: () => apiClient.get<ApiList<PointwiseFeedback>>('/feedback').then((r) => r.data.data),
+    queryKey: ['feedback', 'received'],
+    queryFn: () => apiClient.get<ApiList<PointwiseFeedback>>('/feedback/received').then((r) => r.data.data),
+  });
+}
+
+export function useFeedbackSent() {
+  return useQuery({
+    queryKey: ['feedback', 'sent'],
+    queryFn: () => apiClient.get<ApiList<PointwiseFeedback>>('/feedback/sent').then((r) => r.data.data),
+  });
+}
+
+export function useFeedbackTeam() {
+  return useQuery({
+    queryKey: ['feedback', 'team'],
+    queryFn: () => apiClient.get<ApiList<PointwiseFeedback>>('/feedback/team').then((r) => r.data.data),
   });
 }
 
 interface CreateFeedbackPayload {
   to_user_id: string;
+  type: 'kudos' | 'adjustment' | 'observation';
   content: string;
-  is_anonymous?: boolean;
+  visibility?: 'private' | 'with_manager';
 }
 
 export function useCreateFeedback() {

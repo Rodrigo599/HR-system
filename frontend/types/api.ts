@@ -109,10 +109,11 @@ export interface OneOnOneTopic {
 
 export interface PointwiseFeedback {
   id: string;
-  from_user_id: string;
+  from_user_id: string | null;
   to_user_id: string;
+  type: string;
   content: string;
-  is_anonymous: boolean;
+  visibility: string;
   created_at: string;
 }
 

@@ -18,6 +18,39 @@ class SmartFormControllerTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
+    public function test_index_admin_ve_todos_os_status(): void
+    {
+        SmartForm::factory()->create();
+        SmartForm::factory()->draft()->create();
+        SmartForm::factory()->state(['status' => 'archived'])->create();
+
+        $this->asUser('admin')
+            ->getJson('/api/smart-forms')
+            ->assertOk()
+            ->assertJsonCount(3, 'data');
+    }
+
+    public function test_index_gestor_ve_todos_os_status(): void
+    {
+        SmartForm::factory()->create();
+        SmartForm::factory()->draft()->create();
+
+        $this->asUser('gestor')
+            ->getJson('/api/smart-forms')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_update_apenas_status_sem_outros_campos(): void
+    {
+        $form = SmartForm::factory()->draft()->create();
+
+        $this->asUser('admin')
+            ->putJson("/api/smart-forms/{$form->id}", ['status' => 'active'])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'active');
+    }
+
     public function test_index_filtra_por_categoria(): void
     {
         SmartForm::factory()->create(['category' => 'evaluation']);

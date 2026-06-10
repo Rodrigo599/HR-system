@@ -14,7 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, Plus, CheckCircle2, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useOneOnOnes, useCreateOneOnOne, useUpdateOneOnOne, useAddTopic } from "@/hooks/api/useOneOnOnes";
-import { useTeam } from "@/hooks/api/useUsers";
+import { useUsers } from "@/hooks/api/useUsers";
+import { UserSelect } from "@/components/shared/UserSelect";
 import type { OneOnOne } from "@/types/api";
 
 const STATUS_BADGE: Record<string, { label: string; variant: 'outline' | 'secondary' | 'default' | 'destructive' }> = {
@@ -28,11 +29,11 @@ export default function OneOnOnes() {
   const { toast } = useToast();
 
   const oneOnOnesQuery = useOneOnOnes();
-  const teamQuery = useTeam();
+  const usersQuery = useUsers();
   const createMutation = useCreateOneOnOne();
 
   const oneOnOnes: OneOnOne[] = oneOnOnesQuery.data ?? [];
-  const team = teamQuery.data ?? [];
+  const allUsers = usersQuery.data ?? [];
 
   const [createOpen, setCreateOpen] = useState(false);
   const [collaboratorId, setCollaboratorId] = useState('');
@@ -99,10 +100,11 @@ export default function OneOnOnes() {
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Label>Colaborador</Label>
-                  <Select value={collaboratorId} onValueChange={setCollaboratorId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>{team.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <UserSelect
+                    value={collaboratorId}
+                    onValueChange={setCollaboratorId}
+                    placeholder="Selecione"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Data e hora</Label>
@@ -126,7 +128,7 @@ export default function OneOnOnes() {
         <div className="space-y-3">
           {oneOnOnes.map(o => {
             const otherId = o.manager_id === user?.id ? o.collaborator_id : o.manager_id;
-            const member = team.find(m => m.id === otherId);
+            const member = allUsers.find(m => m.id === otherId);
             const { label, variant } = STATUS_BADGE[o.status] ?? STATUS_BADGE.scheduled;
             return (
               <Card key={o.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(o)}>

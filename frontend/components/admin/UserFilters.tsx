@@ -2,6 +2,8 @@ import React from 'react';
 import { Search, List, Network } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { SectorSelect } from '@/components/shared/SectorSelect';
+import { RoleSelect } from '@/components/shared/RoleSelect';
 import {
   Select,
   SelectContent,
@@ -11,7 +13,6 @@ import {
 } from '@/components/ui/select';
 
 interface UserFiltersProps {
-  sectors: Array<{ id: string; name: string }>;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sectorFilter: string;
@@ -25,7 +26,6 @@ interface UserFiltersProps {
 }
 
 export function UserFilters({
-  sectors,
   searchQuery,
   onSearchChange,
   sectorFilter,
@@ -52,32 +52,20 @@ export function UserFilters({
       </div>
 
       {/* Setor */}
-      <Select value={sectorFilter} onValueChange={onSectorFilterChange}>
-        <SelectTrigger className="w-full sm:w-[180px]">
-          <SelectValue placeholder="Setor" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos os setores</SelectItem>
-          {sectors.map(sector => (
-            <SelectItem key={sector.id} value={sector.id}>
-              {sector.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <SectorSelect
+        value={sectorFilter}
+        onValueChange={onSectorFilterChange}
+        allOption={{ value: 'all', label: 'Todos os setores' }}
+        className="w-full sm:w-[180px]"
+      />
 
       {/* Role */}
-      <Select value={roleFilter} onValueChange={onRoleFilterChange}>
-        <SelectTrigger className="w-full sm:w-[160px]">
-          <SelectValue placeholder="Perfil" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="gestor">Gestor</SelectItem>
-          <SelectItem value="colaborador">Colaborador</SelectItem>
-        </SelectContent>
-      </Select>
+      <RoleSelect
+        value={roleFilter}
+        onValueChange={onRoleFilterChange}
+        allOption={{ value: 'all', label: 'Todos' }}
+        className="w-full sm:w-[160px]"
+      />
 
       {/* Status */}
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>

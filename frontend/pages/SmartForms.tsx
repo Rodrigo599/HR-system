@@ -28,7 +28,8 @@ import {
   useUpdateSmartForm,
   useSubmitSmartFormResponse,
 } from '@/hooks/api/useSmartForms';
-import { useSectors } from '@/hooks/api/useSectors';
+import { SectorSelect } from '@/components/shared/SectorSelect';
+import { SectorName } from '@/components/shared/SectorName';
 import type { SmartFormCategory, SmartFormStatus } from '@/lib/enums';
 import {
   SMART_FORM_STATUS_LABELS,
@@ -74,9 +75,8 @@ export default function SmartForms() {
 
   const createForm = useCreateSmartForm();
   const deleteForm = useDeleteSmartForm();
-  const updateForm = useUpdateSmartForm(selectedForm?.id ?? '');
+  const updateForm = useUpdateSmartForm();
   const submitResponse = useSubmitSmartFormResponse(selectedForm?.id ?? '');
-  const { data: sectors = [] } = useSectors();
 
   const handleCreate = () => {
     if (!newName.trim()) return;
@@ -121,7 +121,7 @@ export default function SmartForms() {
   const handleToggleStatus = (form: SmartForm) => {
     const nextStatus: SmartFormStatus = form.status === 'active' ? 'draft' : 'active';
     updateForm.mutate(
-      { status: nextStatus },
+      { id: form.id, status: nextStatus },
       { onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }) },
     );
   };
@@ -172,27 +172,18 @@ export default function SmartForms() {
         <Card className="p-4">
           <div className="space-y-2">
             <Label>Setor</Label>
-            <Select
+            <SectorSelect
               value={selectedForm.sector_id ?? ALL_SECTORS}
               onValueChange={(v) => {
                 const nextSectorId = v === ALL_SECTORS ? null : v;
                 updateForm.mutate(
-                  { sector_id: nextSectorId },
+                  { id: selectedForm.id, sector_id: nextSectorId },
                   { onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }) },
                 );
                 setSelectedForm(prev => prev ? { ...prev, sector_id: nextSectorId } : prev);
               }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Todos os setores" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_SECTORS}>Todos os setores</SelectItem>
-                {sectors.map(s => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              allOption={{ value: ALL_SECTORS, label: 'Todos os setores' }}
+            />
             <p className="text-xs text-muted-foreground">
               Setor específico = só aparece para avaliações desse setor. "Todos os setores" = formulário universal.
             </p>
@@ -203,7 +194,7 @@ export default function SmartForms() {
           config={selectedForm.config}
           onChange={(newConfig) => {
             updateForm.mutate(
-              { config: newConfig },
+              { id: selectedForm.id, config: newConfig },
               { onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }) },
             );
             setSelectedForm(prev => prev ? { ...prev, config: newConfig } : prev);
@@ -272,18 +263,11 @@ export default function SmartForms() {
               </div>
               <div className="space-y-2">
                 <Label>Setor</Label>
-                <Select
+                <SectorSelect
                   value={newSectorId ?? ALL_SECTORS}
                   onValueChange={(v) => setNewSectorId(v === ALL_SECTORS ? null : v)}
-                >
-                  <SelectTrigger><SelectValue placeholder="Todos os setores" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ALL_SECTORS}>Todos os setores</SelectItem>
-                    {sectors.map(s => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  allOption={{ value: ALL_SECTORS, label: 'Todos os setores' }}
+                />
                 <p className="text-xs text-muted-foreground">
                   Quando um setor é escolhido, este formulário só aparece para avaliações de colaboradores desse setor.
                 </p>
@@ -334,7 +318,7 @@ export default function SmartForms() {
                     {SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    {form.sector_id ? sectors.find(s => s.id === form.sector_id)?.name ?? '—' : 'Todos os setores'}
+                    <SectorName sectorId={form.sector_id} fallback="Todos os setores" />
                   </Badge>
                   <span className="font-mono text-xs truncate">{form.slug}</span>
                 </div>
@@ -415,7 +399,7 @@ export default function SmartForms() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-xs">
-                      {form.sector_id ? sectors.find(s => s.id === form.sector_id)?.name ?? '—' : 'Todos'}
+                      <SectorName sectorId={form.sector_id} fallback="Todos" />
                     </Badge>
                   </TableCell>
                   <TableCell>
