@@ -22,7 +22,9 @@ interface HeaderProps {
 }
 
 export function Header({ sidebarCollapsed, onMenuClick }: HeaderProps) {
-  const { profile, roles, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const profile = user?.profile;
+  const roles = user?.roles ?? [];
   const { t, language, setLanguage } = useLanguage();
   const { viewMode, setViewMode, showToggle } = useViewMode();
   const navigate = useNavigate();
