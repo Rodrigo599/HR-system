@@ -18,7 +18,9 @@
       "Bash(node -e \"const v = require\\('./node_modules/jsdom/package.json'\\); console.log\\(v.version\\)\")",
       "Bash(node -e \"const v = require\\('./node_modules/html-encoding-sniffer/package.json'\\); console.log\\(v.version\\)\")",
       "Bash(node -e \"const v = require\\('./node_modules/@exodus/bytes/package.json'\\); console.log\\(v.version, v.type\\)\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(curl -s -X POST http://localhost/api/feedback -H 'Authorization: Bearer 6|ZY7n2Stk7a8ZJgAhbR5YB8fRSLsmCHsjdv0YrlZY4a82cf17' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{\"to_user_id\":\"019eb2a2-4354-70db-9ffd-8d3dc424e7b9\",\"type\":\"kudos\",\"content\":\"Ótimo trabalho no projeto!\",\"visibility\":\"with_manager\"}')",
+      "Bash(python3 -m json.tool)"
     ]
   }
 }

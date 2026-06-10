@@ -88,8 +88,12 @@ export function GiveFeedback({
           setOpen(false);
           onSuccess?.();
         },
-        onError: (err) =>
-          toast({ title: "Erro ao enviar", description: String(err), variant: "destructive" }),
+        onError: (err: unknown) => {
+          const axiosErr = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+          const apiMsg = axiosErr?.response?.data?.message;
+          const firstError = axiosErr?.response?.data?.errors ? Object.values(axiosErr.response.data.errors)[0]?.[0] : undefined;
+          toast({ title: "Erro ao enviar", description: firstError ?? apiMsg ?? "Tente novamente.", variant: "destructive" });
+        },
       },
     );
   };

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { useMutationHandler } from '@/hooks/useMutation';
 import { Loader2, TrendingUp, TrendingDown, Minus, Plus } from 'lucide-react';
 import { KpiEvolutionChart } from '@/components/kpis/KpiEvolutionChart';
 import { KpiComparisonChart } from '@/components/kpis/KpiComparisonChart';
@@ -19,7 +19,7 @@ import type { Kpi, KpiResult } from '@/types/api';
 export default function KPIs() {
   const { isAdmin, isGestor } = useAuth();
   const { t } = useLanguage();
-  const { toast } = useToast();
+  const { run } = useMutationHandler();
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
@@ -62,13 +62,10 @@ export default function KPIs() {
       setRegisterScoreError('Informe um valor numérico válido');
       return;
     }
-    try {
-      await upsertMutation.mutateAsync({ kpi_id: selectedKpi.id, score: scoreNum, month: registerMonth, year: registerYear });
-      toast({ title: t('resultRegistered') });
-      setRegisterOpen(false);
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(
+      upsertMutation.mutateAsync({ kpi_id: selectedKpi.id, score: scoreNum, month: registerMonth, year: registerYear }),
+      { successMsg: t('resultRegistered'), onSuccess: () => setRegisterOpen(false) },
+    );
   };
 
   if (loading) {

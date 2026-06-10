@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useMutationHandler } from "@/hooks/useMutation";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,15 +20,11 @@ import { useUsers } from "@/hooks/api/useUsers";
 import { UserSelect } from "@/components/shared/UserSelect";
 import type { OneOnOne } from "@/types/api";
 
-const STATUS_BADGE: Record<string, { label: string; variant: 'outline' | 'secondary' | 'default' | 'destructive' }> = {
-  scheduled: { label: 'Agendado', variant: 'outline' },
-  completed: { label: 'Concluído', variant: 'default' },
-  cancelled: { label: 'Cancelado', variant: 'destructive' },
-};
 
 export default function OneOnOnes() {
   const { user, isAdmin, isGestor } = useAuth();
   const { toast } = useToast();
+  const { run } = useMutationHandler();
 
   const oneOnOnesQuery = useOneOnOnes();
   const usersQuery = useUsers();
@@ -49,38 +47,26 @@ export default function OneOnOnes() {
       toast({ title: 'Preencha todos os campos', variant: 'destructive' });
       return;
     }
-    try {
-      await createMutation.mutateAsync({ collaborator_id: collaboratorId, scheduled_at: scheduledAt });
-      toast({ title: '1:1 agendado' });
-      setCreateOpen(false);
-      setCollaboratorId('');
-      setScheduledAt('');
-    } catch {
-      toast({ title: 'Erro ao criar', variant: 'destructive' });
-    }
+    await run(
+      createMutation.mutateAsync({ collaborator_id: collaboratorId, scheduled_at: scheduledAt }),
+      { successMsg: '1:1 agendado', errorMsg: 'Erro ao criar', onSuccess: () => { setCreateOpen(false); setCollaboratorId(''); setScheduledAt(''); } },
+    );
   };
 
   const handleAddTopic = async () => {
     if (!newTopic.trim()) return;
-    try {
-      await addTopicMutation.mutateAsync(newTopic);
-      setNewTopic('');
-      oneOnOnesQuery.refetch();
-    } catch {
-      toast({ title: 'Erro ao adicionar tópico', variant: 'destructive' });
-    }
+    await run(
+      addTopicMutation.mutateAsync(newTopic),
+      { successMsg: '', errorMsg: 'Erro ao adicionar tópico', onSuccess: () => { setNewTopic(''); oneOnOnesQuery.refetch(); } },
+    );
   };
 
   const handleComplete = async () => {
     if (!selected) return;
-    try {
-      await updateMutation.mutateAsync({ status: 'completed' });
-      toast({ title: '1:1 concluído' });
-      oneOnOnesQuery.refetch();
-      setSelected(null);
-    } catch {
-      toast({ title: 'Erro', variant: 'destructive' });
-    }
+    await run(
+      updateMutation.mutateAsync({ status: 'completed' }),
+      { successMsg: '1:1 concluído', onSuccess: () => { oneOnOnesQuery.refetch(); setSelected(null); } },
+    );
   };
 
   if (oneOnOnesQuery.isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -129,7 +115,6 @@ export default function OneOnOnes() {
           {oneOnOnes.map(o => {
             const otherId = o.manager_id === user?.id ? o.collaborator_id : o.manager_id;
             const member = allUsers.find(m => m.id === otherId);
-            const { label, variant } = STATUS_BADGE[o.status] ?? STATUS_BADGE.scheduled;
             return (
               <Card key={o.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(o)}>
                 <CardHeader className="flex flex-row items-center justify-between">
@@ -137,7 +122,7 @@ export default function OneOnOnes() {
                     <CardTitle className="text-base">{member?.name ?? 'Colega'}</CardTitle>
                     <CardDescription>{new Date(o.scheduled_at).toLocaleString('pt-BR')}</CardDescription>
                   </div>
-                  <Badge variant={variant}>{label}</Badge>
+                  <StatusBadge status={o.status} domain="one_on_one" />
                 </CardHeader>
               </Card>
             );

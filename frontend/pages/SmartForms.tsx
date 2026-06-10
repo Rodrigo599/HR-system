@@ -6,54 +6,78 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, FileText, Eye, ArrowLeft, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
 import { SmartFormRenderer } from '@/components/smartforms/SmartFormRenderer';
 import SmartFormBuilder from '@/components/smartforms/SmartFormBuilder';
-import {
-  useSmartForms,
-  useCreateSmartForm,
-  useDeleteSmartForm,
-  useUpdateSmartForm,
-  useSubmitSmartFormResponse,
-} from '@/hooks/api/useSmartForms';
+import { useSmartForms, useCreateSmartForm, useDeleteSmartForm, useUpdateSmartForm, useSubmitSmartFormResponse } from '@/hooks/api/useSmartForms';
 import { SectorSelect } from '@/components/shared/SectorSelect';
 import { SectorName } from '@/components/shared/SectorName';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import type { SmartFormCategory, SmartFormStatus } from '@/lib/enums';
-import {
-  SMART_FORM_STATUS_LABELS,
-  SMART_FORM_CATEGORY_LABELS,
-} from '@/lib/enums';
+import { SMART_FORM_STATUS_LABELS, SMART_FORM_CATEGORY_LABELS } from '@/lib/enums';
 import type { SmartForm } from '@/types/api';
 
 type ViewMode = 'list' | 'preview' | 'edit';
 
-const STATUS_VARIANTS: Record<SmartFormStatus, 'default' | 'secondary' | 'outline'> = {
-  active: 'default',
-  draft: 'secondary',
-  archived: 'outline',
-};
-
-const STATUS_CLASS: Record<SmartFormStatus, string> = {
-  active: 'bg-green-600 text-white hover:bg-green-700',
-  draft: '',
-  archived: '',
-};
-
 const GESTOR_CATEGORIES: SmartFormCategory[] = ['feedback', 'survey'];
 const ALL_SECTORS = '__all__';
 
+// ── Subcomponente: cabeçalho de volta + título ─────────────────────────────
+function ViewHeader({ title: name, subtitle, isPending, onBack }: {
+  title: string; subtitle: string; isPending?: boolean; onBack: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Button variant="ghost" size="icon" onClick={onBack}>
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+      <div>
+        <h1 className="text-xl font-bold">{name}</h1>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+      {isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+    </div>
+  );
+}
+
+// ── Subcomponente: botões de ação (preview, edit, toggle, delete) ───────────
+function FormActions({ form, onPreview, onEdit, onToggle, onDelete, isPendingUpdate, isPendingDelete }: {
+  form: SmartForm;
+  onPreview: () => void;
+  onEdit: () => void;
+  onToggle: () => void;
+  onDelete: () => void;
+  isPendingUpdate: boolean;
+  isPendingDelete: boolean;
+}) {
+  const { t } = useLanguage();
+  return (
+    <>
+      <Button variant="ghost" size="icon" onClick={onPreview} title={t('formPreview')}>
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon" onClick={onEdit} title="Editar" disabled={isPendingUpdate}>
+        <Pencil className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon" onClick={onToggle} title={form.status === 'active' ? 'Desativar' : 'Ativar'} disabled={isPendingUpdate}>
+        {form.status === 'active'
+          ? <span className="text-xs font-medium text-green-600">ON</span>
+          : <span className="text-xs font-medium text-muted-foreground">OFF</span>}
+      </Button>
+      <Button variant="ghost" size="icon" onClick={onDelete} title={t('delete')} disabled={isPendingDelete}>
+        <Trash2 className="h-4 w-4 text-destructive" />
+      </Button>
+    </>
+  );
+}
+
+// ── Página principal ────────────────────────────────────────────────────────
 export default function SmartForms() {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -86,19 +110,12 @@ export default function SmartForms() {
         slug: newSlug || newName.toLowerCase().replace(/\s+/g, '-'),
         category: newCategory,
         sector_id: newSectorId,
-        config: {
-          steps: [{ title: { pt: 'Passo 1' }, fields: [] }],
-          submit: { pt: 'Enviar', es: 'Enviar' },
-        },
+        config: { steps: [{ title: { pt: 'Passo 1' }, fields: [] }], submit: { pt: 'Enviar', es: 'Enviar' } },
       },
       {
         onSuccess: () => {
           toast({ title: t('formSaved') });
-          setNewName('');
-          setNewSlug('');
-          setNewCategory('custom');
-          setNewSectorId(null);
-          setCreateOpen(false);
+          setNewName(''); setNewSlug(''); setNewCategory('custom'); setNewSectorId(null); setCreateOpen(false);
         },
         onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
       },
@@ -107,14 +124,8 @@ export default function SmartForms() {
 
   const handleDelete = (id: string) => {
     deleteForm.mutate(id, {
-      onSuccess: () => {
-        toast({ title: t('formDeleted') });
-        setDeleteTarget(null);
-      },
-      onError: () => {
-        toast({ title: t('formDeleteError'), variant: 'destructive' });
-        setDeleteTarget(null);
-      },
+      onSuccess: () => { toast({ title: t('formDeleted') }); setDeleteTarget(null); },
+      onError: () => { toast({ title: t('formDeleteError'), variant: 'destructive' }); setDeleteTarget(null); },
     });
   };
 
@@ -126,49 +137,32 @@ export default function SmartForms() {
     );
   };
 
-  const handlePreviewSubmit = (responses: Record<string, unknown>) => {
-    if (!selectedForm) return;
-    submitResponse.mutate(responses, {
-      onSuccess: () => toast({ title: t('formSubmitted') }),
-      onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
-    });
-  };
+  const open = (form: SmartForm, mode: 'preview' | 'edit') => { setSelectedForm(form); setView(mode); };
+  const backToList = () => setView('list');
 
-  // ====== Render: Preview ======
+  // ── View: Preview ──
   if (view === 'preview' && selectedForm) {
     return (
       <div className="space-y-4">
         <Breadcrumbs />
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => setView('list')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">{selectedForm.name}</h1>
-            <p className="text-sm text-muted-foreground">Pré-visualizar formulário</p>
-          </div>
-        </div>
-        <SmartFormRenderer config={selectedForm.config} onSubmit={handlePreviewSubmit} />
+        <ViewHeader title={selectedForm.name} subtitle="Pré-visualizar formulário" onBack={backToList} />
+        <SmartFormRenderer
+          config={selectedForm.config}
+          onSubmit={(responses) => submitResponse.mutate(responses, {
+            onSuccess: () => toast({ title: t('formSubmitted') }),
+            onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
+          })}
+        />
       </div>
     );
   }
 
-  // ====== Render: Edit ======
+  // ── View: Edit ──
   if (view === 'edit' && selectedForm) {
     return (
       <div className="space-y-4">
         <Breadcrumbs />
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => setView('list')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">{selectedForm.name}</h1>
-            <p className="text-sm text-muted-foreground">Editar formulário</p>
-          </div>
-          {updateForm.isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
-        </div>
-
+        <ViewHeader title={selectedForm.name} subtitle="Editar formulário" isPending={updateForm.isPending} onBack={backToList} />
         <Card className="p-4">
           <div className="space-y-2">
             <Label>Setor</Label>
@@ -189,7 +183,6 @@ export default function SmartForms() {
             </p>
           </div>
         </Card>
-
         <SmartFormBuilder
           config={selectedForm.config}
           onChange={(newConfig) => {
@@ -204,7 +197,7 @@ export default function SmartForms() {
     );
   }
 
-  // ====== Render: List ======
+  // ── View: List ──
   return (
     <div className="space-y-6">
       <Breadcrumbs />
@@ -217,36 +210,22 @@ export default function SmartForms() {
 
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              {t('createForm')}
-            </Button>
+            <Button className="flex items-center gap-2"><Plus className="h-4 w-4" />{t('createForm')}</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{t('createForm')}</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>{t('createForm')}</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>
-                  {t('formName')} <span className="text-destructive">*</span>
-                </Label>
+                <Label>{t('formName')} <span className="text-destructive">*</span></Label>
                 <Input
                   value={newName}
-                  onChange={(e) => {
-                    setNewName(e.target.value);
-                    setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'));
-                  }}
+                  onChange={(e) => { setNewName(e.target.value); setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-')); }}
                   placeholder="Ex: Avaliação Mensal"
                 />
               </div>
               <div className="space-y-2">
                 <Label>{t('formSlug')}</Label>
-                <Input
-                  value={newSlug}
-                  onChange={(e) => setNewSlug(e.target.value)}
-                  placeholder="avaliacao-mensal"
-                />
+                <Input value={newSlug} onChange={(e) => setNewSlug(e.target.value)} placeholder="avaliacao-mensal" />
               </div>
               <div className="space-y-2">
                 <Label>{t('formCategory')}</Label>
@@ -272,11 +251,7 @@ export default function SmartForms() {
                   Quando um setor é escolhido, este formulário só aparece para avaliações de colaboradores desse setor.
                 </p>
               </div>
-              <Button
-                onClick={handleCreate}
-                className="w-full"
-                disabled={!newName.trim() || createForm.isPending}
-              >
+              <Button onClick={handleCreate} className="w-full" disabled={!newName.trim() || createForm.isPending}>
                 {createForm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t('save')}
               </Button>
             </div>
@@ -294,65 +269,31 @@ export default function SmartForms() {
       {!isLoading && (
         <div className="md:hidden space-y-3">
           {forms.length === 0 ? (
-            <EmptyState
-              icon={FileText}
-              title="Nenhum formulário criado"
-              description="Monte seu primeiro formulário com o construtor visual"
-              ctaLabel="Criar formulário"
-              onCtaClick={() => setCreateOpen(true)}
-            />
-          ) : (
-            forms.map(form => (
-              <Card key={form.id} className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium truncate max-w-[160px]">{form.name}</span>
-                  <Badge
-                    variant={STATUS_VARIANTS[form.status as SmartFormStatus]}
-                    className={STATUS_CLASS[form.status as SmartFormStatus]}
-                  >
-                    {SMART_FORM_STATUS_LABELS[form.status as SmartFormStatus] ?? form.status}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
-                  <Badge variant="outline" className="text-xs">
-                    {SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    <SectorName sectorId={form.sector_id} fallback="Todos os setores" />
-                  </Badge>
-                  <span className="font-mono text-xs truncate">{form.slug}</span>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => { setSelectedForm(form); setView('preview'); }} title={t('formPreview')}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => { setSelectedForm(form); setView('edit'); }} title="Editar" disabled={updateForm.isPending}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleToggleStatus(form)}
-                    title={form.status === 'active' ? 'Desativar' : 'Ativar'}
-                    disabled={updateForm.isPending}
-                  >
-                    {form.status === 'active'
-                      ? <span className="text-xs font-medium text-green-600">ON</span>
-                      : <span className="text-xs font-medium text-muted-foreground">OFF</span>}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setDeleteTarget(form.id)}
-                    title={t('delete')}
-                    disabled={deleteForm.isPending}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </Card>
-            ))
-          )}
+            <EmptyState icon={FileText} title="Nenhum formulário criado" description="Monte seu primeiro formulário com o construtor visual" ctaLabel="Criar formulário" onCtaClick={() => setCreateOpen(true)} />
+          ) : forms.map(form => (
+            <Card key={form.id} className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium truncate max-w-[160px]">{form.name}</span>
+                <StatusBadge status={form.status} domain="smart_form" />
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
+                <Badge variant="outline" className="text-xs">{SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}</Badge>
+                <Badge variant="outline" className="text-xs"><SectorName sectorId={form.sector_id} fallback="Todos os setores" /></Badge>
+                <span className="font-mono text-xs truncate">{form.slug}</span>
+              </div>
+              <div className="flex gap-1">
+                <FormActions
+                  form={form}
+                  onPreview={() => open(form, 'preview')}
+                  onEdit={() => open(form, 'edit')}
+                  onToggle={() => handleToggleStatus(form)}
+                  onDelete={() => setDeleteTarget(form.id)}
+                  isPendingUpdate={updateForm.isPending}
+                  isPendingDelete={deleteForm.isPending}
+                />
+              </div>
+            </Card>
+          ))}
         </div>
       )}
 
@@ -374,13 +315,7 @@ export default function SmartForms() {
               {forms.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6}>
-                    <EmptyState
-                      icon={FileText}
-                      title="Nenhum formulário criado"
-                      description="Monte seu primeiro formulário com o construtor visual"
-                      ctaLabel="Criar formulário"
-                      onCtaClick={() => setCreateOpen(true)}
-                    />
+                    <EmptyState icon={FileText} title="Nenhum formulário criado" description="Monte seu primeiro formulário com o construtor visual" ctaLabel="Criar formulário" onCtaClick={() => setCreateOpen(true)} />
                   </TableCell>
                 </TableRow>
               )}
@@ -393,90 +328,41 @@ export default function SmartForms() {
                     <span className="block truncate" title={form.slug}>{form.slug}</span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}
-                    </Badge>
+                    <Badge variant="outline">{SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      <SectorName sectorId={form.sector_id} fallback="Todos" />
-                    </Badge>
+                    <Badge variant="outline" className="text-xs"><SectorName sectorId={form.sector_id} fallback="Todos" /></Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={STATUS_VARIANTS[form.status as SmartFormStatus]}
-                      className={STATUS_CLASS[form.status as SmartFormStatus]}
-                    >
-                      {SMART_FORM_STATUS_LABELS[form.status as SmartFormStatus] ?? form.status}
-                    </Badge>
+                    <StatusBadge status={form.status} domain="smart_form" />
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setSelectedForm(form); setView('preview'); }}
-                        title={t('formPreview')}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setSelectedForm(form); setView('edit'); }}
-                        title="Editar formulário"
-                        disabled={updateForm.isPending}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleToggleStatus(form)}
-                        title={form.status === 'active' ? 'Desativar' : 'Ativar'}
-                        disabled={updateForm.isPending}
-                      >
-                        {form.status === 'active'
-                          ? <span className="text-xs font-medium text-green-600">ON</span>
-                          : <span className="text-xs font-medium text-muted-foreground">OFF</span>}
-                      </Button>
-                      <Dialog
-                        open={deleteTarget === form.id}
-                        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteTarget(form.id)}
-                            title={t('delete')}
-                            disabled={deleteForm.isPending}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>{t('confirmDelete')}</DialogTitle>
-                          </DialogHeader>
-                          <p className="text-sm text-muted-foreground">
-                            Tem certeza que deseja excluir <strong>{form.name}</strong>?
-                          </p>
-                          <div className="flex gap-3 justify-end pt-2">
-                            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-                              {t('cancel')}
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleDelete(form.id)}
-                              disabled={deleteForm.isPending}
-                            >
-                              {deleteForm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t('delete')}
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      <FormActions
+                        form={form}
+                        onPreview={() => open(form, 'preview')}
+                        onEdit={() => open(form, 'edit')}
+                        onToggle={() => handleToggleStatus(form)}
+                        onDelete={() => setDeleteTarget(form.id)}
+                        isPendingUpdate={updateForm.isPending}
+                        isPendingDelete={deleteForm.isPending}
+                      />
                     </div>
+
+                    <Dialog open={deleteTarget === form.id} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
+                      <DialogContent>
+                        <DialogHeader><DialogTitle>{t('confirmDelete')}</DialogTitle></DialogHeader>
+                        <p className="text-sm text-muted-foreground">
+                          Tem certeza que deseja excluir <strong>{form.name}</strong>?
+                        </p>
+                        <div className="flex gap-3 justify-end pt-2">
+                          <Button variant="outline" onClick={() => setDeleteTarget(null)}>{t('cancel')}</Button>
+                          <Button variant="destructive" onClick={() => handleDelete(form.id)} disabled={deleteForm.isPending}>
+                            {deleteForm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t('delete')}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </TableCell>
                 </TableRow>
               ))}

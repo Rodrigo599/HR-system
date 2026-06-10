@@ -12,8 +12,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useMutationHandler } from '@/hooks/useMutation';
 import { Loader2, BookOpen, Plus, Users as UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { usePdis, useCreatePdi, useCreatePdiTask, useSubmitPdiTask, useReviewPdiTask } from '@/hooks/api/usePdi';
 import type { Pdi, PdiTask } from '@/types/api';
 
@@ -23,21 +25,11 @@ function formatDate(d: string | null | undefined) {
   return `${day}/${m}/${y}`;
 }
 
-function TaskBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; variant: 'outline' | 'secondary' | 'default' | 'destructive' }> = {
-    pending: { label: 'Pendente', variant: 'outline' },
-    submitted: { label: 'Enviada', variant: 'secondary' },
-    approved: { label: 'Aprovada', variant: 'default' },
-    rejected: { label: 'Rejeitada', variant: 'destructive' },
-  };
-  const { label, variant } = map[status] ?? map.pending;
-  return <Badge variant={variant}>{label}</Badge>;
-}
-
 export default function PDI() {
   const { isAdmin, isGestor } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { run } = useMutationHandler();
 
   const showTeamTab = isAdmin || isGestor;
 
@@ -65,42 +57,26 @@ export default function PDI() {
 
   const handleCreatePdi = async () => {
     if (!newPdiTitle.trim()) return;
-    try {
-      const pdi = await createPdiMutation.mutateAsync({ title: newPdiTitle, description: newPdiDesc || undefined, due_date: newPdiDue || undefined });
-      toast({ title: 'PDI criado' });
-      setSelectedPdi(pdi);
-      setNewPdiOpen(false);
-      setNewPdiTitle('');
-      setNewPdiDesc('');
-      setNewPdiDue('');
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(
+      createPdiMutation.mutateAsync({ title: newPdiTitle, description: newPdiDesc || undefined, due_date: newPdiDue || undefined }),
+      { successMsg: 'PDI criado', onSuccess: (pdi) => { setSelectedPdi(pdi); setNewPdiOpen(false); setNewPdiTitle(''); setNewPdiDesc(''); setNewPdiDue(''); } },
+    );
   };
 
   const handleCreateTask = async () => {
     if (!newTaskTitle.trim() || !selectedPdi) return;
-    try {
-      await createTaskMutation.mutateAsync({ title: newTaskTitle, due_date: newTaskDue || undefined });
-      toast({ title: 'Tarefa adicionada' });
-      setNewTaskOpen(false);
-      setNewTaskTitle('');
-      setNewTaskDue('');
-      pdisQuery.refetch();
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(
+      createTaskMutation.mutateAsync({ title: newTaskTitle, due_date: newTaskDue || undefined }),
+      { successMsg: 'Tarefa adicionada', onSuccess: () => { setNewTaskOpen(false); setNewTaskTitle(''); setNewTaskDue(''); pdisQuery.refetch(); } },
+    );
   };
 
   const handleSubmitTask = async (taskId: string) => {
     if (!selectedPdi) return;
-    try {
-      await submitTaskMutation.mutateAsync(taskId);
-      toast({ title: 'Tarefa enviada para revisão' });
-      pdisQuery.refetch();
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(
+      submitTaskMutation.mutateAsync(taskId),
+      { successMsg: 'Tarefa enviada para revisão', onSuccess: () => pdisQuery.refetch() },
+    );
   };
 
   const handleReview = async () => {
@@ -109,15 +85,10 @@ export default function PDI() {
       toast({ title: 'Informe o motivo da rejeição', variant: 'destructive' });
       return;
     }
-    try {
-      await reviewTaskMutation.mutateAsync({ taskId: reviewDialog.task.id, status: reviewDialog.mode === 'approve' ? 'approved' : 'rejected', review_notes: reviewNotes });
-      toast({ title: reviewDialog.mode === 'approve' ? 'Tarefa aprovada' : 'Tarefa rejeitada' });
-      setReviewDialog({ open: false, mode: 'approve', task: null });
-      setReviewNotes('');
-      pdisQuery.refetch();
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(
+      reviewTaskMutation.mutateAsync({ taskId: reviewDialog.task.id, status: reviewDialog.mode === 'approve' ? 'approved' : 'rejected', review_notes: reviewNotes }),
+      { successMsg: reviewDialog.mode === 'approve' ? 'Tarefa aprovada' : 'Tarefa rejeitada', onSuccess: () => { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); pdisQuery.refetch(); } },
+    );
   };
 
   const activePdi = selectedPdi ?? pdis[0] ?? null;
@@ -189,7 +160,7 @@ export default function PDI() {
                               {task.review_notes && <p className="text-xs text-muted-foreground mt-1">Feedback: {task.review_notes}</p>}
                             </div>
                             <div className="flex items-center gap-2">
-                              <TaskBadge status={task.status} />
+                              <StatusBadge status={task.status} domain="pdi_task" />
                               {task.status === 'pending' && (
                                 <Button size="sm" variant="outline" onClick={() => handleSubmitTask(task.id)}>Enviar</Button>
                               )}

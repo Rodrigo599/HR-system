@@ -4,7 +4,7 @@ import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Loader2, History as HistoryIcon, Download } from 'lucide-react';
@@ -30,15 +30,6 @@ export default function History() {
     return matchType && matchYear;
   });
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      pending: 'outline', completed: 'default', closed: 'destructive',
-    };
-    const labels: Record<string, string> = {
-      pending: t('pendingSelf'), completed: t('completed'), closed: t('closed'),
-    };
-    return <Badge variant={variants[status] ?? 'default'}>{labels[status] ?? status}</Badge>;
-  };
 
   const exportCSV = () => {
     if (filtered.length === 0) return;
@@ -95,7 +86,7 @@ export default function History() {
                     <p className="text-sm text-muted-foreground">{e.period}</p>
                   </div>
                 </div>
-                {getStatusBadge(e.status)}
+                <StatusBadge status={e.status} domain="evaluation" />
               </CardHeader>
             </Card>
           ))}

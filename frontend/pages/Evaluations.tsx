@@ -4,14 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useMutationHandler } from "@/hooks/useMutation";
 import { Loader2, User, Users as UsersIcon, Plus, ClipboardList, Clock } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EvaluationSmartForm } from "@/components/evaluations/EvaluationSmartForm";
 import { useEvaluations, useCreateEvaluation } from "@/hooks/api/useEvaluations";
 import { useUsers } from "@/hooks/api/useUsers";
@@ -25,6 +26,7 @@ export default function Evaluations() {
   const { user, isAdmin, isGestor } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { run } = useMutationHandler();
 
   const showTeamTab = isAdmin || isGestor;
 
@@ -50,25 +52,10 @@ export default function Evaluations() {
       toast({ title: t('error'), description: 'Selecione colaborador e formulário', variant: 'destructive' });
       return;
     }
-    try {
-      await createMutation.mutateAsync({ type: 'cultural', period: `${newYear}-${newMonth}`, assigned_to: newAssignedTo, smart_form_id: newFormId });
-      toast({ title: t('evaluationCreated') });
-      setCreateOpen(false);
-      setNewAssignedTo('');
-      setNewFormId('');
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      pending: 'outline', completed: 'default', closed: 'destructive',
-    };
-    const labels: Record<string, string> = {
-      pending: t('pendingSelf'), completed: t('completed'), closed: t('closed'),
-    };
-    return <Badge variant={variants[status] ?? 'default'}>{labels[status] ?? status}</Badge>;
+    await run(
+      createMutation.mutateAsync({ type: 'cultural', period: `${newYear}-${newMonth}`, assigned_to: newAssignedTo, smart_form_id: newFormId }),
+      { successMsg: t('evaluationCreated'), errorMsg: t('error'), onSuccess: () => { setCreateOpen(false); setNewAssignedTo(''); setNewFormId(''); } },
+    );
   };
 
   if (evaluationsQuery.isLoading) {
@@ -153,7 +140,7 @@ export default function Evaluations() {
                   <Clock className="h-4 w-4 text-amber-500 shrink-0" />
                   <CardTitle className="text-base">{evaluation.type} · {evaluation.period}</CardTitle>
                 </div>
-                {getStatusBadge(evaluation.status)}
+                <StatusBadge status={evaluation.status} domain="evaluation" />
               </CardHeader>
             </Card>
           ))}
@@ -172,7 +159,7 @@ export default function Evaluations() {
                       <CardTitle className="text-base">{member?.name ?? 'Colaborador'}</CardTitle>
                       <CardDescription>{evaluation.type} · {evaluation.period}</CardDescription>
                     </div>
-                    {getStatusBadge(evaluation.status)}
+                    <StatusBadge status={evaluation.status} domain="evaluation" />
                   </CardHeader>
                 </Card>
               );

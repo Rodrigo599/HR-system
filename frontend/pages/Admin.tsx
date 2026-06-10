@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useMutationHandler } from '@/hooks/useMutation';
 import { Loader2, Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { useSectors, useCreateSector, useUpdateSector, useDeleteSector } from '@/hooks/api/useSectors';
 import { useKpis, useCreateKpi, useUpdateKpi, useDeleteKpi } from '@/hooks/api/useKpis';
@@ -24,6 +25,7 @@ export default function Admin() {
   const { isAdmin } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { run } = useMutationHandler();
 
   const sectorsQuery = useSectors();
   const kpisQuery = useKpis();
@@ -68,27 +70,14 @@ export default function Admin() {
   };
 
   const handleSaveSector = async () => {
-    try {
-      if (editingSector) {
-        await updateSectorMutation.mutateAsync({ name: sectorName, description: sectorDesc });
-      } else {
-        await createSectorMutation.mutateAsync({ name: sectorName, description: sectorDesc });
-      }
-      toast({ title: editingSector ? 'Setor atualizado' : 'Setor criado' });
-      setSectorDialogOpen(false);
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    const promise = editingSector
+      ? updateSectorMutation.mutateAsync({ name: sectorName, description: sectorDesc })
+      : createSectorMutation.mutateAsync({ name: sectorName, description: sectorDesc });
+    await run(promise, { successMsg: editingSector ? 'Setor atualizado' : 'Setor criado', onSuccess: () => setSectorDialogOpen(false) });
   };
 
   const handleDeleteSector = async (id: string) => {
-    try {
-      await deleteSectorMutation.mutateAsync(id);
-      toast({ title: 'Setor removido' });
-      setConfirmDelete(null);
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(deleteSectorMutation.mutateAsync(id), { successMsg: 'Setor removido', onSuccess: () => setConfirmDelete(null) });
   };
 
   const openKpiDialog = (kpi?: Kpi) => {
@@ -105,28 +94,13 @@ export default function Admin() {
       toast({ title: 'Preencha nome e meta', variant: 'destructive' });
       return;
     }
-    try {
-      const payload = { name: kpiName, target_value: Number(kpiTarget), unit: kpiUnit, sector_ids: kpiSectors };
-      if (editingKpi) {
-        await updateKpiMutation.mutateAsync(payload);
-      } else {
-        await createKpiMutation.mutateAsync(payload);
-      }
-      toast({ title: editingKpi ? 'KPI atualizado' : 'KPI criado' });
-      setKpiDialogOpen(false);
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    const payload = { name: kpiName, target_value: Number(kpiTarget), unit: kpiUnit, sector_ids: kpiSectors };
+    const promise = editingKpi ? updateKpiMutation.mutateAsync(payload) : createKpiMutation.mutateAsync(payload);
+    await run(promise, { successMsg: editingKpi ? 'KPI atualizado' : 'KPI criado', onSuccess: () => setKpiDialogOpen(false) });
   };
 
   const handleDeleteKpi = async (id: string) => {
-    try {
-      await deleteKpiMutation.mutateAsync(id);
-      toast({ title: 'KPI removido' });
-      setConfirmDelete(null);
-    } catch {
-      toast({ title: t('error'), variant: 'destructive' });
-    }
+    await run(deleteKpiMutation.mutateAsync(id), { successMsg: 'KPI removido', onSuccess: () => setConfirmDelete(null) });
   };
 
   const filteredUsers = users.filter(u =>
