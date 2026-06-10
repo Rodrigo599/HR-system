@@ -12,7 +12,7 @@ class CreateFeedbackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'to_user_id' => ['required', 'uuid', 'exists:users,id', 'different:' . $this->user()->id],
+            'to_user_id' => ['required', 'uuid', 'exists:users,id', Rule::notIn([$this->user()->id])],
             'type' => ['required', Rule::enum(FeedbackType::class)],
             'content' => ['required', 'string', 'min:10'],
             'visibility' => ['sometimes', Rule::enum(FeedbackVisibility::class)],

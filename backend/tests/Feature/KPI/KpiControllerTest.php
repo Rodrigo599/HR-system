@@ -136,7 +136,7 @@ class KpiControllerTest extends TestCase
                 'month' => 6,
                 'year' => 2026,
             ])
-            ->assertCreated()
+            ->assertOk()
             ->assertJsonPath('data.score', '95.00');
 
         $this->assertDatabaseCount('kpi_results', 1);

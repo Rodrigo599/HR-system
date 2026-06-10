@@ -49,6 +49,7 @@ class OneOnOneService
         return $oneOnOne->topics()->create([
             'author_user_id' => $author->id,
             'content' => $content,
+            'addressed' => false,
         ]);
     }
 

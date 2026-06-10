@@ -55,7 +55,7 @@ class SmartFormResponseService
 
         $averages = [];
         foreach ($totals as $key => $total) {
-            $averages[$key] = round($total / $counts[$key], 2);
+            $averages[$key] = (float) round($total / $counts[$key], 2);
         }
 
         return [

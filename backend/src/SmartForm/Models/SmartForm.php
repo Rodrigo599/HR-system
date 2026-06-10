@@ -17,6 +17,8 @@ class SmartForm extends Model
 
     protected $fillable = ['name', 'slug', 'config', 'status', 'category', 'sector_id'];
 
+    protected $attributes = ['status' => 'draft'];
+
     protected function casts(): array
     {
         return [

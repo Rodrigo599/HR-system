@@ -43,14 +43,13 @@ class AuthControllerTest extends TestCase
     public function test_logout_invalida_token(): void
     {
         $user = $this->makeUser();
-        $token = $user->createToken('api')->plainTextToken;
+        $user->createToken('api');
+        $user->createToken('outro');
 
-        $this->withToken($token)
+        $this->actingAs($user, 'sanctum')
             ->postJson('/api/auth/logout')
             ->assertOk();
 
-        $this->withToken($token)
-            ->getJson('/api/auth/me')
-            ->assertUnauthorized();
+        $this->assertEquals(0, $user->tokens()->count());
     }
 }

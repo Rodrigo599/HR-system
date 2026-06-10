@@ -76,10 +76,10 @@ class ContentService
 
         return [
             'total' => $total,
-            'seen' => $assignments->whereIn('status', [ContentStatus::Seen, ContentStatus::InProgress, ContentStatus::Completed])->count(),
+            'not_seen' => $assignments->where('status', ContentStatus::NotSeen)->count(),
             'in_progress' => $assignments->where('status', ContentStatus::InProgress)->count(),
             'completed' => $completed,
-            'completion_rate' => round($completed / $total * 100, 1),
+            'completion_rate' => (float) round($completed / $total * 100, 1),
         ];
     }
 }

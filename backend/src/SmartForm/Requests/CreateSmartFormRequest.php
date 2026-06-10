@@ -13,7 +13,7 @@ class CreateSmartFormRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'unique:smart_forms,slug', 'regex:/^[a-z0-9\-]+$/'],
+            'slug' => ['required', 'string', Rule::unique('smart_forms', 'slug')->ignore($this->route('smartForm')), 'regex:/^[a-z0-9\-]+$/'],
             'config' => ['required', 'array'],
             'config.steps' => ['required', 'array', 'min:1'],
             'status' => ['sometimes', Rule::enum(SmartFormStatus::class)],

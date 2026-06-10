@@ -142,6 +142,6 @@ class SmartFormControllerTest extends TestCase
             ->getJson("/api/smart-forms/{$form->id}/aggregate")
             ->assertOk()
             ->assertJsonPath('total_responses', 2)
-            ->assertJsonPath('averages.q1', 7.0);
+            ->assertJsonPath('averages.q1', 7);
     }
 }
