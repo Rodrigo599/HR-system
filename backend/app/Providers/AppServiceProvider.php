@@ -5,10 +5,17 @@ namespace App\Providers;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Src\Content\Models\ContentAssignment;
+use Src\Content\Models\ContentItem;
+use Src\Content\Policies\ContentPolicy;
 use Src\Evaluation\Models\Evaluation;
 use Src\Evaluation\Policies\EvaluationPolicy;
+use Src\Feedback\Models\PointwiseFeedback;
+use Src\Feedback\Policies\FeedbackPolicy;
 use Src\KPI\Models\Kpi;
 use Src\KPI\Policies\KpiPolicy;
+use Src\OneOnOne\Models\OneOnOne;
+use Src\OneOnOne\Policies\OneOnOnePolicy;
 use Src\Organization\Models\Profile;
 use Src\Organization\Observers\UserObserver;
 use Src\Organization\Policies\ProfilePolicy;
@@ -34,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Pdi::class, PdiPolicy::class);
         Gate::policy(PdiTask::class, PdiPolicy::class);
         Gate::policy(SmartForm::class, SmartFormPolicy::class);
+        Gate::policy(PointwiseFeedback::class, FeedbackPolicy::class);
+        Gate::policy(OneOnOne::class, OneOnOnePolicy::class);
+        Gate::policy(ContentItem::class, ContentPolicy::class);
+        Gate::policy(ContentAssignment::class, ContentPolicy::class);
 
         Gate::define('create-sector', fn (User $user) => $user->hasRole('admin'));
         Gate::define('update-sector', fn (User $user) => $user->hasRole('admin'));

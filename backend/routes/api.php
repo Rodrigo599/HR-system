@@ -2,8 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Src\Auth\Controllers\AuthController;
+use Src\Content\Controllers\ContentController;
 use Src\Evaluation\Controllers\EvaluationController;
+use Src\Feedback\Controllers\FeedbackController;
 use Src\KPI\Controllers\KpiController;
+use Src\OneOnOne\Controllers\OneOnOneController;
 use Src\Organization\Controllers\ProfileController;
 use Src\Organization\Controllers\SectorController;
 use Src\Organization\Controllers\UserController;
@@ -66,4 +69,27 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/smart-forms/{smartForm}/responses', [SmartFormController::class, 'storeResponse']);
     Route::get('/smart-forms/{smartForm}/responses', [SmartFormController::class, 'indexResponses']);
     Route::get('/smart-forms/{smartForm}/aggregate', [SmartFormController::class, 'aggregate']);
+
+    // Feedback
+    Route::get('/feedback/received', [FeedbackController::class, 'received']);
+    Route::get('/feedback/sent', [FeedbackController::class, 'sent']);
+    Route::get('/feedback/team', [FeedbackController::class, 'team']);
+    Route::post('/feedback', [FeedbackController::class, 'store']);
+    Route::delete('/feedback/{pointwiseFeedback}', [FeedbackController::class, 'destroy']);
+
+    // 1:1s
+    Route::get('/one-on-ones', [OneOnOneController::class, 'index']);
+    Route::post('/one-on-ones', [OneOnOneController::class, 'store']);
+    Route::get('/one-on-ones/{oneOnOne}', [OneOnOneController::class, 'show']);
+    Route::put('/one-on-ones/{oneOnOne}', [OneOnOneController::class, 'update']);
+    Route::post('/one-on-ones/{oneOnOne}/topics', [OneOnOneController::class, 'storeTopic']);
+    Route::put('/one-on-ones/{oneOnOne}/topics/{topic}', [OneOnOneController::class, 'updateTopic']);
+    Route::post('/one-on-ones/{oneOnOne}/notes', [OneOnOneController::class, 'storeNote']);
+
+    // Conteúdo
+    Route::get('/content', [ContentController::class, 'index']);
+    Route::post('/content', [ContentController::class, 'store']);
+    Route::post('/content/{contentItem}/assign', [ContentController::class, 'assign']);
+    Route::put('/content/assignments/{contentAssignment}/progress', [ContentController::class, 'updateProgress']);
+    Route::get('/content/{contentItem}/progress', [ContentController::class, 'progress']);
 });
