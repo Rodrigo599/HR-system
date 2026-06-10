@@ -13,7 +13,7 @@ import {
   Cell,
   ReferenceLine,
 } from 'recharts';
-import { KpiResult, Kpi } from '@/types/database';
+import type { KpiResult, Kpi } from '@/types/api';
 
 interface KpiComparisonChartProps {
   results: KpiResult[];
@@ -42,8 +42,8 @@ export function KpiComparisonChart({ results, kpis, currentMonth, currentYear }:
     const prevResult = results.find(r => r.kpi_id === kpi.id && r.month === prevMonth && r.year === prevYear);
     return {
       name: kpi.name,
-      [getMonthName(currentMonth)]: currentResult?.score || 0,
-      [getMonthName(prevMonth)]: prevResult?.score || 0,
+      [getMonthName(currentMonth)]: currentResult ? Number(currentResult.score) : 0,
+      [getMonthName(prevMonth)]: prevResult ? Number(prevResult.score) : 0,
       target: kpi.target_value,
     };
   });

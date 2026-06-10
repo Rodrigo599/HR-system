@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { KpiResult, Kpi } from '@/types/database';
+import type { KpiResult, Kpi } from '@/types/api';
 
 interface KpiTrendChartProps {
   results: KpiResult[];
@@ -39,7 +39,7 @@ export function KpiTrendChart({ results, kpis, months = 6 }: KpiTrendChartProps)
     const y = date.getFullYear();
     const monthResults = results.filter(r => r.month === m && r.year === y);
     const avgScore = monthResults.length > 0
-      ? monthResults.reduce((acc, r) => acc + r.score, 0) / monthResults.length
+      ? monthResults.reduce((acc, r) => acc + Number(r.score), 0) / monthResults.length
       : 0;
 
     chartData.push({

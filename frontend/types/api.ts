@@ -37,6 +37,8 @@ export interface Evaluation {
   period: string;
   assigned_to: string;
   created_by: string;
+  form_id: string | null;
+  flow_type: string;
   self_responses: Record<string, unknown> | null;
   manager_responses: Record<string, unknown> | null;
   created_at: string;

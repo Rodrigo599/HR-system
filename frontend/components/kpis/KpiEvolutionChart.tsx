@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { KpiResult, Kpi } from '@/types/database';
+import type { KpiResult, Kpi } from '@/types/api';
 
 interface KpiEvolutionChartProps {
   results: KpiResult[];
@@ -53,7 +53,7 @@ export function KpiEvolutionChart({ results, kpis, months = 6 }: KpiEvolutionCha
 
     kpis.forEach(kpi => {
       const monthResult = results.find(r => r.kpi_id === kpi.id && r.month === m && r.year === y);
-      point[kpi.name] = monthResult ? monthResult.score : null;
+      point[kpi.name] = monthResult ? Number(monthResult.score) : null;
     });
 
     chartData.push(point);

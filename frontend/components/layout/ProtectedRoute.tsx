@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import type { AppRole } from '@/types/database';
+import type { AppRole } from '@/types/api';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

@@ -17,7 +17,8 @@
       "Bash(npm install *)",
       "Bash(node -e \"const v = require\\('./node_modules/jsdom/package.json'\\); console.log\\(v.version\\)\")",
       "Bash(node -e \"const v = require\\('./node_modules/html-encoding-sniffer/package.json'\\); console.log\\(v.version\\)\")",
-      "Bash(node -e \"const v = require\\('./node_modules/@exodus/bytes/package.json'\\); console.log\\(v.version, v.type\\)\")"
+      "Bash(node -e \"const v = require\\('./node_modules/@exodus/bytes/package.json'\\); console.log\\(v.version, v.type\\)\")",
+      "Bash(npx tsc *)"
     ]
   }
 }

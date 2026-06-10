@@ -12,7 +12,7 @@ import {
   Cell,
   ReferenceLine,
 } from 'recharts';
-import { KpiResult, Kpi } from '@/types/database';
+import type { KpiResult, Kpi } from '@/types/api';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface KpiSummaryChartProps {
@@ -38,7 +38,7 @@ export function KpiSummaryChart({ results, kpis, month, year }: KpiSummaryChartP
 
   const chartData = kpis.map(kpi => {
     const result = currentResults.find(r => r.kpi_id === kpi.id);
-    const score = result ? result.score : 0;
+    const score = result ? Number(result.score) : 0;
     const achievement = kpi.target_value > 0 ? (score / kpi.target_value) * 100 : 0;
     return {
       name: kpi.name,

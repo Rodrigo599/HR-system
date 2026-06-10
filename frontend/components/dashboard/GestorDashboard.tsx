@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Users as UsersIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTeamData } from '@/hooks/useTeamData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PendingActions } from '@/components/dashboard/PendingActions';
@@ -11,23 +10,26 @@ import { QuickActions } from './QuickActions';
 import { KpiSummaryChart } from '@/components/dashboard/KpiSummaryChart';
 import { PdiProgressChart } from '@/components/dashboard/PdiProgressChart';
 import { useKpis, useKpiResults } from '@/hooks/api/useKpis';
+import { useTeam } from '@/hooks/api/useUsers';
+import { usePdis } from '@/hooks/api/usePdi';
+import { useEvaluations } from '@/hooks/api/useEvaluations';
 
 export function GestorDashboard() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const {
-    teamMembers,
-    teamPdiTasks,
-    teamEvaluations,
-    pendingTaskReviews,
-    pendingEvaluations,
-    loading,
-  } = useTeamData();
-
-  const { data: kpis = [] } = useKpis();
+  const { data: teamMembers = [], isLoading: teamLoading } = useTeam();
+  const { data: pdis = [], isLoading: pdisLoading } = usePdis();
+  const { data: evaluations = [], isLoading: evalsLoading } = useEvaluations();
+  const { data: kpis = [], isLoading: kpisLoading } = useKpis();
   const { data: kpiResults = [] } = useKpiResults();
+
+  const teamPdiTasks = pdis.flatMap(p => p.tasks ?? []);
+  const teamEvaluations = evaluations;
+  const pendingTaskReviews = teamPdiTasks.filter(t => t.status === 'submitted').length;
+  const pendingEvaluations = teamEvaluations.filter(e => e.status === 'pending_manager').length;
+  const loading = teamLoading || pdisLoading || evalsLoading || kpisLoading;
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();

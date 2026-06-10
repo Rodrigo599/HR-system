@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import { Evaluation } from '@/types/database';
+import type { Evaluation } from '@/types/api';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
