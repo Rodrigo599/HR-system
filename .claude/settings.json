@@ -13,7 +13,11 @@
       "Bash(sed -n '50,57p' /Users/rodrigotagliari/hr-system/backend/src/Evaluation/Controllers/EvaluationController.php)",
       "Bash(sed -n '38,55p' /Users/rodrigotagliari/hr-system/backend/src/OneOnOne/Controllers/OneOnOneController.php)",
       "Bash(sed -n '65,72p' /Users/rodrigotagliari/hr-system/backend/src/Content/Controllers/ContentController.php)",
-      "Bash(./vendor/bin/sail php *)"
+      "Bash(./vendor/bin/sail php *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const v = require\\('./node_modules/jsdom/package.json'\\); console.log\\(v.version\\)\")",
+      "Bash(node -e \"const v = require\\('./node_modules/html-encoding-sniffer/package.json'\\); console.log\\(v.version\\)\")",
+      "Bash(node -e \"const v = require\\('./node_modules/@exodus/bytes/package.json'\\); console.log\\(v.version, v.type\\)\")"
     ]
   }
 }

@@ -23,10 +23,9 @@ import {
   Loader2,
   Send,
 } from "lucide-react";
-import {
-  useGiveFeedback,
-  type PointwiseFeedbackType,
-} from "@/services/pointwiseFeedbackService";
+import { useCreateFeedback } from "@/hooks/api/useFeedback";
+
+type PointwiseFeedbackType = "kudos" | "adjustment" | "observation";
 
 const MAX_LEN = 500;
 
@@ -75,9 +74,9 @@ export function GiveFeedback({
   onSuccess,
   trigger,
 }: GiveFeedbackProps) {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const giveFeedback = useGiveFeedback(profile?.user_id);
+  const createFeedback = useCreateFeedback();
 
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<PointwiseFeedbackType>("kudos");
@@ -90,39 +89,27 @@ export function GiveFeedback({
     setWithManager(true);
   };
 
-  const isSelf = profile?.user_id === toUserId;
+  const isSelf = user?.id === toUserId;
   const canSubmit =
-    !!profile?.user_id &&
+    !!user?.id &&
     !isSelf &&
     content.trim().length > 0 &&
     content.length <= MAX_LEN &&
-    !giveFeedback.isPending;
+    !createFeedback.isPending;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    giveFeedback.mutate(
-      {
-        to_user_id: toUserId,
-        type,
-        content: content.trim(),
-        visibility: withManager ? "with_manager" : "private",
-      },
+    createFeedback.mutate(
+      { to_user_id: toUserId, content: content.trim(), is_anonymous: !withManager },
       {
         onSuccess: () => {
-          toast({
-            title: "Feedback enviado",
-            description: `Para ${toUserName}.`,
-          });
+          toast({ title: "Feedback enviado", description: `Para ${toUserName}.` });
           reset();
           setOpen(false);
           onSuccess?.();
         },
         onError: (err) =>
-          toast({
-            title: "Erro ao enviar",
-            description: String(err),
-            variant: "destructive",
-          }),
+          toast({ title: "Erro ao enviar", description: String(err), variant: "destructive" }),
       },
     );
   };

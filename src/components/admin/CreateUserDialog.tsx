@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { createUser } from '@/services/userManagementService';
-import type { AppRole } from '@/types/database';
+import { useCreateUser } from '@/hooks/api/useUsers';
+import type { AppRole } from '@/types/api';
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -95,9 +95,10 @@ export function CreateUserDialog({
   onSuccess,
 }: CreateUserDialogProps) {
   const { toast } = useToast();
+  const createUserMutation = useCreateUser();
   const [form, setForm] = useState<FormFields>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
+  const loading = createUserMutation.isPending;
 
   function handleChange(field: keyof FormFields, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -123,35 +124,24 @@ export function CreateUserDialog({
       return;
     }
 
-    setLoading(true);
     try {
-      await createUser({
+      await createUserMutation.mutateAsync({
+        name: form.fullName.trim(),
         email: form.email.trim(),
         password: form.password,
-        fullName: form.fullName.trim(),
-        sectorId: form.sectorId || null,
-        managerId: form.managerId === '__none__' ? null : (form.managerId || null),
-        role: form.role,
-        preferredLanguage: form.preferredLanguage,
+        roles: [form.role],
+        sector_id: form.sectorId || undefined,
+        manager_id: form.managerId === '__none__' ? undefined : (form.managerId || undefined),
       });
 
-      toast({
-        title: `Colaborador ${form.fullName.trim()} criado com sucesso`,
-      });
-
+      toast({ title: `Colaborador ${form.fullName.trim()} criado com sucesso` });
       setForm(INITIAL_FORM);
       setErrors({});
       onOpenChange(false);
       onSuccess();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao criar colaborador';
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao criar colaborador',
-        description: message,
-      });
-    } finally {
-      setLoading(false);
+      toast({ variant: 'destructive', title: 'Erro ao criar colaborador', description: message });
     }
   }
 

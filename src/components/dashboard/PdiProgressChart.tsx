@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { PdiTask } from '@/types/database';
+import type { PdiTask } from '@/types/api';
 import { CheckCircle, Circle, Clock, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
@@ -24,12 +24,12 @@ export function PdiProgressChart({ tasks, month, year }: PdiProgressChartProps) 
     return months[m - 1] || '';
   };
 
-  const completedTasks = tasks.filter(task => task.completed).length;
-  const pendingTasks = tasks.filter(task => !task.completed).length;
+  const completedTasks = tasks.filter(task => task.status === 'approved').length;
+  const pendingTasks = tasks.filter(task => task.status !== 'approved').length;
 
   const now = new Date();
   const overdueTasks = tasks.filter(task => {
-    if (task.completed || !task.due_date) return false;
+    if (task.status === 'approved' || !task.due_date) return false;
     return new Date(task.due_date) < now;
   }).length;
 

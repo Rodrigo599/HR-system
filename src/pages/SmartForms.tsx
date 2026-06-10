@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -19,96 +19,67 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, FileText, Eye, ArrowLeft, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
-import { DEMO_MODE } from '@/lib/demoMode';
 import { SmartFormRenderer } from '@/components/smartforms/SmartFormRenderer';
 import SmartFormBuilder from '@/components/smartforms/SmartFormBuilder';
 import {
   useSmartForms,
-  useCreateForm,
-  useDeleteForm,
-  useToggleFormStatus,
-  useUpdateForm,
-  useSubmitFormResponse,
-} from '@/hooks/useSmartForms';
-import type { SmartForm } from '@/hooks/useSmartForms';
-import { useSectors } from '@/services/adminService';
+  useCreateSmartForm,
+  useDeleteSmartForm,
+  useUpdateSmartForm,
+  useSubmitSmartFormResponse,
+} from '@/hooks/api/useSmartForms';
+import { useSectors } from '@/hooks/api/useSectors';
+import type { SmartFormCategory, SmartFormStatus } from '@/lib/enums';
+import {
+  SMART_FORM_STATUS_LABELS,
+  SMART_FORM_CATEGORY_LABELS,
+} from '@/lib/enums';
+import type { SmartForm } from '@/types/api';
 
-// ======== Types ========
 type ViewMode = 'list' | 'preview' | 'edit';
-type FormStatus = SmartForm['status'];
-type FormCategory = SmartForm['category'];
 
-const STATUS_LABELS: Record<FormStatus, string> = {
-  active: 'Ativo',
-  draft: 'Rascunho',
-  archived: 'Arquivado',
-};
-
-const STATUS_VARIANTS: Record<FormStatus, 'default' | 'secondary' | 'outline'> = {
+const STATUS_VARIANTS: Record<SmartFormStatus, 'default' | 'secondary' | 'outline'> = {
   active: 'default',
   draft: 'secondary',
   archived: 'outline',
 };
 
-const STATUS_CLASS: Record<FormStatus, string> = {
+const STATUS_CLASS: Record<SmartFormStatus, string> = {
   active: 'bg-green-600 text-white hover:bg-green-700',
   draft: '',
   archived: '',
 };
 
-const CATEGORY_LABELS: Record<FormCategory, string> = {
-  evaluation: 'Avaliação',
-  onboarding: 'Onboarding',
-  survey: 'Pesquisa',
-  feedback: 'Feedback',
-  custom: 'Personalizado',
-};
+const GESTOR_CATEGORIES: SmartFormCategory[] = ['feedback', 'survey'];
+const ALL_SECTORS = '__all__';
 
-// Categories a gestor (without admin) is allowed to manage. Admin sees everything.
-const GESTOR_CATEGORIES: FormCategory[] = ['feedback', 'survey'];
-
-// ======== Component ========
 export default function SmartForms() {
   const { t } = useLanguage();
   const { toast } = useToast();
   const { isAdmin } = useAuth();
 
-  // --- Hooks Supabase ---
-  const { forms: allForms, isLoading } = useSmartForms();
-  // A gestor only sees feedback/survey forms. An admin sees all forms.
-  const forms = isAdmin ? allForms : allForms.filter(f => GESTOR_CATEGORIES.includes(f.category));
-  const createForm = useCreateForm();
-  const deleteForm = useDeleteForm();
-  const toggleStatus = useToggleFormStatus();
-  const updateForm = useUpdateForm();
-  const submitResponse = useSubmitFormResponse();
-  const sectorsQuery = useSectors();
-  const sectors = sectorsQuery.data ?? [];
-
-  // Sentinel pra "todos os setores" no Select (Radix nao aceita value="").
-  const ALL_SECTORS = '__all__';
-
-  // --- UI state ---
   const [view, setView] = useState<ViewMode>('list');
   const [selectedForm, setSelectedForm] = useState<SmartForm | null>(null);
-
-  // Create dialog
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newSlug, setNewSlug] = useState('');
-  // Default category: admin can pick anything (custom default), gestor is forced to feedback.
-  const [newCategory, setNewCategory] = useState<FormCategory>(isAdmin ? 'custom' : 'feedback');
-  // Setor opcional — null = formulario universal (vale pra todos os setores).
+  const [newCategory, setNewCategory] = useState<SmartFormCategory>(isAdmin ? 'custom' : 'feedback');
   const [newSectorId, setNewSectorId] = useState<string | null>(null);
-
-  // Delete confirm dialog
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  // ====== Handlers ======
+  const { data: allForms = [], isLoading } = useSmartForms();
+  const forms = isAdmin
+    ? allForms
+    : allForms.filter(f => GESTOR_CATEGORIES.includes(f.category as SmartFormCategory));
+
+  const createForm = useCreateSmartForm();
+  const deleteForm = useDeleteSmartForm();
+  const updateForm = useUpdateSmartForm(selectedForm?.id ?? '');
+  const submitResponse = useSubmitSmartFormResponse(selectedForm?.id ?? '');
+  const { data: sectors = [] } = useSectors();
 
   const handleCreate = () => {
     if (!newName.trim()) return;
-
     createForm.mutate(
       {
         name: newName,
@@ -122,17 +93,15 @@ export default function SmartForms() {
       },
       {
         onSuccess: () => {
-          toast({ title: DEMO_MODE ? t('formDemoSaved') : t('formSaved') });
+          toast({ title: t('formSaved') });
           setNewName('');
           setNewSlug('');
           setNewCategory('custom');
           setNewSectorId(null);
           setCreateOpen(false);
         },
-        onError: () => {
-          toast({ title: t('formSaveError'), variant: 'destructive' });
-        },
-      }
+        onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
+      },
     );
   };
 
@@ -150,40 +119,19 @@ export default function SmartForms() {
   };
 
   const handleToggleStatus = (form: SmartForm) => {
-    toggleStatus.mutate(
-      { id: form.id, currentStatus: form.status },
-      {
-        onSuccess: () => {
-          if (DEMO_MODE) {
-            toast({ title: t('demoModeMessage') });
-          }
-        },
-        onError: () => {
-          toast({ title: t('formSaveError'), variant: 'destructive' });
-        },
-      }
+    const nextStatus: SmartFormStatus = form.status === 'active' ? 'draft' : 'active';
+    updateForm.mutate(
+      { status: nextStatus },
+      { onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }) },
     );
-  };
-
-  const openPreview = (form: SmartForm) => {
-    setSelectedForm(form);
-    setView('preview');
-  };
-
-  const openEdit = (form: SmartForm) => {
-    setSelectedForm(form);
-    setView('edit');
   };
 
   const handlePreviewSubmit = (responses: Record<string, unknown>) => {
     if (!selectedForm) return;
-    submitResponse.mutate(
-      { formId: selectedForm.id, data: responses },
-      {
-        onSuccess: () => toast({ title: t('formSubmitted') }),
-        onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
-      }
-    );
+    submitResponse.mutate(responses, {
+      onSuccess: () => toast({ title: t('formSubmitted') }),
+      onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
+    });
   };
 
   // ====== Render: Preview ======
@@ -200,10 +148,7 @@ export default function SmartForms() {
             <p className="text-sm text-muted-foreground">Pré-visualizar formulário</p>
           </div>
         </div>
-        <SmartFormRenderer
-          config={selectedForm.config}
-          onSubmit={handlePreviewSubmit}
-        />
+        <SmartFormRenderer config={selectedForm.config} onSubmit={handlePreviewSubmit} />
       </div>
     );
   }
@@ -221,45 +166,36 @@ export default function SmartForms() {
             <h1 className="text-xl font-bold">{selectedForm.name}</h1>
             <p className="text-sm text-muted-foreground">Editar formulário</p>
           </div>
-          {updateForm.isPending && (
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-          )}
+          {updateForm.isPending && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
 
-        {/* Metadados editaveis (setor) — admin pode realocar form a outro setor */}
         <Card className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Setor</Label>
-              <Select
-                value={selectedForm.sector_id ?? ALL_SECTORS}
-                onValueChange={(v) => {
-                  const nextSectorId = v === ALL_SECTORS ? null : v;
-                  updateForm.mutate(
-                    { id: selectedForm.id, sector_id: nextSectorId },
-                    {
-                      onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }),
-                    },
-                  );
-                  setSelectedForm((prev) => (prev ? { ...prev, sector_id: nextSectorId } : prev));
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos os setores" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_SECTORS}>Todos os setores</SelectItem>
-                  {sectors.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Setor especifico = só aparece pra avaliacoes desse setor. "Todos os setores" = formulario universal.
-              </p>
-            </div>
+          <div className="space-y-2">
+            <Label>Setor</Label>
+            <Select
+              value={selectedForm.sector_id ?? ALL_SECTORS}
+              onValueChange={(v) => {
+                const nextSectorId = v === ALL_SECTORS ? null : v;
+                updateForm.mutate(
+                  { sector_id: nextSectorId },
+                  { onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }) },
+                );
+                setSelectedForm(prev => prev ? { ...prev, sector_id: nextSectorId } : prev);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os setores" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_SECTORS}>Todos os setores</SelectItem>
+                {sectors.map(s => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Setor específico = só aparece para avaliações desse setor. "Todos os setores" = formulário universal.
+            </p>
           </div>
         </Card>
 
@@ -267,15 +203,10 @@ export default function SmartForms() {
           config={selectedForm.config}
           onChange={(newConfig) => {
             updateForm.mutate(
-              { id: selectedForm.id, config: newConfig },
-              {
-                onError: () => {
-                  toast({ title: t('formSaveError'), variant: 'destructive' });
-                },
-              }
+              { config: newConfig },
+              { onError: () => toast({ title: t('formSaveError'), variant: 'destructive' }) },
             );
-            // Atualiza selectedForm localmente para manter o builder em sincronia
-            setSelectedForm((prev) => prev ? { ...prev, config: newConfig } : prev);
+            setSelectedForm(prev => prev ? { ...prev, config: newConfig } : prev);
           }}
         />
       </div>
@@ -286,7 +217,7 @@ export default function SmartForms() {
   return (
     <div className="space-y-6">
       <Breadcrumbs />
-      {/* Header */}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="h-6 w-6" />
@@ -317,7 +248,6 @@ export default function SmartForms() {
                   }}
                   placeholder="Ex: Avaliação Mensal"
                 />
-                <p className="text-xs text-muted-foreground">* Campo obrigatorio</p>
               </div>
               <div className="space-y-2">
                 <Label>{t('formSlug')}</Label>
@@ -329,10 +259,8 @@ export default function SmartForms() {
               </div>
               <div className="space-y-2">
                 <Label>{t('formCategory')}</Label>
-                <Select value={newCategory} onValueChange={(v) => setNewCategory(v as FormCategory)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select value={newCategory} onValueChange={(v) => setNewCategory(v as SmartFormCategory)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {isAdmin && <SelectItem value="evaluation">{t('evaluation')}</SelectItem>}
                     {isAdmin && <SelectItem value="onboarding">{t('onboarding')}</SelectItem>}
@@ -348,20 +276,16 @@ export default function SmartForms() {
                   value={newSectorId ?? ALL_SECTORS}
                   onValueChange={(v) => setNewSectorId(v === ALL_SECTORS ? null : v)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos os setores" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Todos os setores" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value={ALL_SECTORS}>Todos os setores</SelectItem>
-                    {sectors.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.name}
-                      </SelectItem>
+                    {sectors.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Quando um setor é escolhido, este formulario só aparece pra avaliacoes de colaboradores desse setor.
+                  Quando um setor é escolhido, este formulário só aparece para avaliações de colaboradores desse setor.
                 </p>
               </div>
               <Button
@@ -369,18 +293,13 @@ export default function SmartForms() {
                 className="w-full"
                 disabled={!newName.trim() || createForm.isPending}
               >
-                {createForm.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  t('save')
-                )}
+                {createForm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t('save')}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Loading state */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -399,26 +318,31 @@ export default function SmartForms() {
               onCtaClick={() => setCreateOpen(true)}
             />
           ) : (
-            forms.map((form) => (
+            forms.map(form => (
               <Card key={form.id} className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium truncate max-w-[160px]">{form.name}</span>
-                  <Badge variant={STATUS_VARIANTS[form.status]} className={STATUS_CLASS[form.status]}>{STATUS_LABELS[form.status]}</Badge>
+                  <Badge
+                    variant={STATUS_VARIANTS[form.status as SmartFormStatus]}
+                    className={STATUS_CLASS[form.status as SmartFormStatus]}
+                  >
+                    {SMART_FORM_STATUS_LABELS[form.status as SmartFormStatus] ?? form.status}
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
-                  <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[form.category]}</Badge>
                   <Badge variant="outline" className="text-xs">
-                    {form.sector_id
-                      ? sectors.find((s) => s.id === form.sector_id)?.name ?? '—'
-                      : 'Todos os setores'}
+                    {SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {form.sector_id ? sectors.find(s => s.id === form.sector_id)?.name ?? '—' : 'Todos os setores'}
                   </Badge>
                   <span className="font-mono text-xs truncate">{form.slug}</span>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => openPreview(form)} title={t('formPreview')}>
+                  <Button variant="ghost" size="icon" onClick={() => { setSelectedForm(form); setView('preview'); }} title={t('formPreview')}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(form)} title="Editar formulário" disabled={updateForm.isPending}>
+                  <Button variant="ghost" size="icon" onClick={() => { setSelectedForm(form); setView('edit'); }} title="Editar" disabled={updateForm.isPending}>
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
@@ -426,13 +350,11 @@ export default function SmartForms() {
                     size="icon"
                     onClick={() => handleToggleStatus(form)}
                     title={form.status === 'active' ? 'Desativar' : 'Ativar'}
-                    disabled={toggleStatus.isPending}
+                    disabled={updateForm.isPending}
                   >
-                    {form.status === 'active' ? (
-                      <span className="text-xs font-medium text-green-600">ON</span>
-                    ) : (
-                      <span className="text-xs font-medium text-muted-foreground">OFF</span>
-                    )}
+                    {form.status === 'active'
+                      ? <span className="text-xs font-medium text-green-600">ON</span>
+                      : <span className="text-xs font-medium text-muted-foreground">OFF</span>}
                   </Button>
                   <Button
                     variant="ghost"
@@ -465,7 +387,20 @@ export default function SmartForms() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {forms.map((form) => (
+              {forms.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <EmptyState
+                      icon={FileText}
+                      title="Nenhum formulário criado"
+                      description="Monte seu primeiro formulário com o construtor visual"
+                      ctaLabel="Criar formulário"
+                      onCtaClick={() => setCreateOpen(true)}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+              {forms.map(form => (
                 <TableRow key={form.id} className="h-14">
                   <TableCell className="font-medium max-w-[200px]">
                     <span className="block truncate" title={form.name}>{form.name}</span>
@@ -474,64 +409,56 @@ export default function SmartForms() {
                     <span className="block truncate" title={form.slug}>{form.slug}</span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{CATEGORY_LABELS[form.category]}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {form.sector_id
-                        ? sectors.find((s) => s.id === form.sector_id)?.name ?? '—'
-                        : 'Todos'}
+                    <Badge variant="outline">
+                      {SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_VARIANTS[form.status]} className={STATUS_CLASS[form.status]}>
-                      {STATUS_LABELS[form.status]}
+                    <Badge variant="outline" className="text-xs">
+                      {form.sector_id ? sectors.find(s => s.id === form.sector_id)?.name ?? '—' : 'Todos'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={STATUS_VARIANTS[form.status as SmartFormStatus]}
+                      className={STATUS_CLASS[form.status as SmartFormStatus]}
+                    >
+                      {SMART_FORM_STATUS_LABELS[form.status as SmartFormStatus] ?? form.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      {/* Preview */}
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => openPreview(form)}
+                        onClick={() => { setSelectedForm(form); setView('preview'); }}
                         title={t('formPreview')}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-
-                      {/* Edit */}
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => openEdit(form)}
+                        onClick={() => { setSelectedForm(form); setView('edit'); }}
                         title="Editar formulário"
                         disabled={updateForm.isPending}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-
-                      {/* Toggle status */}
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleToggleStatus(form)}
                         title={form.status === 'active' ? 'Desativar' : 'Ativar'}
-                        disabled={toggleStatus.isPending}
+                        disabled={updateForm.isPending}
                       >
-                        {form.status === 'active' ? (
-                          <span className="text-xs font-medium text-green-600">ON</span>
-                        ) : (
-                          <span className="text-xs font-medium text-muted-foreground">OFF</span>
-                        )}
+                        {form.status === 'active'
+                          ? <span className="text-xs font-medium text-green-600">ON</span>
+                          : <span className="text-xs font-medium text-muted-foreground">OFF</span>}
                       </Button>
-
-                      {/* Delete */}
                       <Dialog
                         open={deleteTarget === form.id}
-                        onOpenChange={(open) => {
-                          if (!open) setDeleteTarget(null);
-                        }}
+                        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
                       >
                         <DialogTrigger asChild>
                           <Button
@@ -560,11 +487,7 @@ export default function SmartForms() {
                               onClick={() => handleDelete(form.id)}
                               disabled={deleteForm.isPending}
                             >
-                              {deleteForm.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                t('delete')
-                              )}
+                              {deleteForm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t('delete')}
                             </Button>
                           </div>
                         </DialogContent>
@@ -573,19 +496,6 @@ export default function SmartForms() {
                   </TableCell>
                 </TableRow>
               ))}
-              {forms.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <EmptyState
-                      icon={FileText}
-                      title="Nenhum formulário criado"
-                      description="Monte seu primeiro formulário com o construtor visual"
-                      ctaLabel="Criar formulário"
-                      onCtaClick={() => setCreateOpen(true)}
-                    />
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </Card>

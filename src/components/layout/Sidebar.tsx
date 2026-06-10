@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,9 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { DEMO_MODE } from "@/lib/demoMode";
+import { usePdis } from "@/hooks/api/usePdi";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -30,32 +27,21 @@ interface SidebarProps {
 }
 
 function usePendingCount() {
-  const { profile, isGestor, isAdmin } = useAuth();
+  const { isGestor, isAdmin } = useAuth();
+  const { data: pdis = [] } = usePdis();
 
-  return useQuery({
-    queryKey: ["pending-count", profile?.id],
-    queryFn: async () => {
-      if (DEMO_MODE) return 3;
-      if (!isGestor && !isAdmin) return 0;
+  if (!isGestor && !isAdmin) return 0;
 
-      // Count tasks awaiting approval (submitted status)
-      const { count } = await supabase
-        .from("pdi_tasks")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "submitted");
-
-      return count ?? 0;
-    },
-    enabled: !!profile && (isGestor || isAdmin),
-    refetchInterval: 60000, // refresh every minute
-  });
+  return pdis
+    .flatMap(p => p.tasks ?? [])
+    .filter(t => t.status === 'submitted').length;
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { isAdmin, isGestor } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
-  const { data: pendingCount = 0 } = usePendingCount();
+  const pendingCount = usePendingCount();
 
   const navItems = [
     {

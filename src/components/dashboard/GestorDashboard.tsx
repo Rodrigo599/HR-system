@@ -10,10 +10,10 @@ import { PendingActions } from '@/components/dashboard/PendingActions';
 import { QuickActions } from './QuickActions';
 import { KpiSummaryChart } from '@/components/dashboard/KpiSummaryChart';
 import { PdiProgressChart } from '@/components/dashboard/PdiProgressChart';
-import { useKpis, useKpiResults, useKpiScope } from '@/services/kpiService';
+import { useKpis, useKpiResults } from '@/hooks/api/useKpis';
 
 export function GestorDashboard() {
-  const { profile, isAdmin, isGestor } = useAuth();
+  const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -26,32 +26,21 @@ export function GestorDashboard() {
     loading,
   } = useTeamData();
 
-  const kpiScope = useKpiScope({
-    profile: profile ? { id: profile.id, user_id: profile.user_id, sector_id: profile.sector_id ?? null } : null,
-    isAdmin,
-    isGestor,
-    includeTeam: true,
-  });
-  const { data: kpis = [] } = useKpis(kpiScope);
-  const { data: kpiResults = [] } = useKpiResults(kpiScope);
+  const { data: kpis = [] } = useKpis();
+  const { data: kpiResults = [] } = useKpiResults();
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
-  const firstName = profile?.full_name?.split(' ')[0] ?? '';
+  const firstName = user?.name?.split(' ')[0] ?? '';
 
-  // Derived counts
-  const pendingTasksCount = teamPdiTasks.filter((t) => !t.completed && t.status === 'pending').length;
+  const pendingTasksCount = teamPdiTasks.filter((t) => t.status === 'pending').length;
   const completedEvalsCount = teamEvaluations.filter((e) => e.status === 'completed').length;
   const overdueTasksCount = teamPdiTasks.filter((task) => {
-    if (task.completed || !task.due_date) return false;
+    if (task.status === 'approved' || !task.due_date) return false;
     return new Date(task.due_date) < new Date();
   }).length;
-  const collaboratorsWithoutEval = teamMembers.filter((member) => {
-    return !teamEvaluations.some(
-      (e) => e.assigned_to === member.user_id && e.month === currentMonth && e.year === currentYear
-    );
-  }).length;
+  const collaboratorsWithoutEval = teamMembers.length;
 
   if (loading) {
     return (
