@@ -2,13 +2,15 @@
 
 namespace Src\OneOnOne\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OneOnOneNote extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     public $timestamps = false;
 
@@ -26,6 +28,6 @@ class OneOnOneNote extends Model
 
     public function author(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'author_user_id');
+        return $this->belongsTo(User::class, 'author_user_id');
     }
 }

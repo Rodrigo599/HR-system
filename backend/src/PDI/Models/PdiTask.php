@@ -3,13 +3,14 @@
 namespace Src\PDI\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Src\PDI\Enums\PdiTaskStatus;
 
 class PdiTask extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'pdi_id', 'title', 'description', 'link', 'completed',

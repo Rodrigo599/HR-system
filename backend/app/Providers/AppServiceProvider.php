@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Src\Content\Models\ContentAssignment;
@@ -32,6 +33,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Factory::guessFactoryNamesUsing(function (string $modelName) {
+            $module = collect(explode('\\', $modelName))
+                ->filter(fn ($s) => $s !== 'Src' && $s !== 'Models')
+                ->values()
+                ->join('\\');
+
+            return "Database\\Factories\\{$module}Factory";
+        });
+
         User::observe(UserObserver::class);
 
         Gate::policy(User::class, UserPolicy::class);
