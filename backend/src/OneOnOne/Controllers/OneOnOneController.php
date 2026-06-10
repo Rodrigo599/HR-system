@@ -29,16 +29,16 @@ class OneOnOneController extends Controller
     {
         $this->authorize('create', OneOnOne::class);
 
-        return new OneOnOneResource(
+        return OneOnOneResource::make(
             $this->service->create($request->user(), $request->validated())
         );
     }
 
-    public function show(Request $request, OneOnOne $oneOnOne): OneOnOneResource
+    public function show(OneOnOne $oneOnOne): OneOnOneResource
     {
         $this->authorize('view', $oneOnOne);
 
-        return new OneOnOneResource(
+        return OneOnOneResource::make(
             $oneOnOne->load('manager.profile', 'report.profile', 'topics', 'notes')
         );
     }
@@ -47,7 +47,7 @@ class OneOnOneController extends Controller
     {
         $this->authorize('update', $oneOnOne);
 
-        return new OneOnOneResource(
+        return OneOnOneResource::make(
             $this->service->update($oneOnOne, $request->only(
                 'scheduled_at', 'recurrence_rule', 'status', 'notes'
             ))

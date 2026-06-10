@@ -38,19 +38,19 @@ class EvaluationController extends Controller
     {
         $this->authorize('create', Evaluation::class);
 
-        $evaluation = $this->evaluations->create(
-            $request->user(),
-            CreateEvaluationDTO::fromRequest($request),
+        return EvaluationResource::make(
+            $this->evaluations->create(
+                $request->user(),
+                CreateEvaluationDTO::fromRequest($request),
+            )
         );
-
-        return new EvaluationResource($evaluation);
     }
 
-    public function show(Request $request, Evaluation $evaluation): EvaluationResource
+    public function show(Evaluation $evaluation): EvaluationResource
     {
         $this->authorize('view', $evaluation);
 
-        return new EvaluationResource(
+        return EvaluationResource::make(
             $evaluation->load('assignee.profile', 'creator', 'responses', 'smartForm')
         );
     }
@@ -59,7 +59,7 @@ class EvaluationController extends Controller
     {
         $this->authorize('submitSelf', $evaluation);
 
-        return new EvaluationResource(
+        return EvaluationResource::make(
             $this->evaluations->submitSelf($evaluation, $request->array('scores'))
         );
     }
@@ -68,7 +68,7 @@ class EvaluationController extends Controller
     {
         $this->authorize('submitManager', $evaluation);
 
-        return new EvaluationResource(
+        return EvaluationResource::make(
             $this->evaluations->submitManager($evaluation, $request->array('scores'))
         );
     }

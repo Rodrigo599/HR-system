@@ -19,14 +19,14 @@ class UserService
                 'password' => Hash::make($dto->password),
             ]);
 
-            $user->profile()->create([
+            $user->profile()->update([
                 'email' => $dto->email,
                 'full_name' => $dto->name,
                 'sector_id' => $dto->sectorId,
                 'manager_id' => $dto->managerId,
             ]);
 
-            $user->roles()->create(['role' => $dto->role]);
+            $user->roles()->update(['role' => $dto->role]);
 
             return $user->load('profile', 'roles');
         });

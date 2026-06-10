@@ -19,7 +19,7 @@ class FeedbackControllerTest extends TestCase
         $this->actingAs($destinatario)
             ->getJson('/api/feedback/received')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_sent_retorna_feedbacks_enviados(): void
@@ -34,7 +34,7 @@ class FeedbackControllerTest extends TestCase
         $this->actingAs($remetente)
             ->getJson('/api/feedback/sent')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_team_retorna_feedbacks_do_time_para_gestor(): void
@@ -53,7 +53,7 @@ class FeedbackControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson('/api/feedback/team')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_team_proibido_para_colaborador(): void
@@ -75,8 +75,8 @@ class FeedbackControllerTest extends TestCase
                 'content' => 'Ótimo trabalho na apresentação do projeto.',
                 'visibility' => 'with_manager',
             ])
-            ->assertOk()
-            ->assertJsonPath('type', 'kudos');
+            ->assertCreated()
+            ->assertJsonPath('data.type', 'kudos');
     }
 
     public function test_store_nao_permite_feedback_para_si_mesmo(): void

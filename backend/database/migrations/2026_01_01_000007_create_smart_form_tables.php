@@ -12,7 +12,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->json('config')->default('{}');
+            $table->json('config');
             $table->string('status')->default('draft'); // draft, active, archived
             $table->string('category')->default('custom'); // evaluation, onboarding, survey, feedback, custom
             $table->foreignUuid('sector_id')->nullable()->constrained('sectors')->nullOnDelete();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained('users');
             $table->foreignUuid('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignUuid('assigned_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->json('responses')->default('{}');
+            $table->json('responses');
             $table->string('status')->default('pending'); // pending, in_progress, completed
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();

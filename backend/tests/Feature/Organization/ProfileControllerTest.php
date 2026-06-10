@@ -13,7 +13,7 @@ class ProfileControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/profile')
             ->assertOk()
-            ->assertJsonPath('user_id', $user->id);
+            ->assertJsonPath('data.user_id', $user->id);
     }
 
     public function test_update_altera_proprio_perfil(): void
@@ -23,7 +23,7 @@ class ProfileControllerTest extends TestCase
         $this->actingAs($user)
             ->putJson('/api/profile', ['full_name' => 'Nome Atualizado'])
             ->assertOk()
-            ->assertJsonPath('full_name', 'Nome Atualizado');
+            ->assertJsonPath('data.full_name', 'Nome Atualizado');
     }
 
     public function test_update_proibido_para_outro_usuario(): void
@@ -36,7 +36,7 @@ class ProfileControllerTest extends TestCase
         $this->actingAs($outro)
             ->putJson('/api/profile', ['full_name' => 'Invadido'])
             ->assertOk()
-            ->assertJsonPath('user_id', $outro->id);
+            ->assertJsonPath('data.user_id', $outro->id);
     }
 
     public function test_team_retorna_liderados_do_gestor(): void
@@ -49,7 +49,7 @@ class ProfileControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson('/api/profile/team')
             ->assertOk()
-            ->assertJsonCount(2);
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_team_retorna_vazio_sem_liderados(): void
@@ -57,6 +57,6 @@ class ProfileControllerTest extends TestCase
         $this->asUser('gestor')
             ->getJson('/api/profile/team')
             ->assertOk()
-            ->assertJsonCount(0);
+            ->assertJsonCount(0, 'data');
     }
 }

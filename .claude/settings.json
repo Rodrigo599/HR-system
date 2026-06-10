@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/opt/homebrew/opt/php@8.4/bin/php artisan *)",
+      "Bash(./vendor/bin/sail up *)",
+      "Bash(./vendor/bin/sail artisan *)",
+      "Bash(./vendor/bin/sail test *)",
+      "Bash(./vendor/bin/sail exec *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3)",
+      "Bash(sed -n '48,55p' /Users/rodrigotagliari/hr-system/backend/src/PDI/Controllers/PdiController.php)",
+      "Bash(sed -n '64,70p' /Users/rodrigotagliari/hr-system/backend/src/PDI/Controllers/PdiController.php)",
+      "Bash(sed -n '50,57p' /Users/rodrigotagliari/hr-system/backend/src/Evaluation/Controllers/EvaluationController.php)",
+      "Bash(sed -n '38,55p' /Users/rodrigotagliari/hr-system/backend/src/OneOnOne/Controllers/OneOnOneController.php)",
+      "Bash(sed -n '65,72p' /Users/rodrigotagliari/hr-system/backend/src/Content/Controllers/ContentController.php)"
+    ]
+  }
+}

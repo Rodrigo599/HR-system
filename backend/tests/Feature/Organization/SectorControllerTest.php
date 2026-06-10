@@ -14,15 +14,15 @@ class SectorControllerTest extends TestCase
         $this->asUser()
             ->getJson('/api/sectors')
             ->assertOk()
-            ->assertJsonCount(2);
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_store_cria_setor_como_admin(): void
     {
         $this->asUser('admin')
             ->postJson('/api/sectors', ['name' => 'Financeiro', 'description' => 'Setor financeiro'])
-            ->assertOk()
-            ->assertJsonPath('name', 'Financeiro');
+            ->assertCreated()
+            ->assertJsonPath('data.name', 'Financeiro');
     }
 
     public function test_store_proibido_para_nao_admin(): void
@@ -39,7 +39,7 @@ class SectorControllerTest extends TestCase
         $this->asUser('admin')
             ->putJson("/api/sectors/{$sector->id}", ['name' => 'Tecnologia'])
             ->assertOk()
-            ->assertJsonPath('name', 'Tecnologia');
+            ->assertJsonPath('data.name', 'Tecnologia');
     }
 
     public function test_destroy_remove_setor_como_admin(): void

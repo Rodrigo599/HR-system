@@ -35,7 +35,7 @@ class ContentController extends Controller
     {
         $this->authorize('create', ContentItem::class);
 
-        return new ContentItemResource(
+        return ContentItemResource::make(
             $this->content->create($request->user(), $request->validated())
         );
     }
@@ -53,7 +53,7 @@ class ContentController extends Controller
     {
         $this->authorize('updateProgress', $contentAssignment);
 
-        return new ContentAssignmentResource(
+        return ContentAssignmentResource::make(
             $this->content->updateProgress(
                 $contentAssignment,
                 ContentStatus::from($request->string('status')),
@@ -61,7 +61,7 @@ class ContentController extends Controller
         );
     }
 
-    public function progress(Request $request, ContentItem $contentItem): JsonResponse
+    public function progress(ContentItem $contentItem): JsonResponse
     {
         $this->authorize('viewProgress', $contentItem);
 

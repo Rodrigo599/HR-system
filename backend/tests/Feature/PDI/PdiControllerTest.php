@@ -16,7 +16,7 @@ class PdiControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/pdis')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_index_gestor_retorna_pdis_do_time(): void
@@ -29,7 +29,7 @@ class PdiControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson('/api/pdis')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_store_cria_pdi_para_o_usuario(): void
@@ -43,8 +43,8 @@ class PdiControllerTest extends TestCase
                 'start_date' => '2026-01-01',
                 'end_date' => '2026-12-31',
             ])
-            ->assertOk()
-            ->assertJsonPath('title', 'Meu PDI');
+            ->assertCreated()
+            ->assertJsonPath('data.title', 'Meu PDI');
 
         $this->assertDatabaseHas('pdis', ['user_id' => $user->id, 'title' => 'Meu PDI']);
     }
@@ -58,7 +58,7 @@ class PdiControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson("/api/pdis/{$pdi->id}/tasks")
             ->assertOk()
-            ->assertJsonCount(2);
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_store_task_cria_tarefa_no_pdi(): void
@@ -71,8 +71,8 @@ class PdiControllerTest extends TestCase
                 'title' => 'Ler livro de DDD',
                 'due_date' => '2026-07-01',
             ])
-            ->assertOk()
-            ->assertJsonPath('status', 'pending');
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'pending');
     }
 
     public function test_submit_task_muda_status_para_submitted(): void
@@ -84,7 +84,7 @@ class PdiControllerTest extends TestCase
         $this->actingAs($user)
             ->putJson("/api/pdis/{$pdi->id}/tasks/{$task->id}/submit")
             ->assertOk()
-            ->assertJsonPath('status', 'submitted');
+            ->assertJsonPath('data.status', 'submitted');
     }
 
     public function test_review_task_aprova_tarefa_pelo_gestor(): void
@@ -102,7 +102,7 @@ class PdiControllerTest extends TestCase
                 'comment' => 'Muito bom!',
             ])
             ->assertOk()
-            ->assertJsonPath('status', 'approved');
+            ->assertJsonPath('data.status', 'approved');
     }
 
     public function test_review_task_rejeita_tarefa_pelo_gestor(): void
@@ -120,6 +120,6 @@ class PdiControllerTest extends TestCase
                 'comment' => 'Precisa melhorar.',
             ])
             ->assertOk()
-            ->assertJsonPath('status', 'rejected');
+            ->assertJsonPath('data.status', 'rejected');
     }
 }

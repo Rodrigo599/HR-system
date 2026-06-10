@@ -10,19 +10,15 @@ class AuthControllerTest extends TestCase
     {
         $user = $this->makeUser();
 
-        $response = $this->postJson('/api/auth/login', [
+        $this->postJson('/api/auth/login', [
             'email' => $user->email,
             'password' => 'password',
-        ]);
-
-        $response->assertOk()
+        ])->assertOk()
             ->assertJsonStructure(['token', 'user' => ['id', 'email', 'roles']]);
     }
 
     public function test_login_retorna_422_com_credenciais_invalidas(): void
     {
-        $this->makeUser();
-
         $this->postJson('/api/auth/login', [
             'email' => 'errado@email.com',
             'password' => 'errada',
@@ -36,7 +32,7 @@ class AuthControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/auth/me')
             ->assertOk()
-            ->assertJsonPath('id', $user->id);
+            ->assertJsonPath('data.id', $user->id);
     }
 
     public function test_me_retorna_401_sem_autenticacao(): void

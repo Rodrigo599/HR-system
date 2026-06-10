@@ -5,6 +5,7 @@ namespace Src\Auth\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Auth\Requests\LoginRequest;
 use Src\Auth\Resources\AuthUserResource;
 use Src\Auth\Services\AuthService;
@@ -26,9 +27,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me(Request $request): AuthUserResource
+    public function me(Request $request): JsonResource
     {
-        return new AuthUserResource(
+        return AuthUserResource::make(
             $this->auth->me($request->user())
         );
     }

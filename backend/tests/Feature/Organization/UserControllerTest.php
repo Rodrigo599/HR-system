@@ -14,7 +14,7 @@ class UserControllerTest extends TestCase
         $this->asUser('admin')
             ->getJson('/api/users')
             ->assertOk()
-            ->assertJsonStructure([['id', 'email', 'profile', 'roles']]);
+            ->assertJsonStructure(['data' => [['id', 'email', 'profile', 'roles']]]);
     }
 
     public function test_index_proibido_para_nao_admin(): void
@@ -36,8 +36,8 @@ class UserControllerTest extends TestCase
                 'role' => 'colaborador',
                 'sector_id' => $sector->id,
             ])
-            ->assertOk()
-            ->assertJsonPath('email', 'joao@empresa.com');
+            ->assertCreated()
+            ->assertJsonPath('data.email', 'joao@empresa.com');
 
         $this->assertDatabaseHas('users', ['email' => 'joao@empresa.com']);
     }

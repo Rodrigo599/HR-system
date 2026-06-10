@@ -43,12 +43,12 @@ class FeedbackController extends Controller
 
     public function store(CreateFeedbackRequest $request): FeedbackResource
     {
-        return new FeedbackResource(
+        return FeedbackResource::make(
             $this->feedback->create($request->user(), $request->validated())
         );
     }
 
-    public function destroy(Request $request, PointwiseFeedback $pointwiseFeedback): JsonResponse
+    public function destroy(PointwiseFeedback $pointwiseFeedback): JsonResponse
     {
         $this->authorize('delete', $pointwiseFeedback);
 

@@ -28,18 +28,18 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $user = $this->users->create(CreateUserDTO::fromRequest($request));
-
-        return new UserResource($user);
+        return UserResource::make(
+            $this->users->create(CreateUserDTO::fromRequest($request))
+        );
     }
 
     public function update(CreateUserRequest $request, User $user): UserResource
     {
         $this->authorize('update', $user);
 
-        $user = $this->users->create(CreateUserDTO::fromRequest($request));
-
-        return new UserResource($user);
+        return UserResource::make(
+            $this->users->create(CreateUserDTO::fromRequest($request))
+        );
     }
 
     public function deactivate(User $user): JsonResponse

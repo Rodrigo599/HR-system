@@ -36,12 +36,9 @@ class PdiController extends Controller
 
     public function store(CreatePdiRequest $request): PdiResource
     {
-        $pdi = $this->pdis->create(
-            $request->user(),
-            CreatePdiDTO::fromRequest($request),
+        return PdiResource::make(
+            $this->pdis->create($request->user(), CreatePdiDTO::fromRequest($request))
         );
-
-        return new PdiResource($pdi);
     }
 
     public function tasks(Request $request, Pdi $pdi): AnonymousResourceCollection
@@ -55,23 +52,23 @@ class PdiController extends Controller
     {
         $this->authorize('view', $pdi);
 
-        return new PdiTaskResource(
+        return PdiTaskResource::make(
             $this->tasks->create($pdi, CreatePdiTaskDTO::fromRequest($request))
         );
     }
 
-    public function submitTask(Request $request, Pdi $pdi, PdiTask $task): PdiTaskResource
+    public function submitTask(Pdi $pdi, PdiTask $task): PdiTaskResource
     {
         $this->authorize('submitTask', $task);
 
-        return new PdiTaskResource($this->tasks->submit($task));
+        return PdiTaskResource::make($this->tasks->submit($task));
     }
 
     public function reviewTask(ReviewTaskRequest $request, Pdi $pdi, PdiTask $task): PdiTaskResource
     {
         $this->authorize('reviewTask', $task);
 
-        return new PdiTaskResource(
+        return PdiTaskResource::make(
             $this->tasks->review($task, ReviewTaskDTO::fromRequest($request), $request->user())
         );
     }

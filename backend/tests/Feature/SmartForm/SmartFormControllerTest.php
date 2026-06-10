@@ -15,7 +15,7 @@ class SmartFormControllerTest extends TestCase
         $this->asUser()
             ->getJson('/api/smart-forms')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_index_filtra_por_categoria(): void
@@ -26,7 +26,7 @@ class SmartFormControllerTest extends TestCase
         $this->asUser()
             ->getJson('/api/smart-forms?category=survey')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_store_cria_form_como_gestor(): void
@@ -38,8 +38,8 @@ class SmartFormControllerTest extends TestCase
                 'config' => ['steps' => [['title' => 'Passo 1', 'fields' => []]]],
                 'category' => 'evaluation',
             ])
-            ->assertOk()
-            ->assertJsonPath('slug', 'avaliacao-cultural');
+            ->assertCreated()
+            ->assertJsonPath('data.slug', 'avaliacao-cultural');
     }
 
     public function test_store_proibido_para_colaborador(): void
@@ -61,7 +61,7 @@ class SmartFormControllerTest extends TestCase
         $this->asUser()
             ->getJson("/api/smart-forms/{$form->id}")
             ->assertOk()
-            ->assertJsonPath('id', $form->id);
+            ->assertJsonPath('data.id', $form->id);
     }
 
     public function test_update_altera_form_como_admin(): void
@@ -76,7 +76,7 @@ class SmartFormControllerTest extends TestCase
                 'category' => $form->category->value,
             ])
             ->assertOk()
-            ->assertJsonPath('name', 'Nome Novo');
+            ->assertJsonPath('data.name', 'Nome Novo');
     }
 
     public function test_destroy_remove_form_como_admin(): void
@@ -99,8 +99,8 @@ class SmartFormControllerTest extends TestCase
             ->postJson("/api/smart-forms/{$form->id}/responses", [
                 'responses' => ['q1' => 8, 'q2' => 9],
             ])
-            ->assertOk()
-            ->assertJsonPath('status', 'completed');
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'completed');
     }
 
     public function test_index_responses_proibido_para_colaborador(): void
@@ -126,7 +126,7 @@ class SmartFormControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson("/api/smart-forms/{$form->id}/responses")
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_aggregate_retorna_medias(): void

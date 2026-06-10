@@ -17,7 +17,7 @@ class OneOnOneControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson('/api/one-on-ones')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_index_nao_retorna_reunioes_de_terceiros(): void
@@ -30,7 +30,7 @@ class OneOnOneControllerTest extends TestCase
         $this->actingAs($terceiro)
             ->getJson('/api/one-on-ones')
             ->assertOk()
-            ->assertJsonCount(0);
+            ->assertJsonCount(0, 'data');
     }
 
     public function test_store_cria_reuniao_como_gestor(): void
@@ -43,8 +43,8 @@ class OneOnOneControllerTest extends TestCase
                 'report_id' => $colab->id,
                 'scheduled_at' => now()->addDays(7)->toDateTimeString(),
             ])
-            ->assertOk()
-            ->assertJsonPath('manager_id', $gestor->id);
+            ->assertCreated()
+            ->assertJsonPath('data.manager_id', $gestor->id);
     }
 
     public function test_store_proibido_para_colaborador(): void
@@ -69,7 +69,7 @@ class OneOnOneControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson("/api/one-on-ones/{$meeting->id}")
             ->assertOk()
-            ->assertJsonStructure(['id', 'manager', 'report', 'topics', 'notes_list']);
+            ->assertJsonStructure(['data' => ['id', 'manager', 'report', 'topics', 'notes_list']]);
     }
 
     public function test_update_altera_status_da_reuniao(): void
@@ -81,7 +81,7 @@ class OneOnOneControllerTest extends TestCase
         $this->actingAs($gestor)
             ->putJson("/api/one-on-ones/{$meeting->id}", ['status' => 'completed'])
             ->assertOk()
-            ->assertJsonPath('status', 'completed');
+            ->assertJsonPath('data.status', 'completed');
     }
 
     public function test_store_topic_adiciona_pauta(): void

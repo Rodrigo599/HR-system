@@ -20,7 +20,7 @@ class EvaluationControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson('/api/evaluations')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_index_filtra_por_ano(): void
@@ -34,7 +34,7 @@ class EvaluationControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson('/api/evaluations?year=2026')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_store_cria_avaliacao_como_gestor(): void
@@ -50,8 +50,8 @@ class EvaluationControllerTest extends TestCase
                 'month' => 6,
                 'year' => 2026,
             ])
-            ->assertOk()
-            ->assertJsonPath('status', 'pending_self');
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'pending_self');
     }
 
     public function test_store_proibido_para_colaborador(): void
@@ -83,7 +83,7 @@ class EvaluationControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson("/api/evaluations/{$evaluation->id}")
             ->assertOk()
-            ->assertJsonPath('id', $evaluation->id);
+            ->assertJsonPath('data.id', $evaluation->id);
     }
 
     public function test_show_proibido_para_terceiros(): void
@@ -118,7 +118,7 @@ class EvaluationControllerTest extends TestCase
                 'scores' => [['score' => 8]],
             ])
             ->assertOk()
-            ->assertJsonPath('status', 'pending_manager');
+            ->assertJsonPath('data.status', 'pending_manager');
     }
 
     public function test_submit_manager_completa_avaliacao(): void
@@ -136,6 +136,6 @@ class EvaluationControllerTest extends TestCase
                 'scores' => [['score' => 9]],
             ])
             ->assertOk()
-            ->assertJsonPath('status', 'completed');
+            ->assertJsonPath('data.status', 'completed');
     }
 }

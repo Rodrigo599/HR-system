@@ -32,21 +32,19 @@ class SmartFormController extends Controller
     {
         $this->authorize('create', SmartForm::class);
 
-        return new SmartFormResource(
-            $this->forms->create($request->validated())
-        );
+        return SmartFormResource::make($this->forms->create($request->validated()));
     }
 
     public function show(SmartForm $smartForm): SmartFormResource
     {
-        return new SmartFormResource($smartForm);
+        return SmartFormResource::make($smartForm);
     }
 
     public function update(CreateSmartFormRequest $request, SmartForm $smartForm): SmartFormResource
     {
         $this->authorize('update', $smartForm);
 
-        return new SmartFormResource(
+        return SmartFormResource::make(
             $this->forms->update($smartForm, $request->validated())
         );
     }
@@ -62,7 +60,7 @@ class SmartFormController extends Controller
 
     public function storeResponse(SubmitFormResponseRequest $request, SmartForm $smartForm): SmartFormResponseResource
     {
-        return new SmartFormResponseResource(
+        return SmartFormResponseResource::make(
             $this->responses->submit(
                 $smartForm,
                 $request->user(),

@@ -7,7 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Src\Organization\Models\Profile;
 use Src\Organization\Models\Sector;
-use Src\Organization\Models\UserRole;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -17,18 +16,16 @@ abstract class TestCase extends BaseTestCase
     {
         $user = User::factory()->create();
 
-        Profile::factory()->create([
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'full_name' => $user->name,
+        // O UserObserver já cria o Profile e o UserRole com defaults.
+        // Aqui apenas atualizamos os campos específicos do teste.
+        $user->profile()->update([
             'sector_id' => $sector?->id,
             'manager_id' => $manager?->id,
         ]);
 
-        UserRole::factory()->create([
-            'user_id' => $user->id,
-            'role' => $role,
-        ]);
+        if ($role !== 'colaborador') {
+            $user->roles()->update(['role' => $role]);
+        }
 
         return $user->fresh(['profile', 'roles']);
     }
@@ -38,7 +35,7 @@ abstract class TestCase extends BaseTestCase
         return $this->actingAs($this->makeUser($role, $sector, $manager));
     }
 
-    protected function makeSector(string $name = null): Sector
+    protected function makeSector(?string $name = null): Sector
     {
         return Sector::factory()->create($name ? ['name' => $name] : []);
     }

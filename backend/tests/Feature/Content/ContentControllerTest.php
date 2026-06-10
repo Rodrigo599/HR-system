@@ -17,7 +17,7 @@ class ContentControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson('/api/content')
             ->assertOk()
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_index_gestor_retorna_todos_itens_do_time(): void
@@ -28,7 +28,7 @@ class ContentControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson('/api/content')
             ->assertOk()
-            ->assertJsonCount(2);
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_store_cria_conteudo_como_gestor(): void
@@ -43,8 +43,8 @@ class ContentControllerTest extends TestCase
                 'link_url' => 'https://example.com/ddd',
                 'due_date' => now()->addDays(30)->toDateString(),
             ])
-            ->assertOk()
-            ->assertJsonPath('title', 'Curso de DDD');
+            ->assertCreated()
+            ->assertJsonPath('data.title', 'Curso de DDD');
     }
 
     public function test_store_proibido_para_colaborador(): void
@@ -90,7 +90,7 @@ class ContentControllerTest extends TestCase
                 'status' => 'in_progress',
             ])
             ->assertOk()
-            ->assertJsonPath('status', 'in_progress');
+            ->assertJsonPath('data.status', 'in_progress');
     }
 
     public function test_progress_retorna_andamento_do_conteudo(): void

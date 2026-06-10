@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Src\KPI\DTOs\UpsertKpiResultDTO;
 use Src\KPI\Models\Kpi;
 use Src\KPI\Requests\StoreKpiRequest;
+use Src\KPI\Requests\UpsertKpiResultRequest;
 use Src\KPI\Resources\KpiResource;
 use Src\KPI\Resources\KpiResultResource;
 use Src\KPI\Services\KpiResultService;
 use Src\KPI\Services\KpiService;
-use Src\KPI\DTOs\UpsertKpiResultDTO;
-use Src\KPI\Requests\UpsertKpiResultRequest;
 
 class KpiController extends Controller
 {
@@ -33,25 +33,25 @@ class KpiController extends Controller
     {
         $this->authorize('create', Kpi::class);
 
-        $kpi = $this->kpis->create(
-            $request->only('name', 'description', 'target_value', 'unit'),
-            $request->array('sector_ids', []),
+        return KpiResource::make(
+            $this->kpis->create(
+                $request->only('name', 'description', 'target_value', 'unit'),
+                $request->array('sector_ids', []),
+            )
         );
-
-        return new KpiResource($kpi);
     }
 
     public function update(StoreKpiRequest $request, Kpi $kpi): KpiResource
     {
         $this->authorize('update', $kpi);
 
-        $kpi = $this->kpis->update(
-            $kpi,
-            $request->only('name', 'description', 'target_value', 'unit'),
-            $request->array('sector_ids', []),
+        return KpiResource::make(
+            $this->kpis->update(
+                $kpi,
+                $request->only('name', 'description', 'target_value', 'unit'),
+                $request->array('sector_ids', []),
+            )
         );
-
-        return new KpiResource($kpi);
     }
 
     public function destroy(Kpi $kpi): JsonResponse
@@ -78,10 +78,8 @@ class KpiController extends Controller
 
     public function upsertResult(UpsertKpiResultRequest $request): KpiResultResource
     {
-        $result = $this->results->upsert(
-            UpsertKpiResultDTO::fromRequest($request)
+        return KpiResultResource::make(
+            $this->results->upsert(UpsertKpiResultDTO::fromRequest($request))->load('kpi')
         );
-
-        return new KpiResultResource($result->load('kpi'));
     }
 }
