@@ -83,6 +83,9 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
+        env:
+          npm_config_platform: linux
+          npm_config_arch: x64
 
       - name: Generate OpenAPI spec
         run: php artisan scramble:export
