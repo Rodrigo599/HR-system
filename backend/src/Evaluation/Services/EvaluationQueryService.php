@@ -6,8 +6,9 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Src\Evaluation\Models\Evaluation;
 use Src\Organization\Services\HierarchyService;
+use Src\Shared\Interfaces\ViewAwareServiceInterface;
 
-class EvaluationQueryService
+class EvaluationQueryService implements ViewAwareServiceInterface
 {
     public function __construct(private readonly HierarchyService $hierarchy) {}
 

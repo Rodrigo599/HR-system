@@ -21,6 +21,16 @@ class HierarchyService
             ->all();
     }
 
+    public function getTeamSectorIds(User $manager): array
+    {
+        return Profile::where('manager_id', $manager->profile->id)
+            ->whereNotNull('sector_id')
+            ->pluck('sector_id')
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     public function isManagerOf(User $manager, User $report): bool
     {
         return Profile::where('user_id', $report->id)

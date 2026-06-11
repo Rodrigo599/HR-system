@@ -8,8 +8,9 @@ use Src\Content\Enums\ContentStatus;
 use Src\Content\Models\ContentAssignment;
 use Src\Content\Models\ContentItem;
 use Src\Organization\Services\HierarchyService;
+use Src\Shared\Interfaces\ViewAwareServiceInterface;
 
-class ContentService
+class ContentService implements ViewAwareServiceInterface
 {
     public function __construct(private readonly HierarchyService $hierarchy) {}
 

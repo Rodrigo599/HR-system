@@ -5,9 +5,13 @@ namespace Src\KPI\Services;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Src\KPI\Models\Kpi;
+use Src\Organization\Services\HierarchyService;
+use Src\Shared\Interfaces\ViewAwareServiceInterface;
 
-class KpiService
+class KpiService implements ViewAwareServiceInterface
 {
+    public function __construct(private readonly HierarchyService $hierarchy) {}
+
     public function forUser(User $user): Collection
     {
         $sectorId = $user->profile?->sector_id;
@@ -26,12 +30,12 @@ class KpiService
             return Kpi::with('sectors')->get();
         }
 
-        $sectorId = $user->profile?->sector_id;
+        $sectorIds = $this->hierarchy->getTeamSectorIds($user);
 
         return Kpi::with('sectors')
             ->where(fn ($q) => $q
                 ->whereDoesntHave('sectors')
-                ->orWhereHas('sectors', fn ($s) => $s->where('sectors.id', $sectorId))
+                ->orWhereHas('sectors', fn ($s) => $s->whereIn('sectors.id', $sectorIds))
             )
             ->get();
     }
