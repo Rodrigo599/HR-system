@@ -13,9 +13,9 @@ class KpiResultResource extends JsonResource
             'id' => $this->id,
             'kpi_id' => $this->kpi_id,
             'user_id' => $this->user_id,
-            'score' => $this->score,
-            'month' => $this->month,
-            'year' => $this->year,
+            'score' => (float) $this->score,
+            'month' => (int) $this->month,
+            'year' => (int) $this->year,
             'created_at' => $this->created_at,
             'kpi' => $this->whenLoaded('kpi', fn () => new KpiResource($this->kpi)),
         ];

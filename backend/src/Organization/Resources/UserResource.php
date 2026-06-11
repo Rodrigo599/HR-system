@@ -14,8 +14,9 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'profile' => $this->whenLoaded('profile', fn () => new ProfileResource($this->profile)),
-            'roles' => $this->whenLoaded('roles', fn () =>
-                $this->roles->pluck('role')->map->value->values()
+            /** @var string[] */
+            'roles' => $this->whenLoaded('roles', fn (): array =>
+                $this->roles->pluck('role')->map->value->values()->all()
             ),
         ];
     }

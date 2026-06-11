@@ -11,9 +11,9 @@ class EvaluationResponseResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'self_score' => $this->self_score,
-            'manager_score' => $this->manager_score,
-            'final_score' => $this->final_score,
+            'self_score' => $this->self_score !== null ? (float) $this->self_score : null,
+            'manager_score' => $this->manager_score !== null ? (float) $this->manager_score : null,
+            'final_score' => $this->final_score !== null ? (float) $this->final_score : null,
         ];
     }
 }

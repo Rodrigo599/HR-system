@@ -18,7 +18,7 @@ class ProfileResource extends JsonResource
             'sector_id' => $this->sector_id,
             'manager_id' => $this->manager_id,
             'preferred_language' => $this->preferred_language,
-            'active' => $this->active,
+            'active' => (bool) $this->active,
             'sector' => $this->whenLoaded('sector', fn () => new SectorResource($this->sector)),
         ];
     }

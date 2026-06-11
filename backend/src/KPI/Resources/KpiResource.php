@@ -14,9 +14,10 @@ class KpiResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'target_value' => $this->target_value,
+            'target_value' => (float) $this->target_value,
             'unit' => $this->unit,
-            'sector_ids' => $this->whenLoaded('sectors', fn () => $this->sectors->pluck('id')),
+            /** @var string[] */
+            'sector_ids' => $this->whenLoaded('sectors', fn (): array => $this->sectors->pluck('id')->all()),
             'sectors' => SectorResource::collection($this->whenLoaded('sectors')),
         ];
     }
