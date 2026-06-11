@@ -4,6 +4,7 @@ namespace Src\KPI\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Organization\Resources\SectorResource;
 
 class KpiResource extends JsonResource
 {
@@ -15,12 +16,8 @@ class KpiResource extends JsonResource
             'description' => $this->description,
             'target_value' => $this->target_value,
             'unit' => $this->unit,
-            'sector_ids' => $this->whenLoaded('sectors', fn () =>
-                $this->sectors->pluck('id')
-            ),
-            'sectors' => $this->whenLoaded('sectors', fn () =>
-                $this->sectors->map(fn ($s) => ['id' => $s->id, 'name' => $s->name])
-            ),
+            'sector_ids' => $this->whenLoaded('sectors', fn () => $this->sectors->pluck('id')),
+            'sectors' => SectorResource::collection($this->whenLoaded('sectors')),
         ];
     }
 }

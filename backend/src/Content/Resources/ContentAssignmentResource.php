@@ -4,6 +4,7 @@ namespace Src\Content\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Organization\Resources\UserResource;
 
 class ContentAssignmentResource extends JsonResource
 {
@@ -17,7 +18,8 @@ class ContentAssignmentResource extends JsonResource
             'seen_at' => $this->seen_at,
             'completed_at' => $this->completed_at,
             'assigned_at' => $this->assigned_at,
-            'item' => $this->whenLoaded('item', fn () => new ContentItemResource($this->item)),
+            'item' => new ContentItemResource($this->whenLoaded('item')),
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace Src\Evaluation\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Organization\Resources\UserResource;
 
 class EvaluationResource extends JsonResource
 {
@@ -18,25 +19,9 @@ class EvaluationResource extends JsonResource
             'year' => $this->year,
             'smart_form_id' => $this->smart_form_id,
             'created_at' => $this->created_at,
-            'assignee' => $this->whenLoaded('assignee', fn () => [
-                'id' => $this->assignee->id,
-                'name' => $this->assignee->name,
-                'profile' => $this->assignee->relationLoaded('profile')
-                    ? ['full_name' => $this->assignee->profile->full_name, 'avatar_url' => $this->assignee->profile->avatar_url]
-                    : null,
-            ]),
-            'creator' => $this->whenLoaded('creator', fn () => [
-                'id' => $this->creator->id,
-                'name' => $this->creator->name,
-            ]),
-            'responses' => $this->whenLoaded('responses', fn () =>
-                $this->responses->map(fn ($r) => [
-                    'id' => $r->id,
-                    'self_score' => $r->self_score,
-                    'manager_score' => $r->manager_score,
-                    'final_score' => $r->final_score,
-                ])
-            ),
+            'assignee' => new UserResource($this->whenLoaded('assignee')),
+            'creator' => new UserResource($this->whenLoaded('creator')),
+            'responses' => EvaluationResponseResource::collection($this->whenLoaded('responses')),
         ];
     }
 }

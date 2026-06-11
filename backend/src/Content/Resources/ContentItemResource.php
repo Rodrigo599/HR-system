@@ -4,6 +4,7 @@ namespace Src\Content\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Content\Resources\ContentAssignmentResource;
 
 class ContentItemResource extends JsonResource
 {
@@ -19,22 +20,7 @@ class ContentItemResource extends JsonResource
             'file_url' => $this->file_url,
             'due_date' => $this->due_date,
             'created_at' => $this->created_at,
-            'assignments' => $this->whenLoaded('assignments', fn () =>
-                $this->assignments->map(fn ($a) => [
-                    'id' => $a->id,
-                    'user_id' => $a->user_id,
-                    'status' => $a->status->value,
-                    'seen_at' => $a->seen_at,
-                    'completed_at' => $a->completed_at,
-                    'user' => $a->relationLoaded('user') ? [
-                        'id' => $a->user->id,
-                        'name' => $a->user->name,
-                        'profile' => $a->user->relationLoaded('profile')
-                            ? ['full_name' => $a->user->profile->full_name]
-                            : null,
-                    ] : null,
-                ])
-            ),
+            'assignments' => ContentAssignmentResource::collection($this->whenLoaded('assignments')),
         ];
     }
 }

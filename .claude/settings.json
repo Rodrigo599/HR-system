@@ -26,7 +26,11 @@
       "Bash(curl -s -v -X GET http://localhost/api/pdis -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json')",
       "Bash(curl -s -D - -X GET http://localhost/api/pdis -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json')",
       "Bash(curl -s -X PUT http://localhost/api/pdis/019eb37f-a8a9-72d4-a845-8eda70099009/tasks/019eb68b-2bad-72c9-a7de-86d222e803c8/review -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"status\":\"approved\",\"review_notes\":\"Muito bom!\"}')",
-      "Bash(curl -s -X POST http://localhost/api/one-on-ones/019eb6a8-4977-72e5-9187-8039fc3e3f83/topics -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"content\":\"Discutir metas Q3\"}')"
+      "Bash(curl -s -X POST http://localhost/api/one-on-ones/019eb6a8-4977-72e5-9187-8039fc3e3f83/topics -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"content\":\"Discutir metas Q3\"}')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('scripts:', list\\(d.get\\('scripts',{}\\).keys\\(\\)\\)\\); print\\('deps:', list\\(d.get\\('dependencies',{}\\).keys\\(\\)\\)[:10]\\)\")",
+      "Bash(./vendor/bin/sail composer *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); paths=list\\(d.get\\('paths',{}\\).keys\\(\\)\\); print\\(f'{len\\(paths\\)} rotas documentadas'\\); print\\('\\\\n'.join\\(paths[:20]\\)\\)\")",
+      "Bash(npm run *)"
     ]
   }
 }

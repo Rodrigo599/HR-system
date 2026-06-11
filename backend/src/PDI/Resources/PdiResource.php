@@ -4,6 +4,7 @@ namespace Src\PDI\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Organization\Resources\UserResource;
 
 class PdiResource extends JsonResource
 {
@@ -16,16 +17,8 @@ class PdiResource extends JsonResource
             'description' => $this->description,
             'end_date' => $this->end_date?->toDateString(),
             'created_at' => $this->created_at,
-            'tasks' => $this->whenLoaded('tasks', fn () =>
-                PdiTaskResource::collection($this->tasks)
-            ),
-            'user' => $this->whenLoaded('user', fn () => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'profile' => $this->user->relationLoaded('profile')
-                    ? ['full_name' => $this->user->profile->full_name, 'avatar_url' => $this->user->profile->avatar_url]
-                    : null,
-            ]),
+            'tasks' => PdiTaskResource::collection($this->whenLoaded('tasks')),
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace Src\SmartForm\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Organization\Resources\UserResource;
 
 class SmartFormResponseResource extends JsonResource
 {
@@ -19,13 +20,7 @@ class SmartFormResponseResource extends JsonResource
             'status' => $this->status,
             'completed_at' => $this->completed_at,
             'created_at' => $this->created_at,
-            'user' => $this->whenLoaded('user', fn () => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'profile' => $this->user->relationLoaded('profile')
-                    ? ['full_name' => $this->user->profile->full_name]
-                    : null,
-            ]),
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }
