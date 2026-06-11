@@ -8,6 +8,10 @@ use Tests\TestCase;
 
 class KpiControllerTest extends TestCase
 {
+    private array $kpiShape = ['id', 'name', 'description', 'target_value', 'unit'];
+
+    private array $kpiResultShape = ['id', 'kpi_id', 'user_id', 'score', 'month', 'year', 'created_at'];
+
     public function test_index_retorna_kpis_do_usuario(): void
     {
         $sector = $this->makeSector();
@@ -19,7 +23,8 @@ class KpiControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/kpis')
             ->assertOk()
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonStructure(['data' => [$this->kpiShape]]);
     }
 
     public function test_index_admin_retorna_todos_kpis(): void
@@ -45,7 +50,8 @@ class KpiControllerTest extends TestCase
                 'sector_ids' => [$sector->id],
             ])
             ->assertCreated()
-            ->assertJsonPath('data.name', 'NPS');
+            ->assertJsonPath('data.name', 'NPS')
+            ->assertJsonStructure(['data' => $this->kpiShape]);
 
         $this->assertDatabaseHas('kpis', ['name' => 'NPS']);
     }
@@ -68,7 +74,8 @@ class KpiControllerTest extends TestCase
                 'sector_ids' => [],
             ])
             ->assertOk()
-            ->assertJsonPath('data.name', 'NPS Atualizado');
+            ->assertJsonPath('data.name', 'NPS Atualizado')
+            ->assertJsonStructure(['data' => $this->kpiShape]);
     }
 
     public function test_destroy_remove_kpi_como_admin(): void
@@ -97,7 +104,8 @@ class KpiControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/kpi-results?month=6&year=2026')
             ->assertOk()
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonStructure(['data' => [$this->kpiResultShape]]);
     }
 
     public function test_upsert_result_cria_resultado(): void
@@ -113,7 +121,10 @@ class KpiControllerTest extends TestCase
                 'year' => 2026,
             ])
             ->assertCreated()
-            ->assertJsonPath('data.score', '92.00');
+            ->assertJsonPath('data.score', 92)
+            ->assertJsonPath('data.month', 6)
+            ->assertJsonPath('data.year', 2026)
+            ->assertJsonStructure(['data' => $this->kpiResultShape]);
     }
 
     public function test_upsert_result_atualiza_resultado_existente(): void
@@ -137,7 +148,8 @@ class KpiControllerTest extends TestCase
                 'year' => 2026,
             ])
             ->assertOk()
-            ->assertJsonPath('data.score', '95.00');
+            ->assertJsonPath('data.score', 95)
+            ->assertJsonStructure(['data' => $this->kpiResultShape]);
 
         $this->assertDatabaseCount('kpi_results', 1);
     }

@@ -21,8 +21,8 @@ class OneOnOneResource extends JsonResource
             'created_at' => $this->created_at,
             'manager' => new UserResource($this->whenLoaded('manager')),
             'report' => new UserResource($this->whenLoaded('report')),
-            'topics' => OneOnOneTopicResource::collection($this->whenLoaded('topics')),
-            'notes_list' => OneOnOneNoteResource::collection($this->whenLoaded('notes')),
+            'topics' => $this->whenLoaded('topics', fn () => OneOnOneTopicResource::collection($this->topics)),
+            'notes_list' => $this->whenLoaded('notes', fn () => OneOnOneNoteResource::collection($this->notes)),
         ];
     }
 }

@@ -11,7 +11,9 @@ use Src\OneOnOne\Models\OneOnOneTopic;
 use Src\OneOnOne\Requests\CreateNoteRequest;
 use Src\OneOnOne\Requests\CreateOneOnOneRequest;
 use Src\OneOnOne\Requests\CreateTopicRequest;
+use Src\OneOnOne\Resources\OneOnOneNoteResource;
 use Src\OneOnOne\Resources\OneOnOneResource;
+use Src\OneOnOne\Resources\OneOnOneTopicResource;
 use Src\OneOnOne\Services\OneOnOneService;
 
 class OneOnOneController extends Controller
@@ -60,13 +62,7 @@ class OneOnOneController extends Controller
 
         $topic = $this->service->addTopic($oneOnOne, $request->user(), $request->string('content'));
 
-        return response()->json([
-            'id' => $topic->id,
-            'content' => $topic->content,
-            'addressed' => $topic->addressed,
-            'author_user_id' => $topic->author_user_id,
-            'created_at' => $topic->created_at,
-        ], 201);
+        return response()->json(OneOnOneTopicResource::make($topic)->toArray(request()), 201);
     }
 
     public function updateTopic(Request $request, OneOnOne $oneOnOne, OneOnOneTopic $topic): JsonResponse
@@ -75,11 +71,7 @@ class OneOnOneController extends Controller
 
         $topic = $this->service->updateTopic($topic, $request->only('content', 'addressed'));
 
-        return response()->json([
-            'id' => $topic->id,
-            'content' => $topic->content,
-            'addressed' => $topic->addressed,
-        ]);
+        return response()->json(OneOnOneTopicResource::make($topic)->toArray(request()));
     }
 
     public function storeNote(CreateNoteRequest $request, OneOnOne $oneOnOne): JsonResponse
@@ -88,12 +80,6 @@ class OneOnOneController extends Controller
 
         $note = $this->service->addNote($oneOnOne, $request->user(), $request->validated());
 
-        return response()->json([
-            'id' => $note->id,
-            'content' => $note->content,
-            'type' => $note->type,
-            'author_user_id' => $note->author_user_id,
-            'created_at' => $note->created_at,
-        ], 201);
+        return response()->json(OneOnOneNoteResource::make($note)->toArray(request()), 201);
     }
 }

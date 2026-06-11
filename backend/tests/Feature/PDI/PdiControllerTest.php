@@ -8,6 +8,13 @@ use Tests\TestCase;
 
 class PdiControllerTest extends TestCase
 {
+    private array $pdiShape = ['id', 'user_id', 'title', 'description', 'end_date', 'created_at', 'tasks'];
+
+    private array $taskShape = [
+        'id', 'pdi_id', 'title', 'description', 'link',
+        'completed', 'due_date', 'status', 'review_notes', 'reviewed_at',
+    ];
+
     // ─── index ────────────────────────────────────────────────────────────────
 
     public function test_index_retorna_pdis_do_colaborador(): void
@@ -18,7 +25,8 @@ class PdiControllerTest extends TestCase
         $this->actingAs($user)
             ->getJson('/api/pdis')
             ->assertOk()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonStructure(['data' => [$this->pdiShape]]);
     }
 
     public function test_index_nao_retorna_pdis_de_outros_usuarios(): void
@@ -62,7 +70,7 @@ class PdiControllerTest extends TestCase
     {
         $user = $this->makeUser('colaborador');
 
-        $response = $this->actingAs($user)
+        $this->actingAs($user)
             ->postJson('/api/pdis', [
                 'title' => 'Meu PDI',
                 'description' => 'Descrição',
@@ -71,7 +79,8 @@ class PdiControllerTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('data.title', 'Meu PDI')
             ->assertJsonPath('data.end_date', '2026-12-31')
-            ->assertJsonPath('data.tasks', []);
+            ->assertJsonPath('data.tasks', [])
+            ->assertJsonStructure(['data' => $this->pdiShape]);
 
         $this->assertDatabaseHas('pdis', [
             'user_id' => $user->id,
@@ -114,7 +123,8 @@ class PdiControllerTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('data.status', 'pending')
             ->assertJsonPath('data.completed', false)
-            ->assertJsonPath('data.due_date', '2026-09-01');
+            ->assertJsonPath('data.due_date', '2026-09-01')
+            ->assertJsonStructure(['data' => $this->taskShape]);
     }
 
     public function test_store_task_sem_title_retorna_422(): void
@@ -150,7 +160,8 @@ class PdiControllerTest extends TestCase
         $this->actingAs($user)
             ->putJson("/api/pdis/{$pdi->id}/tasks/{$task->id}/submit")
             ->assertOk()
-            ->assertJsonPath('data.status', 'submitted');
+            ->assertJsonPath('data.status', 'submitted')
+            ->assertJsonStructure(['data' => $this->taskShape]);
     }
 
     public function test_submit_task_ja_submitted_retorna_422(): void
@@ -194,7 +205,8 @@ class PdiControllerTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.status', 'approved')
             ->assertJsonPath('data.completed', true)
-            ->assertJsonPath('data.review_notes', 'Muito bom!');
+            ->assertJsonPath('data.review_notes', 'Muito bom!')
+            ->assertJsonStructure(['data' => $this->taskShape]);
     }
 
     public function test_review_rejeita_tarefa(): void
@@ -212,7 +224,8 @@ class PdiControllerTest extends TestCase
             ])
             ->assertOk()
             ->assertJsonPath('data.status', 'rejected')
-            ->assertJsonPath('data.completed', false);
+            ->assertJsonPath('data.completed', false)
+            ->assertJsonStructure(['data' => $this->taskShape]);
     }
 
     public function test_review_sem_status_retorna_422(): void

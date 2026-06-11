@@ -7,6 +7,11 @@ use Tests\TestCase;
 
 class EvaluationControllerTest extends TestCase
 {
+    private array $evaluationShape = [
+        'id', 'status', 'type', 'flow_type', 'month', 'year',
+        'smart_form_id', 'created_at',
+    ];
+
     public function test_index_retorna_avaliacoes_do_colaborador(): void
     {
         $gestor = $this->makeUser('gestor');
@@ -20,7 +25,8 @@ class EvaluationControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson('/api/evaluations')
             ->assertOk()
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonStructure(['data' => [$this->evaluationShape]]);
     }
 
     public function test_index_filtra_por_ano(): void
@@ -51,7 +57,14 @@ class EvaluationControllerTest extends TestCase
                 'year' => 2026,
             ])
             ->assertCreated()
-            ->assertJsonPath('data.status', 'pending_self');
+            ->assertJsonPath('data.status', 'pending_self')
+            ->assertJsonPath('data.month', 6)
+            ->assertJsonPath('data.year', 2026)
+            ->assertJsonStructure(['data' => [
+                ...$this->evaluationShape,
+                'assignee' => ['id', 'name'],
+                'creator'  => ['id', 'name'],
+            ]]);
     }
 
     public function test_store_proibido_para_colaborador(): void
@@ -70,7 +83,7 @@ class EvaluationControllerTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_show_retorna_avaliacao_do_participante(): void
+    public function test_show_retorna_avaliacao_com_responses(): void
     {
         $gestor = $this->makeUser('gestor');
         $colab = $this->makeUser('colaborador');
@@ -83,7 +96,13 @@ class EvaluationControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson("/api/evaluations/{$evaluation->id}")
             ->assertOk()
-            ->assertJsonPath('data.id', $evaluation->id);
+            ->assertJsonPath('data.id', $evaluation->id)
+            ->assertJsonStructure(['data' => [
+                ...$this->evaluationShape,
+                'assignee'  => ['id', 'name'],
+                'creator'   => ['id', 'name'],
+                'responses',
+            ]]);
     }
 
     public function test_show_proibido_para_terceiros(): void
@@ -118,7 +137,8 @@ class EvaluationControllerTest extends TestCase
                 'scores' => [['score' => 8]],
             ])
             ->assertOk()
-            ->assertJsonPath('data.status', 'pending_manager');
+            ->assertJsonPath('data.status', 'pending_manager')
+            ->assertJsonStructure(['data' => $this->evaluationShape]);
     }
 
     public function test_submit_manager_completa_avaliacao(): void
@@ -136,6 +156,7 @@ class EvaluationControllerTest extends TestCase
                 'scores' => [['score' => 9]],
             ])
             ->assertOk()
-            ->assertJsonPath('data.status', 'completed');
+            ->assertJsonPath('data.status', 'completed')
+            ->assertJsonStructure(['data' => $this->evaluationShape]);
     }
 }

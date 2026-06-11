@@ -8,6 +8,16 @@ use Tests\TestCase;
 
 class ContentControllerTest extends TestCase
 {
+    private array $itemShape = [
+        'id', 'created_by', 'type', 'title', 'description',
+        'link_url', 'file_url', 'due_date', 'created_at',
+    ];
+
+    private array $assignmentShape = [
+        'id', 'item_id', 'user_id', 'status',
+        'seen_at', 'completed_at', 'assigned_at',
+    ];
+
     public function test_index_colaborador_retorna_suas_atribuicoes(): void
     {
         $colab = $this->makeUser('colaborador');
@@ -17,7 +27,8 @@ class ContentControllerTest extends TestCase
         $this->actingAs($colab)
             ->getJson('/api/content')
             ->assertOk()
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonStructure(['data' => [$this->assignmentShape]]);
     }
 
     public function test_index_gestor_retorna_todos_itens_do_time(): void
@@ -28,7 +39,8 @@ class ContentControllerTest extends TestCase
         $this->actingAs($gestor)
             ->getJson('/api/content')
             ->assertOk()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonStructure(['data' => [$this->itemShape]]);
     }
 
     public function test_store_cria_conteudo_como_gestor(): void
@@ -44,7 +56,8 @@ class ContentControllerTest extends TestCase
                 'due_date' => now()->addDays(30)->toDateString(),
             ])
             ->assertCreated()
-            ->assertJsonPath('data.title', 'Curso de DDD');
+            ->assertJsonPath('data.title', 'Curso de DDD')
+            ->assertJsonStructure(['data' => $this->itemShape]);
     }
 
     public function test_store_proibido_para_colaborador(): void
@@ -90,7 +103,8 @@ class ContentControllerTest extends TestCase
                 'status' => 'in_progress',
             ])
             ->assertOk()
-            ->assertJsonPath('data.status', 'in_progress');
+            ->assertJsonPath('data.status', 'in_progress')
+            ->assertJsonStructure(['data' => $this->assignmentShape]);
     }
 
     public function test_progress_retorna_andamento_do_conteudo(): void
