@@ -18,6 +18,32 @@ hr-system/
 
 ---
 
+## Variáveis de ambiente
+
+### Backend (`backend/.env`)
+
+O `cp .env.example .env` já cobre tudo para rodar localmente. As únicas variáveis que você pode precisar ajustar:
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `APP_KEY` | *(gerado pelo `key:generate`)* | Chave de criptografia da aplicação |
+| `APP_URL` | `http://localhost` | URL base — não alterar para dev local |
+| `DB_CONNECTION` | `sqlite` | Banco de dados — SQLite por padrão, sem configuração extra |
+
+Variáveis de serviços externos (AWS, Redis, Mail) só precisam ser preenchidas se você for usar essas funcionalidades.
+
+### Frontend (`.env` na raiz)
+
+```bash
+cp .env.example .env
+```
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `VITE_API_URL` | `http://localhost/api` | URL da API Laravel — aponta para o Sail na porta 80 |
+
+---
+
 ## Setup inicial
 
 ### 1. Backend (Laravel Sail)
