@@ -12,13 +12,15 @@ class OneOnOneService
 {
     public function create(User $manager, array $data): OneOnOne
     {
-        return OneOnOne::create([
+        $oneOnOne = OneOnOne::create([
             'manager_id' => $manager->id,
             'report_id' => $data['report_id'],
             'scheduled_at' => $data['scheduled_at'],
             'recurrence_rule' => $data['recurrence_rule'] ?? null,
-            'notes' => $data['notes'] ?? null,
+            'status' => 'scheduled',
         ]);
+
+        return $oneOnOne->load('manager.profile', 'report.profile', 'topics');
     }
 
     public function update(OneOnOne $oneOnOne, array $data): OneOnOne
@@ -50,7 +52,7 @@ class OneOnOneService
             'author_user_id' => $author->id,
             'content' => $content,
             'addressed' => false,
-        ]);
+        ])->fresh();
     }
 
     public function updateTopic(OneOnOneTopic $topic, array $data): OneOnOneTopic

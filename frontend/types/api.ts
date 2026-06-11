@@ -91,10 +91,12 @@ export interface PdiTask {
 export interface OneOnOne {
   id: string;
   manager_id: string;
-  collaborator_id: string;
+  report_id: string;
   scheduled_at: string;
-  status: string;
+  status: string | null;
   notes: string | null;
+  manager?: { id: string; name: string };
+  report?: { id: string; name: string };
   topics?: OneOnOneTopic[];
 }
 

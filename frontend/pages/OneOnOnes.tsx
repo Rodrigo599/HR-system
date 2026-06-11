@@ -15,8 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Plus, CheckCircle2, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { useOneOnOnes, useCreateOneOnOne, useUpdateOneOnOne, useAddTopic } from "@/hooks/api/useOneOnOnes";
-import { useUsers } from "@/hooks/api/useUsers";
+import { useOneOnOnes, useOneOnOne, useCreateOneOnOne, useUpdateOneOnOne, useAddTopic } from "@/hooks/api/useOneOnOnes";
 import { UserSelect } from "@/components/shared/UserSelect";
 import type { OneOnOne } from "@/types/api";
 
@@ -27,20 +26,19 @@ export default function OneOnOnes() {
   const { run } = useMutationHandler();
 
   const oneOnOnesQuery = useOneOnOnes();
-  const usersQuery = useUsers();
   const createMutation = useCreateOneOnOne();
 
   const oneOnOnes: OneOnOne[] = oneOnOnesQuery.data ?? [];
-  const allUsers = usersQuery.data ?? [];
 
   const [createOpen, setCreateOpen] = useState(false);
   const [collaboratorId, setCollaboratorId] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
 
-  const [selected, setSelected] = useState<OneOnOne | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [newTopic, setNewTopic] = useState('');
-  const addTopicMutation = useAddTopic(selected?.id ?? '');
-  const updateMutation = useUpdateOneOnOne(selected?.id ?? '');
+  const { data: selected } = useOneOnOne(selectedId ?? '');
+  const addTopicMutation = useAddTopic(selectedId ?? '');
+  const updateMutation = useUpdateOneOnOne(selectedId ?? '');
 
   const handleCreate = async () => {
     if (!collaboratorId || !scheduledAt) {
@@ -48,7 +46,7 @@ export default function OneOnOnes() {
       return;
     }
     await run(
-      createMutation.mutateAsync({ collaborator_id: collaboratorId, scheduled_at: scheduledAt }),
+      createMutation.mutateAsync({ report_id: collaboratorId, scheduled_at: scheduledAt }),
       { successMsg: '1:1 agendado', errorMsg: 'Erro ao criar', onSuccess: () => { setCreateOpen(false); setCollaboratorId(''); setScheduledAt(''); } },
     );
   };
@@ -57,15 +55,15 @@ export default function OneOnOnes() {
     if (!newTopic.trim()) return;
     await run(
       addTopicMutation.mutateAsync(newTopic),
-      { successMsg: '', errorMsg: 'Erro ao adicionar tópico', onSuccess: () => { setNewTopic(''); oneOnOnesQuery.refetch(); } },
+      { successMsg: '', errorMsg: 'Erro ao adicionar tópico', onSuccess: () => setNewTopic('') },
     );
   };
 
   const handleComplete = async () => {
-    if (!selected) return;
+    if (!selectedId) return;
     await run(
       updateMutation.mutateAsync({ status: 'completed' }),
-      { successMsg: '1:1 concluído', onSuccess: () => { oneOnOnesQuery.refetch(); setSelected(null); } },
+      { successMsg: '1:1 concluído', onSuccess: () => setSelectedId(null) },
     );
   };
 
@@ -113,13 +111,12 @@ export default function OneOnOnes() {
       ) : (
         <div className="space-y-3">
           {oneOnOnes.map(o => {
-            const otherId = o.manager_id === user?.id ? o.collaborator_id : o.manager_id;
-            const member = allUsers.find(m => m.id === otherId);
+            const otherName = o.manager_id === user?.id ? o.report?.name : o.manager?.name;
             return (
-              <Card key={o.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(o)}>
+              <Card key={o.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedId(o.id)}>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle className="text-base">{member?.name ?? 'Colega'}</CardTitle>
+                    <CardTitle className="text-base">{otherName ?? 'Colega'}</CardTitle>
                     <CardDescription>{new Date(o.scheduled_at).toLocaleString('pt-BR')}</CardDescription>
                   </div>
                   <StatusBadge status={o.status} domain="one_on_one" />
@@ -130,9 +127,9 @@ export default function OneOnOnes() {
         </div>
       )}
 
-      <Sheet open={!!selected} onOpenChange={v => { if (!v) setSelected(null); }}>
+      <Sheet open={!!selectedId} onOpenChange={v => { if (!v) setSelectedId(null); }}>
         <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-          {selected && (
+          {selected && selectedId && (
             <div className="space-y-6">
               <SheetHeader>
                 <SheetTitle>1:1 — {new Date(selected.scheduled_at).toLocaleString('pt-BR')}</SheetTitle>

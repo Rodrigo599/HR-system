@@ -18,7 +18,7 @@ export function useOneOnOne(id: string) {
 }
 
 interface CreateOneOnOnePayload {
-  collaborator_id: string;
+  report_id: string;
   scheduled_at: string;
 }
 
