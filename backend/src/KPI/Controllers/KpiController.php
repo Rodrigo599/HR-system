@@ -24,9 +24,13 @@ class KpiController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        return KpiResource::collection(
-            $this->kpis->forUser($request->user())
-        );
+        $user = $request->user();
+
+        $items = !$request->isPersonalView() && $user->hasAnyRole(['admin', 'gestor'])
+            ? $this->kpis->forTeam($user)
+            : $this->kpis->forUser($user);
+
+        return KpiResource::collection($items);
     }
 
     public function store(StoreKpiRequest $request): KpiResource
@@ -36,7 +40,7 @@ class KpiController extends Controller
         return KpiResource::make(
             $this->kpis->create(
                 $request->only('name', 'description', 'target_value', 'unit'),
-                $request->array('sector_ids', []),
+                $request->input('sector_ids', []),
             )
         );
     }
@@ -49,7 +53,7 @@ class KpiController extends Controller
             $this->kpis->update(
                 $kpi,
                 $request->only('name', 'description', 'target_value', 'unit'),
-                $request->array('sector_ids', []),
+                $request->input('sector_ids', []),
             )
         );
     }
@@ -69,7 +73,7 @@ class KpiController extends Controller
         $month = $request->integer('month', now()->month);
         $year = $request->integer('year', now()->year);
 
-        $items = $user->hasAnyRole(['admin', 'gestor'])
+        $items = !$request->isPersonalView() && $user->hasAnyRole(['admin', 'gestor'])
             ? $this->results->forTeam($user, $month, $year)
             : $this->results->forUser($user, $month, $year);
 

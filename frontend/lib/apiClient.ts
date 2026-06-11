@@ -7,9 +7,15 @@ export const apiClient = axios.create({
   headers: { Accept: 'application/json' },
 });
 
+export const VIEW_MODE_KEY = 'hr-compass:viewMode';
+
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY);
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  const viewMode = localStorage.getItem(VIEW_MODE_KEY);
+  if (viewMode) config.headers['X-View-Mode'] = viewMode;
+
   return config;
 });
 

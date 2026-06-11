@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Src\Content\Models\ContentAssignment;
@@ -33,6 +34,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Request::macro('isPersonalView', function (): bool {
+            /** @var Request $this */
+            return $this->header('X-View-Mode') === 'personal';
+        });
+
         Factory::guessFactoryNamesUsing(function (string $modelName) {
             if (str_starts_with($modelName, 'App\\Models\\')) {
                 $base = class_basename($modelName);

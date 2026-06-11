@@ -22,11 +22,13 @@ class ContentController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        $items = $request->user()->hasAnyRole(['admin', 'gestor'])
+        $isTeam = !$request->isPersonalView() && $request->user()->hasAnyRole(['admin', 'gestor']);
+
+        $items = $isTeam
             ? $this->content->forTeam($request->user())
             : $this->content->forUser($request->user());
 
-        return $request->user()->hasAnyRole(['admin', 'gestor'])
+        return $isTeam
             ? ContentItemResource::collection($items)
             : ContentAssignmentResource::collection($items);
     }

@@ -26,6 +26,7 @@ class EvaluationController extends Controller
         $user = $request->user();
 
         $items = match (true) {
+            $request->isPersonalView() => $this->queries->forUser($user, $year),
             $user->hasRole('admin') => $this->queries->forAdmin($year),
             $user->hasAnyRole(['gestor']) => $this->queries->forTeam($user, $year),
             default => $this->queries->forUser($user, $year),
