@@ -1,26 +1,34 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useMutationHandler } from "@/hooks/useMutation";
 import { Loader2, User, Users as UsersIcon, Plus, ClipboardList, Clock } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { EvaluationSmartForm } from "@/components/evaluations/EvaluationSmartForm";
-import { useEvaluations, useCreateEvaluation } from "@/hooks/api/useEvaluations";
-import { useUsers } from "@/hooks/api/useUsers";
+import { useEvaluations, useEvaluation, useCreateEvaluation } from "@/hooks/api/useEvaluations";
 import { UserSelect } from "@/components/shared/UserSelect";
 import { MonthSelect } from "@/components/shared/MonthSelect";
 import { SmartFormSelect } from "@/components/shared/SmartFormSelect";
+import { EVALUATION_TYPES, EVALUATION_TYPE_LABELS, type EvaluationType } from "@/lib/enums";
 import type { Evaluation } from "@/types/api";
 
+function EvaluationDetail({ id, onSaved, onBack }: { id: string; onSaved: () => void; onBack: () => void }) {
+  const { data, isLoading } = useEvaluation(id);
+  if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!data) return null;
+  return <EvaluationSmartForm evaluation={data} onSaved={onSaved} onBack={onBack} />;
+}
 
 export default function Evaluations() {
   const { user, isAdmin, isGestor } = useAuth();
@@ -31,21 +39,20 @@ export default function Evaluations() {
   const showTeamTab = isAdmin || isGestor;
 
   const evaluationsQuery = useEvaluations();
-  const usersQuery = useUsers();
   const createMutation = useCreateEvaluation();
 
   const evaluations: Evaluation[] = evaluationsQuery.data ?? [];
-  const allUsers = usersQuery.data ?? [];
 
-  const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [newAssignedTo, setNewAssignedTo] = useState('');
   const [newFormId, setNewFormId] = useState('');
+  const [newType, setNewType] = useState<EvaluationType>('cultural');
   const [newMonth, setNewMonth] = useState(new Date().getMonth() + 1);
   const [newYear, setNewYear] = useState(new Date().getFullYear());
 
-  const myEvaluations = evaluations.filter(e => e.assigned_to === user?.id);
-  const teamEvaluations = evaluations.filter(e => e.assigned_to !== user?.id);
+  const myEvaluations = evaluations.filter(e => e.assignee?.id === user?.id);
+  const teamEvaluations = evaluations.filter(e => e.assignee?.id !== user?.id);
 
   const handleCreate = async () => {
     if (!newAssignedTo || !newFormId) {
@@ -53,8 +60,8 @@ export default function Evaluations() {
       return;
     }
     await run(
-      createMutation.mutateAsync({ type: 'cultural', period: `${newYear}-${newMonth}`, assigned_to: newAssignedTo, smart_form_id: newFormId }),
-      { successMsg: t('evaluationCreated'), errorMsg: t('error'), onSuccess: () => { setCreateOpen(false); setNewAssignedTo(''); setNewFormId(''); } },
+      createMutation.mutateAsync({ type: newType, month: newMonth, year: newYear, assigned_to: newAssignedTo, smart_form_id: newFormId }),
+      { successMsg: t('evaluationCreated'), errorMsg: t('error'), onSuccess: () => { setCreateOpen(false); setNewAssignedTo(''); setNewFormId(''); setNewType('cultural'); } },
     );
   };
 
@@ -93,6 +100,17 @@ export default function Evaluations() {
                     category="evaluation"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Tipo</Label>
+                  <Select value={newType} onValueChange={v => setNewType(v as EvaluationType)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {EVALUATION_TYPES.map(t => (
+                        <SelectItem key={t} value={t}>{EVALUATION_TYPE_LABELS[t]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>{t('month')}</Label>
@@ -116,7 +134,7 @@ export default function Evaluations() {
         )}
       </div>
 
-      <Tabs defaultValue="my" onValueChange={() => setSelectedEvaluation(null)}>
+      <Tabs defaultValue="my" onValueChange={() => setSelectedId(null)}>
         <TabsList>
           <TabsTrigger value="my" className="flex items-center gap-2">
             <User className="h-4 w-4" /> {t('myEvaluations')}
@@ -134,11 +152,11 @@ export default function Evaluations() {
           {myEvaluations.length === 0 ? (
             <Card><CardContent><EmptyState icon={ClipboardList} title="Nenhuma avaliação pendente" description="Quando seu líder iniciar uma avaliação, ela aparece aqui." /></CardContent></Card>
           ) : myEvaluations.map(evaluation => (
-            <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-amber-400" onClick={() => setSelectedEvaluation(evaluation)}>
+            <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-amber-400" onClick={() => setSelectedId(evaluation.id)}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-amber-500 shrink-0" />
-                  <CardTitle className="text-base">{evaluation.type} · {evaluation.period}</CardTitle>
+                  <CardTitle className="text-base">{EVALUATION_TYPE_LABELS[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardTitle>
                 </div>
                 <StatusBadge status={evaluation.status} domain="evaluation" />
               </CardHeader>
@@ -151,13 +169,12 @@ export default function Evaluations() {
             {teamEvaluations.length === 0 ? (
               <Card><CardContent><EmptyState icon={ClipboardList} title="Nenhuma avaliação criada" description="Crie a primeira avaliação para um liderado." ctaLabel="Nova avaliação" onCtaClick={() => setCreateOpen(true)} /></CardContent></Card>
             ) : teamEvaluations.map(evaluation => {
-              const member = allUsers.find(m => m.id === evaluation.assigned_to);
               return (
-                <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedEvaluation(evaluation)}>
+                <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedId(evaluation.id)}>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                      <CardTitle className="text-base">{member?.name ?? 'Colaborador'}</CardTitle>
-                      <CardDescription>{evaluation.type} · {evaluation.period}</CardDescription>
+                      <CardTitle className="text-base">{evaluation.assignee?.name ?? 'Colaborador'}</CardTitle>
+                      <CardDescription>{EVALUATION_TYPE_LABELS[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardDescription>
                     </div>
                     <StatusBadge status={evaluation.status} domain="evaluation" />
                   </CardHeader>
@@ -168,11 +185,11 @@ export default function Evaluations() {
         )}
       </Tabs>
 
-      {selectedEvaluation && (
-        <EvaluationSmartForm
-          evaluation={selectedEvaluation}
-          onSaved={() => evaluationsQuery.refetch()}
-          onBack={() => setSelectedEvaluation(null)}
+      {selectedId && (
+        <EvaluationDetail
+          id={selectedId}
+          onSaved={() => { evaluationsQuery.refetch(); }}
+          onBack={() => setSelectedId(null)}
         />
       )}
     </div>

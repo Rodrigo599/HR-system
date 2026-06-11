@@ -72,12 +72,13 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
   const isGestor = hasRole("gestor") || hasRole("admin");
   const isBlind = evaluation.flow_type === "blind_simultaneous";
 
-  const { data: smartForm, isLoading: formLoading } = useSmartForm(evaluation.form_id ?? "");
+  const { data: smartForm, isLoading: formLoading } = useSmartForm(evaluation.smart_form_id ?? "");
   const submitSelf = useSubmitSelfEvaluation(evaluation.id);
   const submitManager = useSubmitManagerEvaluation(evaluation.id);
 
-  const selfResponse = evaluation.self_responses;
-  const managerResponse = evaluation.manager_responses;
+  const response = evaluation.responses?.[0] ?? null;
+  const selfResponse = response?.self_score != null ? { score: response.self_score } : null;
+  const managerResponse = response?.manager_score != null ? { score: response.manager_score } : null;
 
   // Determinar fase
   type Phase = "self" | "manager" | "readonly";
@@ -86,8 +87,9 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
   let phase: Phase = "readonly";
   let blindState: BlindState = "na";
 
+  const isAssignee = evaluation.assignee?.id === user?.id;
+
   if (isBlind) {
-    const isCollaborator = evaluation.assigned_to === user?.id;
     const revealed =
       evaluation.status === "both_submitted" ||
       evaluation.status === "completed" ||
@@ -96,7 +98,7 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
     if (revealed) {
       phase = "readonly";
       blindState = "reveal";
-    } else if (isCollaborator) {
+    } else if (isAssignee) {
       if (selfResponse) { phase = "readonly"; blindState = "awaiting_other"; }
       else { phase = "self"; blindState = "awaiting_my_input"; }
     } else if (isGestor) {
@@ -104,7 +106,7 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
       else { phase = "manager"; blindState = "awaiting_my_input"; }
     }
   } else {
-    if (evaluation.status === "pending_self" && evaluation.assigned_to === user?.id) {
+    if (evaluation.status === "pending_self" && isAssignee) {
       phase = "self";
     } else if (evaluation.status === "pending_manager" && isGestor) {
       phase = "manager";
@@ -137,7 +139,7 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
     );
   }
 
-  if (!evaluation.form_id) {
+  if (!evaluation.smart_form_id) {
     return (
       <Card>
         <CardContent className="py-8 text-center space-y-4">

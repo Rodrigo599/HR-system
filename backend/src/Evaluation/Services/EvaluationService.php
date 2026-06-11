@@ -14,7 +14,7 @@ class EvaluationService
 {
     public function create(User $creator, CreateEvaluationDTO $dto): Evaluation
     {
-        return Evaluation::create([
+        $evaluation = Evaluation::create([
             'created_by' => $creator->id,
             'assigned_to' => $dto->assignedTo,
             'type' => $dto->type,
@@ -24,6 +24,8 @@ class EvaluationService
             'smart_form_id' => $dto->smartFormId,
             'status' => EvaluationStatus::PendingSelf,
         ]);
+
+        return $evaluation->load('assignee.profile', 'creator');
     }
 
     public function submitSelf(Evaluation $evaluation, array $scores): Evaluation

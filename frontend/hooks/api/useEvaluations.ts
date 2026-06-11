@@ -19,7 +19,8 @@ export function useEvaluation(id: string) {
 
 interface CreateEvaluationPayload {
   type: string;
-  period: string;
+  month: number;
+  year: number;
   assigned_to: string;
   smart_form_id?: string;
 }
@@ -29,7 +30,10 @@ export function useCreateEvaluation() {
   return useMutation({
     mutationFn: (payload: CreateEvaluationPayload) =>
       apiClient.post<ApiItem<Evaluation>>('/evaluations', payload).then((r) => r.data.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['evaluations'] }),
+    onSuccess: (newEval) => {
+      qc.setQueryData<Evaluation[]>(['evaluations'], (old = []) => [newEval, ...old]);
+      qc.invalidateQueries({ queryKey: ['evaluations'] });
+    },
   });
 }
 
@@ -41,7 +45,7 @@ export function useSubmitSelfEvaluation(evaluationId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: SubmitResponsePayload) =>
-      apiClient.post<ApiItem<Evaluation>>(`/evaluations/${evaluationId}/submit-self`, payload).then((r) => r.data.data),
+      apiClient.put<ApiItem<Evaluation>>(`/evaluations/${evaluationId}/submit-self`, payload).then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['evaluations', evaluationId] }),
   });
 }
@@ -50,7 +54,7 @@ export function useSubmitManagerEvaluation(evaluationId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: SubmitResponsePayload) =>
-      apiClient.post<ApiItem<Evaluation>>(`/evaluations/${evaluationId}/submit-manager`, payload).then((r) => r.data.data),
+      apiClient.put<ApiItem<Evaluation>>(`/evaluations/${evaluationId}/submit-manager`, payload).then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['evaluations', evaluationId] }),
   });
 }

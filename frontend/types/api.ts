@@ -34,15 +34,14 @@ export interface Evaluation {
   id: string;
   type: string;
   status: string;
-  period: string;
-  assigned_to: string;
-  created_by: string;
-  form_id: string | null;
   flow_type: string;
-  self_responses: Record<string, unknown> | null;
-  manager_responses: Record<string, unknown> | null;
+  month: number;
+  year: number;
+  smart_form_id: string | null;
   created_at: string;
-  updated_at: string;
+  assignee?: { id: string; name: string; profile?: { full_name: string; avatar_url: string | null } | null };
+  creator?: { id: string; name: string };
+  responses?: Array<{ id: string; self_score: number | null; manager_score: number | null; final_score: number | null }>;
 }
 
 export interface Kpi {
