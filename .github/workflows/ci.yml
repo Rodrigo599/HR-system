@@ -82,7 +82,7 @@ jobs:
         working-directory: backend
 
       - name: Install Node dependencies
-        run: npm ci --no-optional
+        run: npm ci --omit=optional
 
       - name: Generate OpenAPI spec
         run: php artisan scramble:export
