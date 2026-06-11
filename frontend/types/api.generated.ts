@@ -1925,7 +1925,6 @@ export interface operations {
                         content: string;
                         addressed: boolean;
                         author_user_id: string;
-                        /** Format: date-time */
                         created_at: string;
                     };
                 };
@@ -1959,6 +1958,8 @@ export interface operations {
                         id: string;
                         content: string;
                         addressed: boolean;
+                        author_user_id: string;
+                        created_at: string;
                     };
                 };
             };
@@ -1993,7 +1994,6 @@ export interface operations {
                         content: string;
                         type: string;
                         author_user_id: string;
-                        /** Format: date-time */
                         created_at: string;
                     };
                 };
