@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ['**']
 
+permissions:
+  contents: write
+
 jobs:
   backend:
     name: PHP Tests
@@ -95,3 +98,11 @@ jobs:
 
       - name: TypeScript type check
         run: npx tsc --noEmit
+
+      - name: Commit updated types
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/types/api.generated.ts
+          git diff --cached --quiet || git commit -m "chore: regenerate api.generated.ts"
+          git push
