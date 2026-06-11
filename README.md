@@ -1,37 +1,116 @@
-# Welcome to your Lovable project
+# HR System
 
-## Project info
+Sistema de RH com backend Laravel 13 (PHP 8.4) e frontend React + TypeScript.
 
-**URL**: https://lovable.dev/projects/5a13c8d0-4983-4af1-9399-2c43ff5d9570
+## Arquitetura
 
-## How can I edit this code?
+```
+hr-system/
+├── backend/      # Laravel 13 — API REST, roda via Docker (Sail)
+└── frontend/     # React + Vite — roda localmente com npm
+```
 
-There are several ways of editing your application.
+## Pré-requisitos
 
-**Use Lovable**
+- Docker Desktop rodando
+- Node.js 22+ e npm
+- PHP 8.4 + Composer (apenas para o primeiro `composer install` fora do Sail)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5a13c8d0-4983-4af1-9399-2c43ff5d9570) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Setup inicial
 
-**Use your preferred IDE**
+### 1. Backend (Laravel Sail)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+cd backend
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Instalar dependências PHP (uma vez, fora do Docker)
+composer install
 
-Follow these steps:
+# Copiar o .env e gerar a chave
+cp .env.example .env
+./vendor/bin/sail artisan key:generate
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Subir os containers
+./vendor/bin/sail up -d
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Rodar as migrations
+./vendor/bin/sail artisan migrate
 
-# Step 3: Install the necessary dependencies.
-npm i
+# (Opcional) Popular com dados de exemplo
+./vendor/bin/sail artisan db:seed
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+A API estará disponível em **http://localhost/api**.
+
+> Todos os comandos artisan devem rodar dentro do Sail:
+> `./vendor/bin/sail artisan <comando>`
+
+### 2. Frontend (React + Vite)
+
+```bash
+# Na raiz do projeto (não dentro de backend/)
+npm install
+
+# Copiar o .env
+cp .env.example .env   # VITE_API_URL=http://localhost/api
+
+# Subir o servidor de desenvolvimento
 npm run dev
 ```
+
+O frontend estará disponível em **http://localhost:5173**.
+
+---
+
+## Comandos do dia a dia
+
+### Backend
+
+```bash
+# Subir / parar containers
+./vendor/bin/sail up -d
+./vendor/bin/sail down
+
+# Rodar testes
+./vendor/bin/sail test
+
+# Criar migration
+./vendor/bin/sail artisan make:migration create_exemplo_table
+
+# Tinker (REPL)
+./vendor/bin/sail artisan tinker
+```
+
+### Frontend
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build de produção
+npm run build
+
+# Testes
+npm run test
+```
+
+### Contrato de API
+
+Sempre que alterar um Resource ou FormRequest no Laravel, regenere os tipos TypeScript:
+
+```bash
+npm run api:types
+```
+
+Isso exporta a spec OpenAPI via Scramble e gera `frontend/types/api.generated.ts` com os tipos atualizados. O CI também faz isso automaticamente a cada push.
+
+---
+
+## CI
+
+O GitHub Actions roda a cada push/PR:
+
+1. **PHP Tests** — roda todos os feature tests com SQLite em memória
+2. **API Contract** — gera a spec OpenAPI, gera os tipos TypeScript, valida com `tsc --noEmit` e commita `api.generated.ts` de volta no branch se houver mudanças
