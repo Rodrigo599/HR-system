@@ -32,7 +32,8 @@
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); paths=list\\(d.get\\('paths',{}\\).keys\\(\\)\\); print\\(f'{len\\(paths\\)} rotas documentadas'\\); print\\('\\\\n'.join\\(paths[:20]\\)\\)\")",
       "Bash(npm run *)",
       "Bash(python3 -)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(npm uninstall *)"
     ]
   }
 }
