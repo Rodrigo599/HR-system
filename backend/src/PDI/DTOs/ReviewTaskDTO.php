@@ -14,8 +14,8 @@ class ReviewTaskDTO
     public static function fromRequest(Request $request): self
     {
         return new self(
-            decision: $request->string('decision'),
-            comment: $request->input('comment'),
+            decision: $request->string('status'),
+            comment: $request->input('review_notes'),
         );
     }
 }

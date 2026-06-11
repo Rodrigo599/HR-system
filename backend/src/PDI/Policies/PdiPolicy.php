@@ -23,8 +23,7 @@ class PdiPolicy
 
     public function submitTask(User $user, PdiTask $task): bool
     {
-        return $task->pdi->user_id === $user->id
-            && $task->status === PdiTaskStatus::Pending;
+        return $task->pdi->user_id === $user->id;
     }
 
     public function reviewTask(User $user, PdiTask $task): bool

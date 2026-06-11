@@ -27,11 +27,9 @@ class PdiController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        $items = $request->user()->hasAnyRole(['admin', 'gestor'])
-            ? $this->pdis->forTeam($request->user())
-            : $this->pdis->forUser($request->user());
-
-        return PdiResource::collection($items);
+        return PdiResource::collection(
+            $this->pdis->forUser($request->user())
+        );
     }
 
     public function store(CreatePdiRequest $request): PdiResource

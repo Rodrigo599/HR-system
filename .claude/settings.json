@@ -20,7 +20,12 @@
       "Bash(node -e \"const v = require\\('./node_modules/@exodus/bytes/package.json'\\); console.log\\(v.version, v.type\\)\")",
       "Bash(npx tsc *)",
       "Bash(curl -s -X POST http://localhost/api/feedback -H 'Authorization: Bearer 6|ZY7n2Stk7a8ZJgAhbR5YB8fRSLsmCHsjdv0YrlZY4a82cf17' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{\"to_user_id\":\"019eb2a2-4354-70db-9ffd-8d3dc424e7b9\",\"type\":\"kudos\",\"content\":\"Ótimo trabalho no projeto!\",\"visibility\":\"with_manager\"}')",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X GET http://localhost/api/pdis -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json')",
+      "Bash(curl -s -X GET http://localhost/api/user -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json')",
+      "Bash(curl -s -v -X GET http://localhost/api/pdis -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json')",
+      "Bash(curl -s -D - -X GET http://localhost/api/pdis -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json')",
+      "Bash(curl -s -X PUT http://localhost/api/pdis/019eb37f-a8a9-72d4-a845-8eda70099009/tasks/019eb68b-2bad-72c9-a7de-86d222e803c8/review -H 'Authorization: Bearer 10|yxLqkbhIfueXU2ZM9Y6E4ghX8kNf9PqDqq6Ct15S09c02ec7' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"status\":\"approved\",\"review_notes\":\"Muito bom!\"}')"
     ]
   }
 }

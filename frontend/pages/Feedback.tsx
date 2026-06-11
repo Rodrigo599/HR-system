@@ -39,17 +39,24 @@ export default function Feedback() {
   const [visibility, setVisibility] = useState<FeedbackVisibility>('with_manager');
 
   const handleSend = async () => {
-    if (!toUserId || !content.trim()) {
-      toast({ title: 'Preencha destinatário e mensagem', variant: 'destructive' });
+    if (!toUserId) {
+      toast({ title: 'Selecione o destinatário', variant: 'destructive' });
+      return;
+    }
+    if (content.trim().length < 10) {
+      toast({ title: 'Mensagem muito curta', description: 'O feedback precisa ter pelo menos 10 caracteres.', variant: 'destructive' });
       return;
     }
     try {
-      await createMutation.mutateAsync({ to_user_id: toUserId, type, content, visibility });
+      await createMutation.mutateAsync({ to_user_id: toUserId, type, content: content.trim(), visibility });
       toast({ title: 'Feedback enviado' });
       setToUserId('');
       setContent('');
-    } catch {
-      toast({ title: 'Erro ao enviar', variant: 'destructive' });
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+      const apiMsg = axiosErr?.response?.data?.message;
+      const firstError = axiosErr?.response?.data?.errors ? Object.values(axiosErr.response.data.errors)[0]?.[0] : undefined;
+      toast({ title: 'Erro ao enviar', description: firstError ?? apiMsg ?? 'Tente novamente.', variant: 'destructive' });
     }
   };
 

@@ -58,7 +58,7 @@ export default function PDI() {
   const handleCreatePdi = async () => {
     if (!newPdiTitle.trim()) return;
     await run(
-      createPdiMutation.mutateAsync({ title: newPdiTitle, description: newPdiDesc || undefined, due_date: newPdiDue || undefined }),
+      createPdiMutation.mutateAsync({ title: newPdiTitle, description: newPdiDesc || undefined, end_date: newPdiDue || undefined }),
       { successMsg: 'PDI criado', onSuccess: (pdi) => { setSelectedPdi(pdi); setNewPdiOpen(false); setNewPdiTitle(''); setNewPdiDesc(''); setNewPdiDue(''); } },
     );
   };
@@ -67,7 +67,7 @@ export default function PDI() {
     if (!newTaskTitle.trim() || !selectedPdi) return;
     await run(
       createTaskMutation.mutateAsync({ title: newTaskTitle, due_date: newTaskDue || undefined }),
-      { successMsg: 'Tarefa adicionada', onSuccess: () => { setNewTaskOpen(false); setNewTaskTitle(''); setNewTaskDue(''); pdisQuery.refetch(); } },
+      { successMsg: 'Tarefa adicionada', onSuccess: () => { setNewTaskOpen(false); setNewTaskTitle(''); setNewTaskDue(''); } },
     );
   };
 
@@ -87,7 +87,7 @@ export default function PDI() {
     }
     await run(
       reviewTaskMutation.mutateAsync({ taskId: reviewDialog.task.id, status: reviewDialog.mode === 'approve' ? 'approved' : 'rejected', review_notes: reviewNotes }),
-      { successMsg: reviewDialog.mode === 'approve' ? 'Tarefa aprovada' : 'Tarefa rejeitada', onSuccess: () => { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); pdisQuery.refetch(); } },
+      { successMsg: reviewDialog.mode === 'approve' ? 'Tarefa aprovada' : 'Tarefa rejeitada', onSuccess: () => { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); } },
     );
   };
 
@@ -126,7 +126,7 @@ export default function PDI() {
                   <Card key={pdi.id} className={`cursor-pointer hover:shadow-md transition-shadow ${activePdi?.id === pdi.id ? 'border-primary' : ''}`} onClick={() => setSelectedPdi(pdi)}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">{pdi.title}</CardTitle>
-                      {pdi.due_date && <CardDescription>Prazo: {formatDate(pdi.due_date)}</CardDescription>}
+                      {pdi.end_date && <CardDescription>Prazo: {formatDate(pdi.end_date)}</CardDescription>}
                     </CardHeader>
                   </Card>
                 ))}

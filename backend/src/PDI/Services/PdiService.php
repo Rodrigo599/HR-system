@@ -14,13 +14,17 @@ class PdiService
 
     public function create(User $user, CreatePdiDTO $dto): Pdi
     {
-        return Pdi::create([
+        $pdi = Pdi::create([
             'user_id' => $user->id,
             'title' => $dto->title,
             'description' => $dto->description,
             'start_date' => $dto->startDate,
             'end_date' => $dto->endDate,
         ]);
+
+        $pdi->setRelation('tasks', collect());
+
+        return $pdi;
     }
 
     public function forUser(User $user): Collection

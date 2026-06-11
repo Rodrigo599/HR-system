@@ -9,8 +9,8 @@ class ReviewTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'decision' => ['required', 'in:approved,rejected'],
-            'comment' => ['nullable', 'string'],
+            'status' => ['required', 'in:approved,rejected'],
+            'review_notes' => ['nullable', 'string'],
         ];
     }
 }

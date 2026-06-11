@@ -70,10 +70,11 @@ export function GiveFeedback({
   };
 
   const isSelf = user?.id === toUserId;
+  const MIN_LEN = 10;
   const canSubmit =
     !!user?.id &&
     !isSelf &&
-    content.trim().length > 0 &&
+    content.trim().length >= MIN_LEN &&
     content.length <= MAX_LEN &&
     !createFeedback.isPending;
 
@@ -160,8 +161,11 @@ export function GiveFeedback({
               onChange={(e) => setContent(e.target.value.slice(0, MAX_LEN))}
               rows={4}
             />
-            <div className="text-xs text-muted-foreground text-right">
-              {content.length}/{MAX_LEN}
+            <div className="flex justify-between text-xs text-muted-foreground">
+              {content.trim().length < MIN_LEN && content.length > 0 && (
+                <span className="text-destructive">Mínimo {MIN_LEN} caracteres</span>
+              )}
+              <span className="ml-auto">{content.length}/{MAX_LEN}</span>
             </div>
           </div>
 

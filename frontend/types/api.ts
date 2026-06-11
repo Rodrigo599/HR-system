@@ -71,10 +71,8 @@ export interface Pdi {
   user_id: string;
   title: string;
   description: string | null;
-  status: string;
-  due_date: string | null;
+  end_date: string | null;
   created_at: string;
-  updated_at: string;
   tasks?: PdiTask[];
 }
 
@@ -83,10 +81,12 @@ export interface PdiTask {
   pdi_id: string;
   title: string;
   description: string | null;
-  status: string;
+  link: string | null;
+  completed: boolean;
   due_date: string | null;
-  completed_at: string | null;
+  status: string;
   review_notes: string | null;
+  reviewed_at: string | null;
 }
 
 export interface OneOnOne {

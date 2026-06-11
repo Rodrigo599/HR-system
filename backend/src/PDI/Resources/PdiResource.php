@@ -14,8 +14,7 @@ class PdiResource extends JsonResource
             'user_id' => $this->user_id,
             'title' => $this->title,
             'description' => $this->description,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
+            'end_date' => $this->end_date?->toDateString(),
             'created_at' => $this->created_at,
             'tasks' => $this->whenLoaded('tasks', fn () =>
                 PdiTaskResource::collection($this->tasks)
