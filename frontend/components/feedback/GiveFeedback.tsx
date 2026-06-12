@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { FEEDBACK_TYPES, FEEDBACK_TYPE_LABELS, type PointwiseFeedbackType } from "@/lib/enums";
+import { FEEDBACK_TYPES, getFeedbackTypeLabels, type PointwiseFeedbackType } from "@/lib/enums";
 import {
   MessageSquarePlus,
   Star,
@@ -58,6 +58,7 @@ export function GiveFeedback({
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const feedbackTypeLabels = getFeedbackTypeLabels(t);
   const createFeedback = useCreateFeedback();
 
   const [open, setOpen] = useState(false);
@@ -141,7 +142,7 @@ export function GiveFeedback({
                     )}
                   >
                     <Icon className="h-5 w-5" />
-                    {FEEDBACK_TYPE_LABELS[value]}
+                    {feedbackTypeLabels[value]}
                   </button>
                 );
               })}

@@ -68,80 +68,91 @@ export type ContentType = typeof CONTENT_TYPES[number];
 export const CONTENT_ASSIGNMENT_STATUS = ['assigned', 'in_progress', 'completed'] as const;
 export type ContentAssignmentStatus = typeof CONTENT_ASSIGNMENT_STATUS[number];
 
-// Labels pt-BR para uso em UI
-export const EVALUATION_STATUS_LABELS: Record<EvaluationStatus, string> = {
-  pending_self: 'Aguardando autoavaliação',
-  pending_manager: 'Aguardando gestor',
-  completed: 'Concluída',
-  closed: 'Encerrada',
-};
+// Funções de label i18n — recebem t() do LanguageContext
+type TFn = (key: string) => string;
 
-export const EVALUATION_TYPE_LABELS: Record<EvaluationType, string> = {
-  cultural: 'Cultural',
-  performance: 'Performance',
-  kpi: 'KPI',
-};
+export const getEvaluationStatusLabels = (t: TFn): Record<EvaluationStatus, string> => ({
+  pending_self: t('evalStatusPendingSelf'),
+  pending_manager: t('evalStatusPendingManager'),
+  completed: t('evalStatusCompleted'),
+  closed: t('evalStatusClosed'),
+});
 
-export const PDI_TASK_STATUS_LABELS: Record<PdiTaskStatus, string> = {
-  pending: 'Pendente',
-  submitted: 'Enviada',
-  approved: 'Aprovada',
-  rejected: 'Rejeitada',
-};
+export const getEvaluationTypeLabels = (t: TFn): Record<EvaluationType, string> => ({
+  cultural: t('evalTypeCultural'),
+  performance: t('evalTypePerformance'),
+  kpi: t('evalTypeKpi'),
+});
 
-export const PDI_STATUS_LABELS: Record<PdiStatus, string> = {
-  active: 'Ativo',
-  completed: 'Concluído',
-  cancelled: 'Cancelado',
-};
+export const getPdiTaskStatusLabels = (t: TFn): Record<PdiTaskStatus, string> => ({
+  pending: t('pdiTaskPending'),
+  submitted: t('pdiTaskSubmitted'),
+  approved: t('pdiTaskApproved'),
+  rejected: t('pdiTaskRejected'),
+});
 
-export const ONE_ON_ONE_STATUS_LABELS: Record<OneOnOneStatus, string> = {
-  scheduled: 'Agendado',
-  completed: 'Realizado',
-  cancelled: 'Cancelado',
-};
+export const getPdiStatusLabels = (t: TFn): Record<PdiStatus, string> => ({
+  active: t('pdiStatusActive'),
+  completed: t('pdiStatusCompleted'),
+  cancelled: t('pdiStatusCancelled'),
+});
 
-export const FEEDBACK_TYPE_LABELS: Record<PointwiseFeedbackType, string> = {
-  kudos: 'Reconhecimento',
-  adjustment: 'Ajuste',
-  observation: 'Observação',
-};
+export const getOneOnOneStatusLabels = (t: TFn): Record<OneOnOneStatus, string> => ({
+  scheduled: t('oneOnOneStatusScheduled'),
+  completed: t('oneOnOneStatusCompleted'),
+  cancelled: t('oneOnOneStatusCancelled'),
+});
 
-export const FEEDBACK_VISIBILITY_LABELS: Record<FeedbackVisibility, string> = {
-  private: 'Apenas eu e o destinatário',
-  with_manager: 'Eu + gestor do destinatário',
-};
+export const getFeedbackTypeLabels = (t: TFn): Record<PointwiseFeedbackType, string> => ({
+  kudos: t('feedbackTypeKudos'),
+  adjustment: t('feedbackTypeAdjustment'),
+  observation: t('feedbackTypeObservation'),
+});
 
-export const SMART_FORM_STATUS_LABELS: Record<SmartFormStatus, string> = {
-  draft: 'Rascunho',
-  active: 'Ativo',
-  archived: 'Arquivado',
-};
+export const getFeedbackVisibilityLabels = (t: TFn): Record<FeedbackVisibility, string> => ({
+  private: t('feedbackVisibilityPrivateLabel'),
+  with_manager: t('feedbackVisibilityWithManagerLabel'),
+});
 
-export const SMART_FORM_CATEGORY_LABELS: Record<SmartFormCategory, string> = {
-  evaluation: 'Avaliação',
-  onboarding: 'Onboarding',
-  survey: 'Pesquisa',
-  feedback: 'Feedback',
-  custom: 'Personalizado',
-};
+export const getSmartFormStatusLabels = (t: TFn): Record<SmartFormStatus, string> => ({
+  draft: t('smartFormDraft'),
+  active: t('smartFormActive'),
+  archived: t('smartFormArchived'),
+});
 
-export const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
-  video: 'Vídeo',
-  article: 'Artigo',
-  document: 'Documento',
-  course: 'Curso',
-};
+export const getSmartFormCategoryLabels = (t: TFn): Record<SmartFormCategory, string> => ({
+  evaluation: t('smartFormCatEvaluation'),
+  onboarding: t('smartFormCatOnboarding'),
+  survey: t('smartFormCatSurvey'),
+  feedback: t('smartFormCatFeedback'),
+  custom: t('smartFormCatCustom'),
+});
 
-export const CONTENT_ASSIGNMENT_STATUS_LABELS: Record<ContentAssignmentStatus, string> = {
-  assigned: 'Atribuído',
-  in_progress: 'Em andamento',
-  completed: 'Concluído',
-};
+export const getContentTypeLabels = (t: TFn): Record<string, string> => ({
+  video: t('contentTypeVideo'),
+  article: t('contentTypeArticle'),
+  document: t('contentTypeDocument'),
+  course: t('contentTypeCourse'),
+  training: t('contentTypeTraining'),
+  reading: t('contentTypeReading'),
+  process: t('contentTypeProcess'),
+});
 
-export const APP_ROLE_LABELS: Record<AppRole, string> = {
-  admin: 'Admin',
-  gestor: 'Gestor',
-  colaborador: 'Colaborador',
-  analista: 'Analista',
-};
+export const getAppRoleLabels = (t: TFn): Record<AppRole, string> => ({
+  admin: t('adminRole'),
+  gestor: t('gestorRole'),
+  colaborador: t('colaboradorRole'),
+  analista: t('analistaRole'),
+});
+
+// Aliases estáticos mantidos para retrocompatibilidade (PT-BR fixo)
+export const EVALUATION_STATUS_LABELS = getEvaluationStatusLabels((k) => k);
+export const PDI_TASK_STATUS_LABELS = getPdiTaskStatusLabels((k) => k);
+export const PDI_STATUS_LABELS = getPdiStatusLabels((k) => k);
+export const ONE_ON_ONE_STATUS_LABELS = getOneOnOneStatusLabels((k) => k);
+export const SMART_FORM_STATUS_LABELS = getSmartFormStatusLabels((k) => k);
+export const SMART_FORM_CATEGORY_LABELS = getSmartFormCategoryLabels((k) => k);
+export const FEEDBACK_TYPE_LABELS = getFeedbackTypeLabels((k) => k);
+export const FEEDBACK_VISIBILITY_LABELS = getFeedbackVisibilityLabels((k) => k);
+export const EVALUATION_TYPE_LABELS = getEvaluationTypeLabels((k) => k);
+export const APP_ROLE_LABELS = getAppRoleLabels((k) => k);

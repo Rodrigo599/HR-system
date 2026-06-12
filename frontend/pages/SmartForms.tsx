@@ -20,7 +20,7 @@ import { SectorSelect } from '@/components/shared/SectorSelect';
 import { SectorName } from '@/components/shared/SectorName';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import type { SmartFormCategory, SmartFormStatus } from '@/lib/enums';
-import { SMART_FORM_CATEGORY_LABELS } from '@/lib/enums';
+import { getSmartFormCategoryLabels } from '@/lib/enums';
 import type { SmartForm } from '@/types/api';
 
 type ViewMode = 'list' | 'preview' | 'edit';
@@ -82,6 +82,7 @@ export default function SmartForms() {
   const { t } = useLanguage();
   const { toast } = useToast();
   const { isAdmin } = useAuth();
+  const smartFormCategoryLabels = getSmartFormCategoryLabels(t);
 
   const [view, setView] = useState<ViewMode>('list');
   const [selectedForm, setSelectedForm] = useState<SmartForm | null>(null);
@@ -273,7 +274,7 @@ export default function SmartForms() {
                 <StatusBadge status={form.status} domain="smart_form" />
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
-                <Badge variant="outline" className="text-xs">{SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}</Badge>
+                <Badge variant="outline" className="text-xs">{smartFormCategoryLabels[form.category as SmartFormCategory] ?? form.category}</Badge>
                 <Badge variant="outline" className="text-xs"><SectorName sectorId={form.sector_id} fallback={t('allSectorsOption')} /></Badge>
                 <span className="font-mono text-xs truncate">{form.slug}</span>
               </div>
@@ -324,7 +325,7 @@ export default function SmartForms() {
                     <span className="block truncate" title={form.slug}>{form.slug}</span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{SMART_FORM_CATEGORY_LABELS[form.category as SmartFormCategory] ?? form.category}</Badge>
+                    <Badge variant="outline">{smartFormCategoryLabels[form.category as SmartFormCategory] ?? form.category}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-xs"><SectorName sectorId={form.sector_id} fallback={t('all')} /></Badge>

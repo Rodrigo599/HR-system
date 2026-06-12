@@ -16,8 +16,8 @@ import { useFeedbackReceived, useFeedbackSent, useCreateFeedback, useDeleteFeedb
 import { UserSelect } from '@/components/shared/UserSelect';
 import {
   FEEDBACK_TYPES,
-  FEEDBACK_TYPE_LABELS,
-  FEEDBACK_VISIBILITY_LABELS,
+  getFeedbackTypeLabels,
+  getFeedbackVisibilityLabels,
   type PointwiseFeedbackType,
   type FeedbackVisibility,
 } from '@/lib/enums';
@@ -26,6 +26,8 @@ export default function Feedback() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const feedbackTypeLabels = getFeedbackTypeLabels(t);
+  const feedbackVisibilityLabels = getFeedbackVisibilityLabels(t);
 
   const receivedQuery = useFeedbackReceived();
   const sentQuery = useFeedbackSent();
@@ -88,7 +90,7 @@ export default function Feedback() {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {FEEDBACK_TYPES.map(ft => (
-                  <SelectItem key={ft} value={ft}>{FEEDBACK_TYPE_LABELS[ft]}</SelectItem>
+                  <SelectItem key={ft} value={ft}>{feedbackTypeLabels[ft]}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -102,7 +104,7 @@ export default function Feedback() {
               checked={visibility === 'with_manager'}
               onCheckedChange={v => setVisibility(v ? 'with_manager' : 'private')}
             />
-            <Label>{FEEDBACK_VISIBILITY_LABELS[visibility]}</Label>
+            <Label>{feedbackVisibilityLabels[visibility]}</Label>
           </div>
           <div className="flex justify-end">
             <Button onClick={handleSend} disabled={createMutation.isPending}>
@@ -121,7 +123,7 @@ export default function Feedback() {
           <Card key={f.id}>
             <CardContent className="pt-4 space-y-1">
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{FEEDBACK_TYPE_LABELS[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
+                <Badge variant="secondary">{feedbackTypeLabels[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
               </div>
               <p className="text-sm">{f.content}</p>
               <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
@@ -138,7 +140,7 @@ export default function Feedback() {
           <Card key={f.id}>
             <CardContent className="pt-4 flex items-start justify-between">
               <div className="space-y-1">
-                <Badge variant="secondary">{FEEDBACK_TYPE_LABELS[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
+                <Badge variant="secondary">{feedbackTypeLabels[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
                 <p className="text-sm">{f.content}</p>
                 <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
               </div>

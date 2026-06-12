@@ -460,6 +460,61 @@ export const es = {
   contentEmpty: 'Ningún contenido disponible',
   contentEmptyDesc: 'Los contenidos asignados aparecen aquí.',
 
+  // Enum labels — feedback types
+  feedbackTypeKudos: 'Reconocimiento',
+  feedbackTypeAdjustment: 'Ajuste',
+  feedbackTypeObservation: 'Observación',
+  feedbackVisibilityPrivateLabel: 'Solo yo y el destinatario',
+  feedbackVisibilityWithManagerLabel: 'Yo + gestor del destinatario',
+
+  // Enum labels — evaluation
+  evalStatusPendingSelf: 'Esperando autoevaluación',
+  evalStatusPendingManager: 'Esperando gestor',
+  evalStatusCompleted: 'Completada',
+  evalStatusClosed: 'Cerrada',
+  evalTypeCultural: 'Cultural',
+  evalTypePerformance: 'Performance',
+  evalTypeKpi: 'KPI',
+
+  // Enum labels — PDI
+  pdiTaskPending: 'Pendiente',
+  pdiTaskSubmitted: 'Enviada',
+  pdiTaskApproved: 'Aprobada',
+  pdiTaskRejected: 'Rechazada',
+  pdiStatusActive: 'Activo',
+  pdiStatusCompleted: 'Completado',
+  pdiStatusCancelled: 'Cancelado',
+
+  // Enum labels — 1:1
+  oneOnOneStatusScheduled: 'Agendado',
+  oneOnOneStatusCompleted: 'Realizado',
+  oneOnOneStatusCancelled: 'Cancelado',
+
+  // Enum labels — smart form status
+  smartFormDraft: 'Borrador',
+  smartFormActive: 'Activo',
+  smartFormArchived: 'Archivado',
+
+  // Enum labels — smart form category
+  smartFormCatEvaluation: 'Evaluación',
+  smartFormCatOnboarding: 'Onboarding',
+  smartFormCatSurvey: 'Encuesta',
+  smartFormCatFeedback: 'Feedback',
+  smartFormCatCustom: 'Personalizado',
+
+  // Enum labels — content assignment status
+  contentAssignedStatus: 'Asignado',
+  contentInProgressStatus: 'En progreso',
+
+  // Enum labels — content types
+  contentTypeVideo: 'Video',
+  contentTypeArticle: 'Artículo',
+  contentTypeDocument: 'Documento',
+  contentTypeCourse: 'Curso',
+  contentTypeTraining: 'Entrenamiento',
+  contentTypeReading: 'Lectura',
+  contentTypeProcess: 'Proceso',
+
   // SmartForms page
   editForm: 'Editar',
   deactivateForm: 'Desactivar',

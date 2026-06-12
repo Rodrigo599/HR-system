@@ -1,5 +1,6 @@
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getContentTypeLabels } from "@/lib/enums";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,14 +9,21 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { useContentItems } from "@/hooks/api/useContent";
 import type { ContentItem } from "@/types/api";
 
-const TYPE_META: Record<string, { label: string; icon: typeof GraduationCap; color: string }> = {
-  training: { label: "Treinamento", icon: GraduationCap, color: "bg-blue-500" },
-  reading: { label: "Leitura", icon: BookOpen, color: "bg-amber-500" },
-  process: { label: "Processo", icon: ListChecks, color: "bg-emerald-500" },
+const TYPE_ICON: Record<string, typeof GraduationCap> = {
+  training: GraduationCap,
+  reading: BookOpen,
+  process: ListChecks,
+};
+
+const TYPE_COLOR: Record<string, string> = {
+  training: "bg-blue-500",
+  reading: "bg-amber-500",
+  process: "bg-emerald-500",
 };
 
 export default function Content() {
   const { t } = useLanguage();
+  const contentTypeLabels = getContentTypeLabels(t);
   const contentQuery = useContentItems();
   const items: ContentItem[] = contentQuery.data ?? [];
 
@@ -33,17 +41,18 @@ export default function Content() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(item => {
-            const meta = TYPE_META[item.type] ?? TYPE_META.training;
-            const Icon = meta.icon;
+            const Icon = TYPE_ICON[item.type] ?? GraduationCap;
+            const color = TYPE_COLOR[item.type] ?? "bg-blue-500";
+            const label = contentTypeLabels[item.type] ?? item.type;
             return (
               <Card key={item.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                  <div className={`p-2 rounded-md ${meta.color}`}>
+                  <div className={`p-2 rounded-md ${color}`}>
                     <Icon className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-sm truncate">{item.title}</CardTitle>
-                    <Badge variant="secondary" className="text-xs mt-1">{meta.label}</Badge>
+                    <Badge variant="secondary" className="text-xs mt-1">{label}</Badge>
                   </div>
                 </CardHeader>
                 {item.description && (

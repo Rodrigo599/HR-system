@@ -460,6 +460,61 @@ export const pt = {
   contentEmpty: 'Nenhum conteúdo disponível',
   contentEmptyDesc: 'Conteúdos atribuídos aparecem aqui.',
 
+  // Enum labels — feedback types
+  feedbackTypeKudos: 'Reconhecimento',
+  feedbackTypeAdjustment: 'Ajuste',
+  feedbackTypeObservation: 'Observação',
+  feedbackVisibilityPrivateLabel: 'Apenas eu e o destinatário',
+  feedbackVisibilityWithManagerLabel: 'Eu + gestor do destinatário',
+
+  // Enum labels — evaluation
+  evalStatusPendingSelf: 'Aguardando autoavaliação',
+  evalStatusPendingManager: 'Aguardando gestor',
+  evalStatusCompleted: 'Concluída',
+  evalStatusClosed: 'Encerrada',
+  evalTypeCultural: 'Cultural',
+  evalTypePerformance: 'Performance',
+  evalTypeKpi: 'KPI',
+
+  // Enum labels — PDI
+  pdiTaskPending: 'Pendente',
+  pdiTaskSubmitted: 'Enviada',
+  pdiTaskApproved: 'Aprovada',
+  pdiTaskRejected: 'Rejeitada',
+  pdiStatusActive: 'Ativo',
+  pdiStatusCompleted: 'Concluído',
+  pdiStatusCancelled: 'Cancelado',
+
+  // Enum labels — 1:1
+  oneOnOneStatusScheduled: 'Agendado',
+  oneOnOneStatusCompleted: 'Realizado',
+  oneOnOneStatusCancelled: 'Cancelado',
+
+  // Enum labels — smart form status
+  smartFormDraft: 'Rascunho',
+  smartFormActive: 'Ativo',
+  smartFormArchived: 'Arquivado',
+
+  // Enum labels — smart form category
+  smartFormCatEvaluation: 'Avaliação',
+  smartFormCatOnboarding: 'Onboarding',
+  smartFormCatSurvey: 'Pesquisa',
+  smartFormCatFeedback: 'Feedback',
+  smartFormCatCustom: 'Personalizado',
+
+  // Enum labels — content assignment status
+  contentAssignedStatus: 'Atribuído',
+  contentInProgressStatus: 'Em andamento',
+
+  // Enum labels — content types
+  contentTypeVideo: 'Vídeo',
+  contentTypeArticle: 'Artigo',
+  contentTypeDocument: 'Documento',
+  contentTypeCourse: 'Curso',
+  contentTypeTraining: 'Treinamento',
+  contentTypeReading: 'Leitura',
+  contentTypeProcess: 'Processo',
+
   // SmartForms page
   editForm: 'Editar',
   deactivateForm: 'Desativar',

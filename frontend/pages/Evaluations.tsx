@@ -20,7 +20,7 @@ import { useEvaluations, useEvaluation, useCreateEvaluation } from "@/hooks/api/
 import { UserSelect } from "@/components/shared/UserSelect";
 import { MonthSelect } from "@/components/shared/MonthSelect";
 import { SmartFormSelect } from "@/components/shared/SmartFormSelect";
-import { EVALUATION_TYPES, EVALUATION_TYPE_LABELS, type EvaluationType } from "@/lib/enums";
+import { EVALUATION_TYPES, getEvaluationTypeLabels, type EvaluationType } from "@/lib/enums";
 import type { Evaluation } from "@/types/api";
 
 function EvaluationDetail({ id, onSaved, onBack }: { id: string; onSaved: () => void; onBack: () => void }) {
@@ -34,6 +34,7 @@ export default function Evaluations() {
   const { user, isAdmin, isGestor } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const evalTypeLabels = getEvaluationTypeLabels(t);
   const { run } = useMutationHandler();
 
   const showTeamTab = isAdmin || isGestor;
@@ -106,7 +107,7 @@ export default function Evaluations() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {EVALUATION_TYPES.map(t => (
-                        <SelectItem key={t} value={t}>{EVALUATION_TYPE_LABELS[t]}</SelectItem>
+                        <SelectItem key={t} value={t}>{evalTypeLabels[t]}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -156,7 +157,7 @@ export default function Evaluations() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-amber-500 shrink-0" />
-                  <CardTitle className="text-base">{EVALUATION_TYPE_LABELS[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardTitle>
+                  <CardTitle className="text-base">{evalTypeLabels[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardTitle>
                 </div>
                 <StatusBadge status={evaluation.status} domain="evaluation" />
               </CardHeader>
@@ -174,7 +175,7 @@ export default function Evaluations() {
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="text-base">{evaluation.assignee?.name ?? 'Colaborador'}</CardTitle>
-                      <CardDescription>{EVALUATION_TYPE_LABELS[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardDescription>
+                      <CardDescription>{evalTypeLabels[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardDescription>
                     </div>
                     <StatusBadge status={evaluation.status} domain="evaluation" />
                   </CardHeader>
