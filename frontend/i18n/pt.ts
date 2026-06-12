@@ -457,6 +457,8 @@ export const pt = {
 
   // Content
   contentTitle: 'Conteúdo',
+  contentEmpty: 'Nenhum conteúdo disponível',
+  contentEmptyDesc: 'Conteúdos atribuídos aparecem aqui.',
 
   // SmartForms page
   editForm: 'Editar',
