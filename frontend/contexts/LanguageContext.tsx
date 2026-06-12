@@ -3,8 +3,11 @@ import { translations, Language, TranslationKey } from '@/i18n/translations';
 
 type Params = Record<string, string | number>;
 
+const LOCALE_MAP: Record<Language, string> = { pt: 'pt-BR', es: 'es-ES' };
+
 interface LanguageContextType {
   language: Language;
+  locale: string;
   setLanguage: (lang: Language) => void;
   t: (key: TranslationKey, params?: Params) => string;
 }
@@ -29,8 +32,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return str;
   };
 
+  const locale = LOCALE_MAP[language];
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, locale, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

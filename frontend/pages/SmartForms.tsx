@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, FileText, Eye, ArrowLeft, Loader2 } from 'lucide-react';
@@ -212,7 +212,10 @@ export default function SmartForms() {
             <Button className="flex items-center gap-2"><Plus className="h-4 w-4" />{t('createForm')}</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>{t('createForm')}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{t('createForm')}</DialogTitle>
+              <DialogDescription>{t('createFormDesc')}</DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>{t('formName')} <span className="text-destructive">*</span></Label>
@@ -348,7 +351,10 @@ export default function SmartForms() {
 
                     <Dialog open={deleteTarget === form.id} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
                       <DialogContent>
-                        <DialogHeader><DialogTitle>{t('confirmDelete')}</DialogTitle></DialogHeader>
+                        <DialogHeader>
+                          <DialogTitle>{t('confirmDelete')}</DialogTitle>
+                          <DialogDescription>{t('deleteIrreversible')}</DialogDescription>
+                        </DialogHeader>
                         <p className="text-sm text-muted-foreground">
                           {t('deleteFormConfirm', { name: form.name })}
                         </p>

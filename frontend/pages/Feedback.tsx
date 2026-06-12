@@ -23,8 +23,9 @@ import {
 } from '@/lib/enums';
 
 export default function Feedback() {
-  const { user } = useAuth();
-  const { t } = useLanguage();
+  const { user, isAdmin, isGestor } = useAuth();
+  const { t, locale } = useLanguage();
+  const isManagerView = isAdmin || isGestor;
   const { toast } = useToast();
   const feedbackTypeLabels = getFeedbackTypeLabels(t);
   const feedbackVisibilityLabels = getFeedbackVisibilityLabels(t);
@@ -98,13 +99,28 @@ export default function Feedback() {
           <div className="space-y-2">
             <Label>{t('feedbackLabelMessage')}</Label>
             <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder={t('feedbackPlaceholder')} rows={3} maxLength={500} />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              {content.trim().length < 10 && content.length > 0 && (
+                <span className="text-destructive">{t('feedbackMinChars', { min: 10 })}</span>
+              )}
+              <span className="ml-auto">{content.length}/500</span>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <Switch
               checked={visibility === 'with_manager'}
               onCheckedChange={v => setVisibility(v ? 'with_manager' : 'private')}
             />
-            <Label>{feedbackVisibilityLabels[visibility]}</Label>
+            <div>
+              <Label>
+                {visibility === 'with_manager'
+                  ? isManagerView ? feedbackVisibilityLabels['with_manager'] : t('feedbackVisibilityWithManagerLabelCollab')
+                  : feedbackVisibilityLabels['private']}
+              </Label>
+              {visibility === 'with_manager' && !isManagerView && (
+                <p className="text-xs text-muted-foreground">{t('feedbackVisibilityWithManagerDescCollab')}</p>
+              )}
+            </div>
           </div>
           <div className="flex justify-end">
             <Button onClick={handleSend} disabled={createMutation.isPending}>
@@ -126,7 +142,7 @@ export default function Feedback() {
                 <Badge variant="secondary">{feedbackTypeLabels[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
               </div>
               <p className="text-sm">{f.content}</p>
-              <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
+              <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString(locale)}</p>
             </CardContent>
           </Card>
         ))}
@@ -142,7 +158,7 @@ export default function Feedback() {
               <div className="space-y-1">
                 <Badge variant="secondary">{feedbackTypeLabels[f.type as PointwiseFeedbackType] ?? f.type}</Badge>
                 <p className="text-sm">{f.content}</p>
-                <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
+                <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString(locale)}</p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => deleteMutation.mutate(f.id)} disabled={deleteMutation.isPending}>
                 {t('feedbackRemove')}

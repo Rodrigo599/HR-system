@@ -7,7 +7,7 @@ import { useMutationHandler } from "@/hooks/useMutation";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import type { OneOnOne } from "@/types/api";
 
 export default function OneOnOnes() {
   const { user, isAdmin, isGestor } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { toast } = useToast();
   const { run } = useMutationHandler();
 
@@ -79,7 +79,10 @@ export default function OneOnOnes() {
               <Button size="sm"><Plus className="h-4 w-4 mr-2" /> {t('scheduleOneOnOne')}</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
-              <DialogHeader><DialogTitle>{t('scheduleOneOnOne')}</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>{t('scheduleOneOnOne')}</DialogTitle>
+                <DialogDescription>{t('scheduleOneOnOneDesc')}</DialogDescription>
+              </DialogHeader>
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Label>{t('collaborator')}</Label>
@@ -116,7 +119,7 @@ export default function OneOnOnes() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-base">{otherName ?? t('colleague')}</CardTitle>
-                    <CardDescription>{new Date(o.scheduled_at).toLocaleString('pt-BR')}</CardDescription>
+                    <CardDescription>{new Date(o.scheduled_at).toLocaleString(locale)}</CardDescription>
                   </div>
                   <StatusBadge status={o.status} domain="one_on_one" />
                 </CardHeader>
@@ -131,7 +134,7 @@ export default function OneOnOnes() {
           {selected && selectedId && (
             <div className="space-y-6">
               <SheetHeader>
-                <SheetTitle>1:1 — {new Date(selected.scheduled_at).toLocaleString('pt-BR')}</SheetTitle>
+                <SheetTitle>1:1 — {new Date(selected.scheduled_at).toLocaleString(locale)}</SheetTitle>
               </SheetHeader>
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold">{t('topics')}</h3>

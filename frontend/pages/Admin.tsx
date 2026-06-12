@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -58,7 +58,7 @@ export default function Admin() {
   const [userSearch, setUserSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  if (!isAdmin) return <div className="p-6 text-muted-foreground">Acesso restrito a administradores.</div>;
+  if (!isAdmin) return <div className="p-6 text-muted-foreground">{t('adminOnly')}</div>;
 
   const loading = sectorsQuery.isLoading || kpisQuery.isLoading || usersQuery.isLoading;
 
@@ -73,11 +73,11 @@ export default function Admin() {
     const promise = editingSector
       ? updateSectorMutation.mutateAsync({ name: sectorName, description: sectorDesc })
       : createSectorMutation.mutateAsync({ name: sectorName, description: sectorDesc });
-    await run(promise, { successMsg: editingSector ? 'Setor atualizado' : 'Setor criado', onSuccess: () => setSectorDialogOpen(false) });
+    await run(promise, { successMsg: editingSector ? t('sectorUpdated') : t('sectorCreated'), onSuccess: () => setSectorDialogOpen(false) });
   };
 
   const handleDeleteSector = async (id: string) => {
-    await run(deleteSectorMutation.mutateAsync(id), { successMsg: 'Setor removido', onSuccess: () => setConfirmDelete(null) });
+    await run(deleteSectorMutation.mutateAsync(id), { successMsg: t('sectorDeleted'), onSuccess: () => setConfirmDelete(null) });
   };
 
   const openKpiDialog = (kpi?: Kpi) => {
@@ -91,16 +91,16 @@ export default function Admin() {
 
   const handleSaveKpi = async () => {
     if (!kpiName || !kpiTarget) {
-      toast({ title: 'Preencha nome e meta', variant: 'destructive' });
+      toast({ title: t('kpiFillNameTarget'), variant: 'destructive' });
       return;
     }
     const payload = { name: kpiName, target_value: Number(kpiTarget), unit: kpiUnit, sector_ids: kpiSectors };
     const promise = editingKpi ? updateKpiMutation.mutateAsync(payload) : createKpiMutation.mutateAsync(payload);
-    await run(promise, { successMsg: editingKpi ? 'KPI atualizado' : 'KPI criado', onSuccess: () => setKpiDialogOpen(false) });
+    await run(promise, { successMsg: editingKpi ? t('kpiUpdated') : t('kpiCreated'), onSuccess: () => setKpiDialogOpen(false) });
   };
 
   const handleDeleteKpi = async (id: string) => {
-    await run(deleteKpiMutation.mutateAsync(id), { successMsg: 'KPI removido', onSuccess: () => setConfirmDelete(null) });
+    await run(deleteKpiMutation.mutateAsync(id), { successMsg: t('kpiDeleted'), onSuccess: () => setConfirmDelete(null) });
   };
 
   const filteredUsers = users.filter(u =>
@@ -117,9 +117,9 @@ export default function Admin() {
 
       <Tabs defaultValue="users">
         <TabsList>
-          <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="sectors">Setores</TabsTrigger>
-          <TabsTrigger value="kpis">KPIs</TabsTrigger>
+          <TabsTrigger value="users">{t('users')}</TabsTrigger>
+          <TabsTrigger value="sectors">{t('sectors')}</TabsTrigger>
+          <TabsTrigger value="kpis">{t('kpis')}</TabsTrigger>
         </TabsList>
 
         {/* Usuários */}
@@ -127,20 +127,20 @@ export default function Admin() {
           <div className="flex items-center justify-between gap-3">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar usuário..." value={userSearch} onChange={e => setUserSearch(e.target.value)} className="pl-9" />
+              <Input placeholder={t('searchUser')} value={userSearch} onChange={e => setUserSearch(e.target.value)} className="pl-9" />
             </div>
             <Button size="sm" onClick={() => setUserDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" /> Novo usuário
+              <Plus className="h-4 w-4 mr-2" /> {t('newUser')}
             </Button>
           </div>
           <Card>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>E-mail</TableHead>
-                  <TableHead>Perfis</TableHead>
-                  <TableHead>Setor</TableHead>
+                  <TableHead>{t('name')}</TableHead>
+                  <TableHead>{t('email')}</TableHead>
+                  <TableHead>{t('roles')}</TableHead>
+                  <TableHead>{t('sector')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -165,15 +165,15 @@ export default function Admin() {
         <TabsContent value="sectors" className="space-y-4">
           <div className="flex justify-end">
             <Button size="sm" onClick={() => openSectorDialog()}>
-              <Plus className="h-4 w-4 mr-2" /> Novo setor
+              <Plus className="h-4 w-4 mr-2" /> {t('newSector')}
             </Button>
           </div>
           <Card>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Descrição</TableHead>
+                  <TableHead>{t('name')}</TableHead>
+                  <TableHead>{t('description')}</TableHead>
                   <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
@@ -199,16 +199,16 @@ export default function Admin() {
         <TabsContent value="kpis" className="space-y-4">
           <div className="flex justify-end">
             <Button size="sm" onClick={() => openKpiDialog()}>
-              <Plus className="h-4 w-4 mr-2" /> Novo KPI
+              <Plus className="h-4 w-4 mr-2" /> {t('newKpi')}
             </Button>
           </div>
           <Card>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Meta</TableHead>
-                  <TableHead>Unidade</TableHead>
+                  <TableHead>{t('name')}</TableHead>
+                  <TableHead>{t('kpiTarget')}</TableHead>
+                  <TableHead>{t('kpiUnit')}</TableHead>
                   <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
@@ -235,15 +235,18 @@ export default function Admin() {
       {/* Setor Dialog */}
       <Dialog open={sectorDialogOpen} onOpenChange={setSectorDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{editingSector ? 'Editar setor' : 'Novo setor'}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editingSector ? t('editSector') : t('newSector')}</DialogTitle>
+            <DialogDescription>{editingSector ? t('editSectorDesc') : t('newSectorDesc')}</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4 pt-2">
-            <div className="space-y-2"><Label>Nome</Label><Input value={sectorName} onChange={e => setSectorName(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Descrição</Label><Input value={sectorDesc} onChange={e => setSectorDesc(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('name')}</Label><Input value={sectorName} onChange={e => setSectorName(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('description')}</Label><Input value={sectorDesc} onChange={e => setSectorDesc(e.target.value)} /></div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setSectorDialogOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setSectorDialogOpen(false)}>{t('cancel')}</Button>
               <Button onClick={handleSaveSector} disabled={createSectorMutation.isPending || updateSectorMutation.isPending}>
                 {(createSectorMutation.isPending || updateSectorMutation.isPending) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -253,17 +256,20 @@ export default function Admin() {
       {/* KPI Dialog */}
       <Dialog open={kpiDialogOpen} onOpenChange={setKpiDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{editingKpi ? 'Editar KPI' : 'Novo KPI'}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editingKpi ? t('editKpi') : t('newKpi')}</DialogTitle>
+            <DialogDescription>{editingKpi ? t('editKpiDesc') : t('newKpiDesc')}</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4 pt-2">
-            <div className="space-y-2"><Label>Nome</Label><Input value={kpiName} onChange={e => setKpiName(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('name')}</Label><Input value={kpiName} onChange={e => setKpiName(e.target.value)} /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Meta</Label><Input type="number" value={kpiTarget} onChange={e => setKpiTarget(e.target.value)} /></div>
-              <div className="space-y-2"><Label>Unidade</Label><Input value={kpiUnit} onChange={e => setKpiUnit(e.target.value)} placeholder="%, pontos..." /></div>
+              <div className="space-y-2"><Label>{t('kpiTarget')}</Label><Input type="number" value={kpiTarget} onChange={e => setKpiTarget(e.target.value)} /></div>
+              <div className="space-y-2"><Label>{t('kpiUnit')}</Label><Input value={kpiUnit} onChange={e => setKpiUnit(e.target.value)} placeholder="%, pontos..." /></div>
             </div>
             <div className="space-y-2">
-              <Label>Setores</Label>
+              <Label>{t('sectors')}</Label>
               <Select onValueChange={id => setKpiSectors(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id])}>
-                <SelectTrigger><SelectValue placeholder="Adicionar setor" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t('addSector')} /></SelectTrigger>
                 <SelectContent>
                   {sectors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </SelectContent>
@@ -278,10 +284,10 @@ export default function Admin() {
               )}
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setKpiDialogOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setKpiDialogOpen(false)}>{t('cancel')}</Button>
               <Button onClick={handleSaveKpi} disabled={createKpiMutation.isPending || updateKpiMutation.isPending}>
                 {(createKpiMutation.isPending || updateKpiMutation.isPending) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                Salvar
+                {t('save')}
               </Button>
             </div>
           </div>
@@ -292,17 +298,17 @@ export default function Admin() {
       <AlertDialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+            <AlertDialogTitle>{t('confirmDelete')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('deleteIrreversible')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={() => {
               if (!confirmDelete) return;
               const [type, id] = confirmDelete.split(':');
               if (type === 'sector') handleDeleteSector(id);
               if (type === 'kpi') handleDeleteKpi(id);
-            }}>Excluir</AlertDialogAction>
+            }}>{t('delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

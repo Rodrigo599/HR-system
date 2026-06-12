@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -194,7 +194,10 @@ export default function PDI() {
       {/* Novo PDI */}
       <Dialog open={newPdiOpen} onOpenChange={setNewPdiOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{t('createPdi')}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{t('createPdi')}</DialogTitle>
+            <DialogDescription>{t('createPdiDesc')}</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-2"><Label>{t('title')}</Label><Input value={newPdiTitle} onChange={e => setNewPdiTitle(e.target.value)} /></div>
             <div className="space-y-2"><Label>{t('description')}</Label><Textarea value={newPdiDesc} onChange={e => setNewPdiDesc(e.target.value)} rows={2} /></div>
@@ -212,7 +215,10 @@ export default function PDI() {
       {/* Nova Tarefa */}
       <Dialog open={newTaskOpen} onOpenChange={setNewTaskOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{t('createTask')}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{t('createTask')}</DialogTitle>
+            <DialogDescription>{t('createTaskDesc')}</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-2"><Label>{t('title')}</Label><Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} /></div>
             <div className="space-y-2"><Label>{t('dueDate')}</Label><Input type="date" value={newTaskDue} onChange={e => setNewTaskDue(e.target.value)} /></div>
@@ -229,7 +235,10 @@ export default function PDI() {
       {/* Review Dialog */}
       <Dialog open={reviewDialog.open} onOpenChange={v => { if (!v) { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); } }}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{reviewDialog.mode === 'approve' ? t('approveTaskTitle') : t('rejectTaskTitle')}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{reviewDialog.mode === 'approve' ? t('approveTaskTitle') : t('rejectTaskTitle')}</DialogTitle>
+            <DialogDescription>{reviewDialog.mode === 'approve' ? t('approveTaskDesc') : t('rejectTaskDesc')}</DialogDescription>
+          </DialogHeader>
           <div className="space-y-3 pt-2">
             <p className="text-sm text-muted-foreground">{reviewDialog.task?.title}</p>
             <div className="space-y-2">
