@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useCreateUser } from '@/hooks/api/useUsers';
 import { UserSelect } from '@/components/shared/UserSelect';
 import { SectorSelect } from '@/components/shared/SectorSelect';
@@ -55,37 +56,6 @@ const INITIAL_FORM: FormFields = {
   password: '',
 };
 
-function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function validate(fields: FormFields): FormErrors {
-  const errors: FormErrors = {};
-
-  if (!fields.email) {
-    errors.email = 'Email é obrigatório';
-  } else if (!validateEmail(fields.email)) {
-    errors.email = 'Formato de email inválido';
-  }
-
-  if (!fields.fullName) {
-    errors.fullName = 'Nome completo é obrigatório';
-  } else if (fields.fullName.trim().length < 3) {
-    errors.fullName = 'Nome deve ter pelo menos 3 caracteres';
-  }
-
-  if (!fields.sectorId) {
-    errors.sectorId = 'Setor é obrigatório';
-  }
-
-  if (!fields.password) {
-    errors.password = 'Senha é obrigatória';
-  } else if (fields.password.length < 8) {
-    errors.password = 'Senha deve ter pelo menos 8 caracteres';
-  }
-
-  return errors;
-}
 
 export function CreateUserDialog({
   open,
@@ -93,6 +63,7 @@ export function CreateUserDialog({
   onSuccess,
 }: CreateUserDialogProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const createUserMutation = useCreateUser();
   const [form, setForm] = useState<FormFields>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -116,7 +87,25 @@ export function CreateUserDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const validationErrors = validate(form);
+    const validationErrors: FormErrors = {};
+    if (!form.email) {
+      validationErrors.email = t('emailRequired');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      validationErrors.email = t('emailInvalid');
+    }
+    if (!form.fullName) {
+      validationErrors.fullName = t('nameRequired');
+    } else if (form.fullName.trim().length < 3) {
+      validationErrors.fullName = t('fullNameMin');
+    }
+    if (!form.sectorId) {
+      validationErrors.sectorId = t('sectorRequired');
+    }
+    if (!form.password) {
+      validationErrors.password = t('passwordRequired');
+    } else if (form.password.length < 8) {
+      validationErrors.password = t('passwordMin8');
+    }
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -132,14 +121,14 @@ export function CreateUserDialog({
         manager_id: form.managerId === '__none__' ? undefined : (form.managerId || undefined),
       });
 
-      toast({ title: `Colaborador ${form.fullName.trim()} criado com sucesso` });
+      toast({ title: t('collaboratorCreatedMsg', { name: form.fullName.trim() }) });
       setForm(INITIAL_FORM);
       setErrors({});
       onOpenChange(false);
       onSuccess();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao criar colaborador';
-      toast({ variant: 'destructive', title: 'Erro ao criar colaborador', description: message });
+      const message = err instanceof Error ? err.message : t('errorCreateCollaborator');
+      toast({ variant: 'destructive', title: t('errorCreateCollaborator'), description: message });
     }
   }
 
@@ -147,17 +136,17 @@ export function CreateUserDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Novo Colaborador</DialogTitle>
+          <DialogTitle>{t('newCollaborator')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Email */}
           <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="email@exemplo.com"
+              placeholder={t('emailPlaceholder')}
               value={form.email}
               onChange={e => handleChange('email', e.target.value)}
               className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -170,11 +159,11 @@ export function CreateUserDialog({
 
           {/* Nome completo */}
           <div className="space-y-1">
-            <Label htmlFor="fullName">Nome completo</Label>
+            <Label htmlFor="fullName">{t('fullName')}</Label>
             <Input
               id="fullName"
               type="text"
-              placeholder="Nome do colaborador"
+              placeholder={t('fullNamePlaceholder')}
               value={form.fullName}
               onChange={e => handleChange('fullName', e.target.value)}
               className={errors.fullName ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -187,12 +176,12 @@ export function CreateUserDialog({
 
           {/* Setor */}
           <div className="space-y-1">
-            <Label htmlFor="sectorId">Setor</Label>
+            <Label htmlFor="sectorId">{t('sector')}</Label>
             <SectorSelect
               id="sectorId"
               value={form.sectorId}
               onValueChange={value => handleChange('sectorId', value)}
-              placeholder="Selecionar setor"
+              placeholder={t('selectSector')}
               disabled={loading}
               className={errors.sectorId ? 'border-destructive focus:ring-destructive' : ''}
             />
@@ -203,20 +192,20 @@ export function CreateUserDialog({
 
           {/* Gestor direto */}
           <div className="space-y-1">
-            <Label htmlFor="managerId">Gestor direto (opcional)</Label>
+            <Label htmlFor="managerId">{t('managerOptional')}</Label>
             <UserSelect
               id="managerId"
               value={form.managerId}
               onValueChange={value => handleChange('managerId', value)}
               roles={['gestor', 'admin']}
-              noneOption={{ value: '__none__', label: 'Sem gestor' }}
+              noneOption={{ value: '__none__', label: t('noManager2') }}
               disabled={loading}
             />
           </div>
 
           {/* Role */}
           <div className="space-y-1">
-            <Label htmlFor="role">Perfil</Label>
+            <Label htmlFor="role">{t('role')}</Label>
             <Select
               value={form.role}
               onValueChange={value => handleChange('role', value as AppRole)}
@@ -226,16 +215,16 @@ export function CreateUserDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="colaborador">Colaborador</SelectItem>
-                <SelectItem value="gestor">Gestor</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="colaborador">{t('colaboradorRole')}</SelectItem>
+                <SelectItem value="gestor">{t('gestorRole')}</SelectItem>
+                <SelectItem value="admin">{t('adminRoleLabel')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Idioma */}
           <div className="space-y-1">
-            <Label htmlFor="preferredLanguage">Idioma</Label>
+            <Label htmlFor="preferredLanguage">{t('language')}</Label>
             <Select
               value={form.preferredLanguage}
               onValueChange={value => handleChange('preferredLanguage', value as 'pt' | 'es')}
@@ -245,19 +234,19 @@ export function CreateUserDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pt">Português</SelectItem>
-                <SelectItem value="es">Español</SelectItem>
+                <SelectItem value="pt">{t('portuguese')}</SelectItem>
+                <SelectItem value="es">{t('spanish')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Senha temporária */}
           <div className="space-y-1">
-            <Label htmlFor="password">Senha temporária</Label>
+            <Label htmlFor="password">{t('temporaryPassword')}</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Mínimo 8 caracteres"
+              placeholder={t('passwordPlaceholder')}
               value={form.password}
               onChange={e => handleChange('password', e.target.value)}
               className={errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -276,16 +265,16 @@ export function CreateUserDialog({
               onClick={() => handleClose(false)}
               disabled={loading}
             >
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Criando...
+                  {t('creating')}
                 </>
               ) : (
-                'Criar colaborador'
+                t('createCollaboratorBtn')
               )}
             </Button>
           </div>

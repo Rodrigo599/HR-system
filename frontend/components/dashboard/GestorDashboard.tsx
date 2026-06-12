@@ -94,9 +94,7 @@ export function GestorDashboard() {
         </CardHeader>
         <CardContent>
           {teamMembers.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Você ainda não tem colaboradores vinculados ao seu time.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('noTeamMembers')}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
               <div
@@ -117,7 +115,7 @@ export function GestorDashboard() {
                 onKeyDown={(e) => e.key === 'Enter' && navigate('/pdi')}
               >
                 <div className="text-3xl font-bold">{pendingTasksCount}</div>
-                <p className="text-sm text-muted-foreground mt-1">Tasks pendentes</p>
+                <p className="text-sm text-muted-foreground mt-1">{t('pendingTasksCount')}</p>
               </div>
               <div
                 className="cursor-pointer rounded-md p-3 hover:bg-accent transition-colors"
@@ -127,7 +125,7 @@ export function GestorDashboard() {
                 onKeyDown={(e) => e.key === 'Enter' && navigate('/evaluations')}
               >
                 <div className="text-3xl font-bold">{completedEvalsCount}</div>
-                <p className="text-sm text-muted-foreground mt-1">Avaliações completas</p>
+                <p className="text-sm text-muted-foreground mt-1">{t('evalsCompletedMonth')}</p>
               </div>
             </div>
           )}

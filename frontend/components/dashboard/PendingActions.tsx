@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -28,11 +29,12 @@ export function PendingActions({
   overdueTasksCount,
 }: PendingActionsProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const items: ActionItem[] = [
     {
       count: overdueTasksCount,
-      label: 'tasks PDI com prazo vencido no seu time',
+      label: t('overdueTasksTeam'),
       icon: <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />,
       navigateTo: '/pdi',
       urgent: true,
@@ -40,7 +42,7 @@ export function PendingActions({
     },
     {
       count: pendingTaskReviews,
-      label: 'tasks PDI aguardando sua aprovação',
+      label: t('tasksAwaitingApprovalLabel'),
       icon: <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0" />,
       navigateTo: '/pdi',
       urgent: true,
@@ -48,7 +50,7 @@ export function PendingActions({
     },
     {
       count: pendingEvaluations,
-      label: 'avaliações para dar nota',
+      label: t('evaluationsToGradeLabel'),
       icon: <Clock className="h-4 w-4 text-yellow-500 shrink-0" />,
       navigateTo: '/evaluations',
       urgent: false,
@@ -56,7 +58,7 @@ export function PendingActions({
     },
     {
       count: collaboratorsWithoutEval,
-      label: 'colaboradores sem avaliação este mês',
+      label: t('collaboratorsWithoutEvalLabel'),
       icon: <Clock className="h-4 w-4 text-yellow-500 shrink-0" />,
       navigateTo: '/evaluations',
       urgent: false,
@@ -74,7 +76,7 @@ export function PendingActions({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Ações Pendentes</CardTitle>
+          <CardTitle className="text-base font-semibold">{t('pendingActions')}</CardTitle>
           {totalPending > 0 && (
             <Badge variant="destructive" className="text-xs">
               {totalPending}
@@ -84,7 +86,7 @@ export function PendingActions({
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma ação pendente. Tudo em dia!</p>
+          <p className="text-sm text-muted-foreground">{t('noPendingActions')}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((item, index) => (

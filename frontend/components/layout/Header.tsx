@@ -52,7 +52,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div
           className="flex items-center gap-1 bg-muted rounded-lg p-1"
           role="group"
-          aria-label="Alternar entre visao gestor e visao colaborador"
+          aria-label={t('viewAsGestor') + ' / ' + t('viewAsColaborador')}
         >
           <Button
             variant={viewMode === 'team' ? 'default' : 'ghost'}
@@ -62,7 +62,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             aria-pressed={viewMode === 'team'}
           >
             <Users className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Visao Gestor</span>
+            <span className="hidden sm:inline">{t('viewAsGestor')}</span>
           </Button>
           <Button
             variant={viewMode === 'personal' ? 'default' : 'ghost'}
@@ -72,7 +72,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             aria-pressed={viewMode === 'personal'}
           >
             <UserCircle className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Visao Colaborador</span>
+            <span className="hidden sm:inline">{t('viewAsColaborador')}</span>
           </Button>
         </div>
       )}

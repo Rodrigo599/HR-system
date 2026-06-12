@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, List, Network } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { SectorSelect } from '@/components/shared/SectorSelect';
@@ -37,6 +38,8 @@ export function UserFilters({
   viewMode,
   onViewModeChange,
 }: UserFiltersProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       {/* Search */}
@@ -44,7 +47,7 @@ export function UserFilters({
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
           type="search"
-          placeholder="Buscar por nome ou email..."
+          placeholder={t('searchPlaceholder')}
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
           className="pl-8 w-full"
@@ -55,7 +58,7 @@ export function UserFilters({
       <SectorSelect
         value={sectorFilter}
         onValueChange={onSectorFilterChange}
-        allOption={{ value: 'all', label: 'Todos os setores' }}
+        allOption={{ value: 'all', label: t('allSectors') }}
         className="w-full sm:w-[180px]"
       />
 
@@ -73,9 +76,9 @@ export function UserFilters({
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="active">Ativo</SelectItem>
-          <SelectItem value="inactive">Inativo</SelectItem>
+          <SelectItem value="all">{t('all')}</SelectItem>
+          <SelectItem value="active">{t('activeStatus')}</SelectItem>
+          <SelectItem value="inactive">{t('inactiveStatus')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -90,7 +93,7 @@ export function UserFilters({
           aria-pressed={viewMode === 'list'}
         >
           <List className="h-4 w-4" />
-          Lista
+          {t('usersListView')}
         </Button>
         <div className="w-px bg-border" />
         <Button
@@ -102,7 +105,7 @@ export function UserFilters({
           aria-pressed={viewMode === 'hierarchy'}
         >
           <Network className="h-4 w-4" />
-          Por Gestor
+          {t('byManager')}
         </Button>
       </div>
     </div>

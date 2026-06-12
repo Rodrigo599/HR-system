@@ -51,12 +51,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       badge: pendingCount > 0 ? pendingCount : undefined,
     },
     { path: "/evaluations", icon: ClipboardList, label: t("evaluations") },
-    { path: "/one-on-ones", icon: Users, label: "1:1" },
+    { path: "/one-on-ones", icon: Users, label: t("oneOnOnes") },
     { path: "/kpis", icon: Target, label: t("kpis") },
     { path: "/pdi", icon: BookOpen, label: t("pdi") },
-    { path: "/content", icon: GraduationCap, label: "Conteudo" },
+    { path: "/content", icon: GraduationCap, label: t("contentTitle") },
     { path: "/calendar", icon: CalendarDays, label: t("calendar") },
-    { path: "/feedback", icon: MessageSquareHeart, label: "Pesquisa de Clima" },
+    { path: "/feedback", icon: MessageSquareHeart, label: t("climaSurvey") },
     { path: "/history", icon: History, label: t("history") },
   ];
 

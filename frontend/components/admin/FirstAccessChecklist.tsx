@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface FirstAccessChecklistProps {
   sectorsCount: number;
@@ -25,31 +26,32 @@ export function FirstAccessChecklist({
   evaluationsCount,
 }: FirstAccessChecklistProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const items: ChecklistItem[] = [
     {
-      label: 'Criar setores',
+      label: t('checklistCreateSectors'),
       done: sectorsCount > 0,
       navigateTo: '/admin',
-      tip: 'Organize a empresa em setores antes de cadastrar colaboradores',
+      tip: t('checklistCreateSectorsTip'),
     },
     {
-      label: 'Cadastrar usuarios',
+      label: t('checklistRegisterUsers'),
       done: usersCount > 0,
       navigateTo: '/admin',
-      tip: 'Adicione gestores e colaboradores ao sistema',
+      tip: t('checklistRegisterUsersTip'),
     },
     {
-      label: 'Criar formulário de avaliação',
+      label: t('checklistCreateForm'),
       done: formsCount > 0,
       navigateTo: '/smartforms',
-      tip: 'Monte o formulário que será usado nas avaliações mensais',
+      tip: t('checklistCreateFormTip'),
     },
     {
-      label: 'Iniciar primeira avaliação',
+      label: t('checklistStartEvaluation'),
       done: evaluationsCount > 0,
       navigateTo: '/evaluations',
-      tip: 'Crie a primeira avaliação para começar a acompanhar o time',
+      tip: t('checklistStartEvaluationTip'),
     },
   ];
 
@@ -64,9 +66,9 @@ export function FirstAccessChecklist({
     <Card className="border-dashed">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Configuração inicial</CardTitle>
+          <CardTitle className="text-base font-semibold">{t('initialSetup')}</CardTitle>
           <span className="text-xs text-muted-foreground">
-            {completedCount}/{items.length} etapas
+            {t('checklistSteps', { done: completedCount, total: items.length })}
           </span>
         </div>
         <Progress value={progressPercent} className="h-1.5 mt-2" />

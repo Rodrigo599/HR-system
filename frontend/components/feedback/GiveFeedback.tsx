@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +28,7 @@ import {
 import { useCreateFeedback } from "@/hooks/api/useFeedback";
 
 const MAX_LEN = 500;
+const MIN_LEN = 10;
 
 const TYPE_ICONS: Record<PointwiseFeedbackType, React.ComponentType<{ className?: string }>> = {
   kudos: Star,
@@ -44,7 +46,6 @@ interface GiveFeedbackProps {
   toUserId: string;
   toUserName: string;
   onSuccess?: () => void;
-  /** Se passar trigger custom, renderiza ao inves do botao default. */
   trigger?: React.ReactNode;
 }
 
@@ -55,6 +56,7 @@ export function GiveFeedback({
   trigger,
 }: GiveFeedbackProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const createFeedback = useCreateFeedback();
 
@@ -70,7 +72,6 @@ export function GiveFeedback({
   };
 
   const isSelf = user?.id === toUserId;
-  const MIN_LEN = 10;
   const canSubmit =
     !!user?.id &&
     !isSelf &&
@@ -84,7 +85,7 @@ export function GiveFeedback({
       { to_user_id: toUserId, type, content: content.trim(), visibility: withManager ? 'with_manager' : 'private' },
       {
         onSuccess: () => {
-          toast({ title: "Feedback enviado", description: `Para ${toUserName}.` });
+          toast({ title: t('feedbackSent'), description: `${t('feedbackSentTo')} ${toUserName}.` });
           reset();
           setOpen(false);
           onSuccess?.();
@@ -93,7 +94,7 @@ export function GiveFeedback({
           const axiosErr = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
           const apiMsg = axiosErr?.response?.data?.message;
           const firstError = axiosErr?.response?.data?.errors ? Object.values(axiosErr.response.data.errors)[0]?.[0] : undefined;
-          toast({ title: "Erro ao enviar", description: firstError ?? apiMsg ?? "Tente novamente.", variant: "destructive" });
+          toast({ title: t('feedbackErrorSend'), description: firstError ?? apiMsg ?? t('feedbackTryAgain'), variant: "destructive" });
         },
       },
     );
@@ -102,7 +103,7 @@ export function GiveFeedback({
   const defaultTrigger = (
     <Button size="sm" variant="outline" disabled={isSelf}>
       <MessageSquarePlus className="h-4 w-4 mr-2" />
-      Dar feedback
+      {t('giveFeedback')}
     </Button>
   );
 
@@ -117,17 +118,13 @@ export function GiveFeedback({
       <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Feedback para {toUserName}</DialogTitle>
-          <DialogDescription>
-            Deixe um sinal pontual fora do ciclo formal. Voce escolhe se o
-            gestor enxerga.
-          </DialogDescription>
+          <DialogTitle>{t('feedbackTo')} {toUserName}</DialogTitle>
+          <DialogDescription>{t('feedbackDescription')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Tipo */}
           <div className="space-y-2">
-            <Label>Tipo</Label>
+            <Label>{t('feedbackLabelType')}</Label>
             <div className="grid grid-cols-3 gap-2">
               {FEEDBACK_TYPES.map((value) => {
                 const Icon = TYPE_ICONS[value];
@@ -151,57 +148,47 @@ export function GiveFeedback({
             </div>
           </div>
 
-          {/* Conteudo */}
           <div className="space-y-2">
-            <Label htmlFor="pf-content">Mensagem</Label>
+            <Label htmlFor="pf-content">{t('feedbackLabelMessage')}</Label>
             <Textarea
               id="pf-content"
-              placeholder="Conte o que aconteceu..."
+              placeholder={t('feedbackPlaceholder')}
               value={content}
               onChange={(e) => setContent(e.target.value.slice(0, MAX_LEN))}
               rows={4}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               {content.trim().length < MIN_LEN && content.length > 0 && (
-                <span className="text-destructive">Mínimo {MIN_LEN} caracteres</span>
+                <span className="text-destructive">{t('feedbackMinChars', { min: MIN_LEN })}</span>
               )}
               <span className="ml-auto">{content.length}/{MAX_LEN}</span>
             </div>
           </div>
 
-          {/* Visibilidade */}
           <div className="flex items-center justify-between rounded-md border p-3">
             <div>
               <p className="text-sm font-medium">
-                {withManager ? "Eu + gestor" : "Apenas eu e " + toUserName}
+                {withManager ? t('feedbackVisibilityWithManager') : `${t('feedbackVisibilityPrivate')} ${toUserName}`}
               </p>
               <p className="text-xs text-muted-foreground">
-                {withManager
-                  ? "Gestor do destinatario tambem ve."
-                  : "So voces dois enxergam."}
+                {withManager ? t('feedbackVisibilityWithManagerDesc') : t('feedbackVisibilityPrivateDesc')}
               </p>
             </div>
             <Switch
               checked={withManager}
               onCheckedChange={setWithManager}
-              aria-label="Compartilhar com gestor"
+              aria-label={t('feedbackShareWithManager')}
             />
           </div>
 
           {isSelf && (
-            <p className="text-sm text-destructive">
-              Voce nao pode dar feedback pra si mesmo.
-            </p>
+            <p className="text-sm text-destructive">{t('feedbackSelfError')}</p>
           )}
         </div>
 
         <DialogFooter>
-          <Button
-            variant="ghost"
-            onClick={() => setOpen(false)}
-            disabled={createFeedback.isPending}
-          >
-            Cancelar
+          <Button variant="ghost" onClick={() => setOpen(false)} disabled={createFeedback.isPending}>
+            {t('cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
             {createFeedback.isPending ? (
@@ -209,7 +196,7 @@ export function GiveFeedback({
             ) : (
               <Send className="h-4 w-4 mr-2" />
             )}
-            Enviar
+            {t('feedbackSendButton')}
           </Button>
         </DialogFooter>
       </DialogContent>

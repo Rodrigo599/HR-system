@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ClipboardCheck, ClipboardList } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ export interface QuickActionsProps {
 
 export function QuickActions({ pendingReviews, pendingEvaluations }: QuickActionsProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const hasActions = pendingReviews > 0 || pendingEvaluations > 0;
 
@@ -20,7 +22,7 @@ export function QuickActions({ pendingReviews, pendingEvaluations }: QuickAction
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">Acoes rapidas</CardTitle>
+        <CardTitle className="text-base font-semibold">{t('quickActions')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-3">
@@ -32,7 +34,7 @@ export function QuickActions({ pendingReviews, pendingEvaluations }: QuickAction
               onClick={() => navigate('/pdi')}
             >
               <ClipboardCheck className="h-4 w-4" />
-              Revisar tasks
+              {t('reviewTasks')}
               <Badge variant="destructive" className="ml-1 text-xs">
                 {pendingReviews}
               </Badge>
@@ -46,7 +48,7 @@ export function QuickActions({ pendingReviews, pendingEvaluations }: QuickAction
               onClick={() => navigate('/evaluations')}
             >
               <ClipboardList className="h-4 w-4" />
-              Avaliações pendentes
+              {t('pendingEvaluationsBtn')}
               <Badge variant="secondary" className="ml-1 text-xs">
                 {pendingEvaluations}
               </Badge>

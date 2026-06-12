@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MessageSquareHeart, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useFeedbackReceived, useFeedbackSent, useCreateFeedback, useDeleteFeedback } from '@/hooks/api/useFeedback';
 import { UserSelect } from '@/components/shared/UserSelect';
 import {
@@ -23,6 +24,7 @@ import {
 
 export default function Feedback() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   const receivedQuery = useFeedbackReceived();
@@ -40,23 +42,23 @@ export default function Feedback() {
 
   const handleSend = async () => {
     if (!toUserId) {
-      toast({ title: 'Selecione o destinatário', variant: 'destructive' });
+      toast({ title: t('feedbackSelectRecipient'), variant: 'destructive' });
       return;
     }
     if (content.trim().length < 10) {
-      toast({ title: 'Mensagem muito curta', description: 'O feedback precisa ter pelo menos 10 caracteres.', variant: 'destructive' });
+      toast({ title: t('feedbackTooShort'), description: t('feedbackTooShortDesc'), variant: 'destructive' });
       return;
     }
     try {
       await createMutation.mutateAsync({ to_user_id: toUserId, type, content: content.trim(), visibility });
-      toast({ title: 'Feedback enviado' });
+      toast({ title: t('feedbackSent') });
       setToUserId('');
       setContent('');
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       const apiMsg = axiosErr?.response?.data?.message;
       const firstError = axiosErr?.response?.data?.errors ? Object.values(axiosErr.response.data.errors)[0]?.[0] : undefined;
-      toast({ title: 'Erro ao enviar', description: firstError ?? apiMsg ?? 'Tente novamente.', variant: 'destructive' });
+      toast({ title: t('feedbackErrorSend'), description: firstError ?? apiMsg ?? t('feedbackTryAgain'), variant: 'destructive' });
     }
   };
 
@@ -69,31 +71,31 @@ export default function Feedback() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Enviar feedback</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">{t('feedbackSendTitle')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Para</Label>
+            <Label>{t('feedbackLabelTo')}</Label>
             <UserSelect
               value={toUserId}
               onValueChange={setToUserId}
-              placeholder="Selecione um colega"
+              placeholder={t('feedbackSelectColleague')}
               excludeId={user?.id}
             />
           </div>
           <div className="space-y-2">
-            <Label>Tipo</Label>
+            <Label>{t('feedbackLabelType')}</Label>
             <Select value={type} onValueChange={v => setType(v as PointwiseFeedbackType)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {FEEDBACK_TYPES.map(t => (
-                  <SelectItem key={t} value={t}>{FEEDBACK_TYPE_LABELS[t]}</SelectItem>
+                {FEEDBACK_TYPES.map(ft => (
+                  <SelectItem key={ft} value={ft}>{FEEDBACK_TYPE_LABELS[ft]}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Mensagem</Label>
-            <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Escreva seu feedback..." rows={3} maxLength={500} />
+            <Label>{t('feedbackLabelMessage')}</Label>
+            <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder={t('feedbackPlaceholder')} rows={3} maxLength={500} />
           </div>
           <div className="flex items-center gap-3">
             <Switch
@@ -105,16 +107,16 @@ export default function Feedback() {
           <div className="flex justify-end">
             <Button onClick={handleSend} disabled={createMutation.isPending}>
               {createMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Enviar
+              {t('feedbackSendButton')}
             </Button>
           </div>
         </CardContent>
       </Card>
 
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Recebidos ({received.length})</h2>
+        <h2 className="text-lg font-semibold">{t('feedbackReceived')} ({received.length})</h2>
         {received.length === 0 ? (
-          <Card><CardContent><EmptyState icon={MessageSquareHeart} title="Nenhum feedback recebido" description="Feedbacks dos seus colegas aparecem aqui." /></CardContent></Card>
+          <Card><CardContent><EmptyState icon={MessageSquareHeart} title={t('feedbackNoneReceived')} description={t('feedbackNoneReceivedDesc')} /></CardContent></Card>
         ) : received.map(f => (
           <Card key={f.id}>
             <CardContent className="pt-4 space-y-1">
@@ -129,9 +131,9 @@ export default function Feedback() {
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Enviados ({sent.length})</h2>
+        <h2 className="text-lg font-semibold">{t('submit')} ({sent.length})</h2>
         {sent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum feedback enviado ainda.</p>
+          <p className="text-sm text-muted-foreground">{t('feedbackNoneSent')}</p>
         ) : sent.map(f => (
           <Card key={f.id}>
             <CardContent className="pt-4 flex items-start justify-between">
@@ -141,7 +143,7 @@ export default function Feedback() {
                 <p className="text-xs text-muted-foreground">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => deleteMutation.mutate(f.id)} disabled={deleteMutation.isPending}>
-                Remover
+                {t('feedbackRemove')}
               </Button>
             </CardContent>
           </Card>

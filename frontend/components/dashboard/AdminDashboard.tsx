@@ -38,8 +38,13 @@ function severityBadgeVariant(severity: Severity) {
   return 'outline' as const;
 }
 
-function severityLabel(severity: Severity) {
-  const map: Record<Severity, string> = { critical: 'Crítico', high: 'Alto', medium: 'Médio', low: 'Baixo' };
+function severityLabel(severity: Severity, t: (key: string) => string) {
+  const map: Record<Severity, string> = {
+    critical: t('severityCritical'),
+    high: t('severityHigh'),
+    medium: t('severityMedium'),
+    low: t('severityLow'),
+  };
   return map[severity];
 }
 
@@ -115,7 +120,7 @@ export function AdminDashboard() {
   if (usersWithoutManager.length > 0) {
     alerts.push({
       type: 'no_manager',
-      message: `${usersWithoutManager.length} colaborador(es) sem gestor atribuído`,
+      message: t('alertNoManager', { count: usersWithoutManager.length }),
       severity: 'high',
       actionUrl: '/admin',
     });
@@ -123,12 +128,12 @@ export function AdminDashboard() {
 
   const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
   const escalated = allTasks.filter(
-    t => t.status === 'submitted' && t.due_date && new Date(t.due_date) < tenDaysAgo
+    task => task.status === 'submitted' && task.due_date && new Date(task.due_date) < tenDaysAgo
   ).length;
   if (escalated > 0) {
     alerts.push({
       type: 'task_escalated',
-      message: `${escalated} tarefa(s) PDI aguarda revisão há mais de 10 dias`,
+      message: t('alertTaskEscalated', { count: escalated }),
       severity: 'critical',
       actionUrl: '/pdi',
     });
@@ -140,7 +145,7 @@ export function AdminDashboard() {
   if (evalsPending > 0) {
     alerts.push({
       type: 'eval_pending',
-      message: `${evalsPending} avaliação(ões) do mês atual não foram concluídas`,
+      message: t('alertEvalPending', { count: evalsPending }),
       severity: 'medium',
       actionUrl: '/evaluations',
     });
@@ -187,57 +192,57 @@ export function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate('/admin')}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Ativos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('statActiveUsers')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{activeUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">usuários ativos</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('statActiveUsersDesc')}</p>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate('/admin')}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Gestores</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('statManagers')}</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{gestores}</div>
-            <p className="text-xs text-muted-foreground mt-1">gestores cadastrados</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('statManagersDesc')}</p>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate('/admin')}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Setores</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('statSectors')}</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{sectors.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">setores criados</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('statSectorsDesc')}</p>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate('/admin')}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Admins</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('statAdmins')}</CardTitle>
             <UserX className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{admins}</div>
-            <p className="text-xs text-muted-foreground mt-1">administradores</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('statAdminsDesc')}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Saúde da Operação</CardTitle>
+          <CardTitle className="text-base font-semibold">{t('operationHealth')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Avaliações concluídas</span>
+              <span className="text-muted-foreground">{t('evalsCompleted')}</span>
               <span className="font-medium">
                 {evalsCompleted}/{evalsTotal}{' '}
                 <span className="text-muted-foreground">({evalsPercent}%)</span>
@@ -246,18 +251,18 @@ export function AdminDashboard() {
             <Progress value={evalsPercent} className="h-2" />
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">PDIs ativos</span>
+            <span className="text-muted-foreground">{t('activePdis')}</span>
             <span className="font-medium">{pdisActive}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Tasks aguardando aprovação</span>
+            <span className="text-muted-foreground">{t('tasksAwaitingApprovalAdmin')}</span>
             <span className={tasksPending > 5 ? 'font-semibold text-red-600' : 'font-medium'}>
               {tasksPending}
-              {tasksPending > 5 && <span className="ml-1 text-xs text-red-500">(atenção)</span>}
+              {tasksPending > 5 && <span className="ml-1 text-xs text-red-500">{t('attentionFlag')}</span>}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">KPI médio geral</span>
+            <span className="text-muted-foreground">{t('avgKpiGeneral')}</span>
             <span className="font-medium">{avgKpi}%</span>
           </div>
         </CardContent>
@@ -268,7 +273,7 @@ export function AdminDashboard() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Bell className="h-4 w-4 text-muted-foreground" />
-              <CardTitle className="text-base font-semibold">Alertas</CardTitle>
+              <CardTitle className="text-base font-semibold">{t('adminAlerts')}</CardTitle>
               <Badge variant="destructive" className="ml-auto text-xs">{alerts.length}</Badge>
             </div>
           </CardHeader>
@@ -287,7 +292,7 @@ export function AdminDashboard() {
                 {severityIcon(alert.severity)}
                 <span className="flex-1">{alert.message}</span>
                 <Badge variant={severityBadgeVariant(alert.severity)} className="text-xs shrink-0">
-                  {severityLabel(alert.severity)}
+                  {severityLabel(alert.severity, t)}
                 </Badge>
               </div>
             ))}
@@ -297,25 +302,25 @@ export function AdminDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Visão por Gestor</CardTitle>
+          <CardTitle className="text-base font-semibold">{t('managerView')}</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Gestor</TableHead>
-                <TableHead className="text-center">Time</TableHead>
-                <TableHead className="text-center">PDIs ativos</TableHead>
-                <TableHead className="text-center">Tasks pend.</TableHead>
-                <TableHead className="text-center">Avaliações</TableHead>
-                <TableHead className="text-center">KPI médio</TableHead>
+                <TableHead>{t('tableHeaderManager')}</TableHead>
+                <TableHead className="text-center">{t('tableHeaderTeam')}</TableHead>
+                <TableHead className="text-center">{t('tableHeaderActivePdis')}</TableHead>
+                <TableHead className="text-center">{t('tableHeaderPendingTasks')}</TableHead>
+                <TableHead className="text-center">{t('tableHeaderEvaluations')}</TableHead>
+                <TableHead className="text-center">{t('tableHeaderAvgKpi')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {managerOverview.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
-                    Nenhum gestor cadastrado ainda.
+                    {t('noManagersYet')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -361,7 +366,7 @@ export function AdminDashboard() {
                 <TableRow className="bg-muted/40">
                   <TableCell colSpan={6}>
                     <span className="text-sm text-muted-foreground italic">
-                      SEM GESTOR — há colaboradores sem gestor atribuído. Ver Alertas acima.
+                      {t('noManagerWarning')}
                     </span>
                   </TableCell>
                 </TableRow>

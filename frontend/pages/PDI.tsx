@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,7 @@ function formatDate(d: string | null | undefined) {
 
 export default function PDI() {
   const { isAdmin, isGestor } = useAuth();
+  const { t } = useLanguage();
 
   const { toast } = useToast();
   const { run } = useMutationHandler();
@@ -106,19 +108,19 @@ export default function PDI() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">PDI</h1>
         <Button size="sm" onClick={() => setNewPdiOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" /> Novo PDI
+          <Plus className="h-4 w-4 mr-2" /> {t('createPdi')}
         </Button>
       </div>
 
       <Tabs defaultValue="my">
         <TabsList>
-          <TabsTrigger value="my"><BookOpen className="h-4 w-4 mr-2" /> Meus PDIs</TabsTrigger>
-          {showTeamTab && <TabsTrigger value="team"><UsersIcon className="h-4 w-4 mr-2" /> Time</TabsTrigger>}
+          <TabsTrigger value="my"><BookOpen className="h-4 w-4 mr-2" /> {t('myPdi')}</TabsTrigger>
+          {showTeamTab && <TabsTrigger value="team"><UsersIcon className="h-4 w-4 mr-2" /> {t('teamPdis')}</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="my" className="space-y-4">
           {pdis.length === 0 ? (
-            <Card><CardContent><EmptyState icon={BookOpen} title="Nenhum PDI" description="Crie seu primeiro Plano de Desenvolvimento Individual." ctaLabel="Novo PDI" onCtaClick={() => setNewPdiOpen(true)} /></CardContent></Card>
+            <Card><CardContent><EmptyState icon={BookOpen} title={t('noPdis')} description={t('personalDevelopment')} ctaLabel={t('createPdi')} onCtaClick={() => setNewPdiOpen(true)} /></CardContent></Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -126,7 +128,7 @@ export default function PDI() {
                   <Card key={pdi.id} className={`cursor-pointer hover:shadow-md transition-shadow ${activePdi?.id === pdi.id ? 'border-primary' : ''}`} onClick={() => setSelectedPdi(pdi)}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">{pdi.title}</CardTitle>
-                      {pdi.end_date && <CardDescription>Prazo: {formatDate(pdi.end_date)}</CardDescription>}
+                      {pdi.end_date && <CardDescription>{t('dueDate')}: {formatDate(pdi.end_date)}</CardDescription>}
                     </CardHeader>
                   </Card>
                 ))}
@@ -139,35 +141,35 @@ export default function PDI() {
                       <div className="flex items-center justify-between">
                         <CardTitle>{activePdi.title}</CardTitle>
                         <Button size="sm" variant="outline" onClick={() => setNewTaskOpen(true)}>
-                          <Plus className="h-4 w-4 mr-1" /> Tarefa
+                          <Plus className="h-4 w-4 mr-1" /> {t('newTask')}
                         </Button>
                       </div>
                       {activePdi.description && <CardDescription>{activePdi.description}</CardDescription>}
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-1">
-                        <div className="flex justify-between text-sm"><span>Progresso</span><span>{completedTasks}/{tasks.length}</span></div>
+                        <div className="flex justify-between text-sm"><span>{t('progress')}</span><span>{completedTasks}/{tasks.length}</span></div>
                         <Progress value={progress} />
                       </div>
                       <div className="space-y-2">
                         {tasks.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">Nenhuma tarefa ainda.</p>
+                          <p className="text-sm text-muted-foreground">{t('noTasksYet')}</p>
                         ) : tasks.map(task => (
                           <div key={task.id} className="flex items-center justify-between rounded-md border p-3">
                             <div>
                               <p className="text-sm font-medium">{task.title}</p>
-                              {task.due_date && <p className="text-xs text-muted-foreground">Prazo: {formatDate(task.due_date)}</p>}
-                              {task.review_notes && <p className="text-xs text-muted-foreground mt-1">Feedback: {task.review_notes}</p>}
+                              {task.due_date && <p className="text-xs text-muted-foreground">{t('dueDate')}: {formatDate(task.due_date)}</p>}
+                              {task.review_notes && <p className="text-xs text-muted-foreground mt-1">{t('reviewComment')}: {task.review_notes}</p>}
                             </div>
                             <div className="flex items-center gap-2">
                               <StatusBadge status={task.status} domain="pdi_task" />
                               {task.status === 'pending' && (
-                                <Button size="sm" variant="outline" onClick={() => handleSubmitTask(task.id)}>Enviar</Button>
+                                <Button size="sm" variant="outline" onClick={() => handleSubmitTask(task.id)}>{t('submitTask')}</Button>
                               )}
                               {showTeamTab && task.status === 'submitted' && (
                                 <>
-                                  <Button size="sm" variant="default" onClick={() => setReviewDialog({ open: true, mode: 'approve', task })}>Aprovar</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => setReviewDialog({ open: true, mode: 'reject', task })}>Rejeitar</Button>
+                                  <Button size="sm" variant="default" onClick={() => setReviewDialog({ open: true, mode: 'approve', task })}>{t('approveTask')}</Button>
+                                  <Button size="sm" variant="destructive" onClick={() => setReviewDialog({ open: true, mode: 'reject', task })}>{t('rejectTask')}</Button>
                                 </>
                               )}
                             </div>
@@ -184,7 +186,7 @@ export default function PDI() {
 
         {showTeamTab && (
           <TabsContent value="team">
-            <Card><CardContent className="pt-4"><p className="text-sm text-muted-foreground">PDIs do time aparecem aqui conforme configurados na API.</p></CardContent></Card>
+            <Card><CardContent className="pt-4"><p className="text-sm text-muted-foreground">{t('pdiTeamEmpty')}</p></CardContent></Card>
           </TabsContent>
         )}
       </Tabs>
@@ -192,15 +194,15 @@ export default function PDI() {
       {/* Novo PDI */}
       <Dialog open={newPdiOpen} onOpenChange={setNewPdiOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Novo PDI</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('createPdi')}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
-            <div className="space-y-2"><Label>Título</Label><Input value={newPdiTitle} onChange={e => setNewPdiTitle(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Descrição</Label><Textarea value={newPdiDesc} onChange={e => setNewPdiDesc(e.target.value)} rows={2} /></div>
-            <div className="space-y-2"><Label>Prazo</Label><Input type="date" value={newPdiDue} onChange={e => setNewPdiDue(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('title')}</Label><Input value={newPdiTitle} onChange={e => setNewPdiTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('description')}</Label><Textarea value={newPdiDesc} onChange={e => setNewPdiDesc(e.target.value)} rows={2} /></div>
+            <div className="space-y-2"><Label>{t('dueDate')}</Label><Input type="date" value={newPdiDue} onChange={e => setNewPdiDue(e.target.value)} /></div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setNewPdiOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setNewPdiOpen(false)}>{t('cancel')}</Button>
               <Button onClick={handleCreatePdi} disabled={createPdiMutation.isPending}>
-                {createPdiMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />} Criar
+                {createPdiMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />} {t('save')}
               </Button>
             </div>
           </div>
@@ -210,14 +212,14 @@ export default function PDI() {
       {/* Nova Tarefa */}
       <Dialog open={newTaskOpen} onOpenChange={setNewTaskOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Nova Tarefa</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('createTask')}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
-            <div className="space-y-2"><Label>Título</Label><Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Prazo</Label><Input type="date" value={newTaskDue} onChange={e => setNewTaskDue(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('title')}</Label><Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t('dueDate')}</Label><Input type="date" value={newTaskDue} onChange={e => setNewTaskDue(e.target.value)} /></div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setNewTaskOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setNewTaskOpen(false)}>{t('cancel')}</Button>
               <Button onClick={handleCreateTask} disabled={createTaskMutation.isPending}>
-                {createTaskMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />} Adicionar
+                {createTaskMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />} {t('addNew')}
               </Button>
             </div>
           </div>
@@ -227,19 +229,19 @@ export default function PDI() {
       {/* Review Dialog */}
       <Dialog open={reviewDialog.open} onOpenChange={v => { if (!v) { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); } }}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{reviewDialog.mode === 'approve' ? 'Aprovar tarefa' : 'Rejeitar tarefa'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{reviewDialog.mode === 'approve' ? t('approveTaskTitle') : t('rejectTaskTitle')}</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <p className="text-sm text-muted-foreground">{reviewDialog.task?.title}</p>
             <div className="space-y-2">
-              <Label>{reviewDialog.mode === 'approve' ? 'Comentário (opcional)' : 'Motivo da rejeição'}</Label>
+              <Label>{reviewDialog.mode === 'approve' ? t('optionalComment') : t('reviewComment')}</Label>
               <Textarea value={reviewNotes} onChange={e => setReviewNotes(e.target.value)} rows={3} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReviewDialog({ open: false, mode: 'approve', task: null })}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setReviewDialog({ open: false, mode: 'approve', task: null })}>{t('cancel')}</Button>
             <Button variant={reviewDialog.mode === 'approve' ? 'default' : 'destructive'} onClick={handleReview} disabled={reviewTaskMutation.isPending}>
               {reviewTaskMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {reviewDialog.mode === 'approve' ? 'Aprovar' : 'Rejeitar'}
+              {reviewDialog.mode === 'approve' ? t('approveTask') : t('rejectTask')}
             </Button>
           </DialogFooter>
         </DialogContent>

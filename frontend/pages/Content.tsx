@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ const TYPE_META: Record<string, { label: string; icon: typeof GraduationCap; col
 };
 
 export default function Content() {
+  const { t } = useLanguage();
   const contentQuery = useContentItems();
   const items: ContentItem[] = contentQuery.data ?? [];
 
@@ -23,7 +25,7 @@ export default function Content() {
     <div className="space-y-6">
       <Breadcrumbs />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Conteúdo</h1>
+        <h1 className="text-2xl font-bold">{t('contentTitle')}</h1>
       </div>
 
       {items.length === 0 ? (

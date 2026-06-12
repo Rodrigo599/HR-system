@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, isSameDay, isToday, addMonths, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -24,6 +25,7 @@ const COLOR_CLASS: Record<string, string> = {
 };
 
 export default function Calendar() {
+  const { t } = useLanguage();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const evaluationsQuery = useEvaluations();
@@ -63,7 +65,7 @@ export default function Calendar() {
     <div className="space-y-6">
       <Breadcrumbs />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Calendário</h1>
+        <h1 className="text-2xl font-bold">{t('calendarTitle')}</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
             <ChevronLeft className="h-4 w-4" />

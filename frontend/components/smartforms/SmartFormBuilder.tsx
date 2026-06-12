@@ -42,6 +42,7 @@ import type {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -99,21 +100,9 @@ function emptyStep(): SmartFormStep {
   };
 }
 
-const FIELD_TYPE_OPTIONS: { value: FieldType; label: string }[] = [
-  { value: 'text', label: 'Texto' },
-  { value: 'number', label: 'Numero' },
-  { value: 'email', label: 'E-mail' },
-  { value: 'tel', label: 'Telefone' },
-  { value: 'date-range', label: 'Intervalo de datas' },
-  { value: 'checkbox-grid', label: 'Grade de opcoes' },
-  // HR-specific types
-  { value: 'scale', label: 'Escala (1-10)' },
-  { value: 'radio', label: 'Escolha unica' },
-  { value: 'textarea', label: 'Texto longo' },
-  { value: 'yes-no', label: 'Sim/Nao' },
-  { value: 'rating', label: 'Estrelas' },
-  { value: 'date', label: 'Data' },
-];
+// FIELD_TYPE_OPTIONS precisa de t() — será construído dentro dos componentes que usam
+
+// Labels movidas para dentro do FieldEditor via useLanguage()
 
 // Badge variant mapping — uses data attributes for custom coloring via Tailwind
 const FIELD_TYPE_BADGE_CLASS: Record<FieldType, string> = {
@@ -196,10 +185,26 @@ interface FieldEditorProps {
 }
 
 function FieldEditor({ field, onChange }: FieldEditorProps) {
+  const { t } = useLanguage();
   const update = useCallback(
     (patch: Partial<SmartFormField>) => onChange({ ...field, ...patch }),
     [field, onChange]
   );
+
+  const FIELD_TYPE_OPTIONS: { value: FieldType; label: string }[] = [
+    { value: 'text', label: 'Texto' },
+    { value: 'number', label: 'Número' },
+    { value: 'email', label: 'E-mail' },
+    { value: 'tel', label: 'Telefone' },
+    { value: 'date-range', label: 'Intervalo de datas' },
+    { value: 'checkbox-grid', label: 'Grade de opções' },
+    { value: 'scale', label: 'Escala (1-10)' },
+    { value: 'radio', label: 'Escolha única' },
+    { value: 'textarea', label: 'Texto longo' },
+    { value: 'yes-no', label: 'Sim/Não' },
+    { value: 'rating', label: 'Estrelas' },
+    { value: 'date', label: t('date') },
+  ];
 
   const isDateRange = field.type === 'date-range';
   const isCheckboxGrid = field.type === 'checkbox-grid';
@@ -226,7 +231,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
     <div className="mt-3 pt-3 border-t space-y-3">
       {/* Tipo */}
       <div>
-        <Label className="text-xs text-muted-foreground mb-1.5 block">Tipo</Label>
+        <Label className="text-xs text-muted-foreground mb-1.5 block">{t('builderFieldType')}</Label>
         <Select
           value={field.type}
           onValueChange={(v) => update({ type: v as SmartFormFieldType })}
@@ -248,7 +253,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
       {isDateRange ? (
         <div>
           <Label className="text-xs text-muted-foreground mb-1.5 block">
-            Nomes (separados por virgula)
+            {t('builderFieldNames')}
           </Label>
           <Input
             type="text"
@@ -267,7 +272,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
         </div>
       ) : (
         <div>
-          <Label className="text-xs text-muted-foreground mb-1.5 block">Nome (kebab-case)</Label>
+          <Label className="text-xs text-muted-foreground mb-1.5 block">{t('builderFieldName')}</Label>
           <Input
             type="text"
             value={field.name ?? ''}
@@ -282,7 +287,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
       {isDateRange ? (
         <div>
           <Label className="text-xs text-muted-foreground mb-1.5 block">
-            Labels (separadas por virgula, por idioma)
+            {t('builderFieldLabels')}
           </Label>
           <div className="space-y-1.5">
             {(['pt', 'es'] as Lang[]).map((lang) => {
@@ -316,7 +321,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
           label="Label"
           value={field.label}
           onChange={(val) => update({ label: val })}
-          placeholder="Label do campo"
+          placeholder={t('builderFieldLabel')}
         />
       )}
 
@@ -328,7 +333,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
           onCheckedChange={(checked) => update({ required: checked })}
         />
         <Label htmlFor="field-required" className="text-xs text-muted-foreground cursor-pointer">
-          Obrigatório
+          {t('builderRequired')}
         </Label>
       </div>
 
@@ -360,7 +365,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
             />
           </div>
           <div className="flex-1">
-            <Label className="text-xs text-muted-foreground mb-1.5 block">Valor padrao</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">{t('builderDefaultValue')}</Label>
             <Input
               type="number"
               value={field.value ?? ''}
@@ -408,7 +413,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
       {isRating && (
         <div className="w-32">
           <Label className="text-xs text-muted-foreground mb-1.5 block">
-            Numero de estrelas
+            {t('builderStars')}
           </Label>
           <Input
             type="number"
@@ -427,7 +432,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
       {/* Autocomplete: text-like fields */}
       {isTextLike && (
         <div>
-          <Label className="text-xs text-muted-foreground mb-1.5 block">Autocomplete</Label>
+          <Label className="text-xs text-muted-foreground mb-1.5 block">{t('builderAutocomplete')}</Label>
           <Input
             type="text"
             value={field.autocomplete ?? ''}
@@ -442,7 +447,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
       {needsOptions && (
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <Label className="text-xs text-muted-foreground">Opcoes</Label>
+            <Label className="text-xs text-muted-foreground">{t('builderOptions')}</Label>
             <Button
               type="button"
               variant="ghost"
@@ -451,12 +456,12 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
               onClick={() => {
                 const opts = [
                   ...(field.options ?? []),
-                  { value: 'opcao', label: { pt: 'Opcao', en: 'Option', es: 'Opcion' } },
+                  { value: 'opcao', label: { pt: 'Opção', en: 'Option', es: 'Opción' } },
                 ];
                 update({ options: opts });
               }}
             >
-              + Adicionar opcao
+              {t('builderAddOption')}
             </Button>
           </div>
           <div className="space-y-1.5">
@@ -498,7 +503,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
                     update({ options: opts });
                   }}
                   className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
-                  aria-label="Remover opcao"
+                  aria-label={t('builderRemoveField')}
                 >
                   <X size={13} />
                 </button>
@@ -511,7 +516,7 @@ function FieldEditor({ field, onChange }: FieldEditorProps) {
       {/* Tipos simples: textarea, yes-no, date — sem config adicional */}
       {isSimpleType && field.type !== 'email' && field.type !== 'tel' && (
         <p className="text-xs text-muted-foreground italic">
-          Nenhuma configuração adicional necessária para este tipo.
+          {t('builderNoExtraConfig')}
         </p>
       )}
     </div>
@@ -541,6 +546,7 @@ function SortableField({
   onChange,
   onRemove,
 }: SortableFieldProps) {
+  const { t } = useLanguage();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: fieldId,
   });
@@ -574,7 +580,7 @@ function SortableField({
           type="button"
           className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors"
           tabIndex={-1}
-          aria-label="Arrastar campo"
+          aria-label={t('builderDragField')}
         >
           <GripVertical size={14} />
         </button>
@@ -608,7 +614,7 @@ function SortableField({
                 ? 'text-primary bg-primary/10'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
-            title={isEditing ? 'Fechar edição' : 'Editar campo'}
+            title={isEditing ? t('builderCloseEdit') : t('builderEditField')}
           >
             {isEditing ? <Check size={13} /> : <Pencil size={13} />}
           </button>
@@ -616,7 +622,7 @@ function SortableField({
             type="button"
             onClick={onRemove}
             className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors"
-            title="Remover campo"
+            title={t('builderRemoveField')}
           >
             <Trash2 size={13} />
           </button>
@@ -668,6 +674,7 @@ function SortableStep({
     opacity: isDragging ? 0.4 : 1,
   };
 
+  const { t } = useLanguage();
   const [editingFieldIndex, setEditingFieldIndex] = useState<number | null>(null);
   const [activeFieldId, setActiveFieldId] = useState<string | null>(null);
 
@@ -722,7 +729,7 @@ function SortableStep({
     onChange({ ...step, fields: newFields });
   }
 
-  const titlePt = getI18nPt(step.title) || `Tela ${stepIndex + 1}`;
+  const titlePt = getI18nPt(step.title) || `${t('builderScreen')} ${stepIndex + 1}`;
   const fieldsCount = step.fields.length;
 
   const activeFieldIndex = activeFieldId ? fieldIds.indexOf(activeFieldId) : -1;
@@ -745,7 +752,7 @@ function SortableStep({
           type="button"
           className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors"
           tabIndex={-1}
-          aria-label="Arrastar tela"
+          aria-label={t('builderDragScreen')}
         >
           <GripVertical size={16} />
         </button>
@@ -760,10 +767,10 @@ function SortableStep({
           <span className="text-sm font-medium truncate block">{titlePt}</span>
           <span className="text-xs text-muted-foreground">
             {fieldsCount === 0
-              ? 'Nenhum campo'
+              ? t('builderNoFields')
               : fieldsCount === 1
-              ? '1 campo'
-              : `${fieldsCount} campos`}
+              ? t('builderOneField')
+              : t('builderNFields', { n: fieldsCount })}
           </span>
         </div>
 
@@ -775,7 +782,7 @@ function SortableStep({
             size="icon"
             className="h-7 w-7"
             onClick={onToggleExpand}
-            title={isExpanded ? 'Colapsar' : 'Expandir'}
+            title={isExpanded ? t('builderCollapse') : t('builderExpand')}
           >
             {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
           </Button>
@@ -786,7 +793,7 @@ function SortableStep({
               size="icon"
               className="h-7 w-7 text-muted-foreground hover:text-destructive"
               onClick={onRemove}
-              title="Remover tela"
+              title={t('builderRemoveScreen')}
             >
               <Trash2 size={14} />
             </Button>
@@ -800,23 +807,23 @@ function SortableStep({
           {/* Título e subtítulo do step */}
           <div className="grid grid-cols-1 gap-3">
             <I18nInput
-              label="Título da tela"
+              label={t('builderScreenTitle')}
               value={step.title}
               onChange={(val) => onChange({ ...step, title: val })}
-              placeholder="Título"
+              placeholder={t('title')}
             />
             <I18nInput
-              label="Subtítulo"
+              label={t('builderScreenSubtitle')}
               value={step.subtitle}
               onChange={(val) => onChange({ ...step, subtitle: val })}
-              placeholder="Subtítulo (opcional)"
+              placeholder={t('builderScreenSubtitlePlaceholder')}
             />
           </div>
 
           {/* Separador campos */}
           {fieldsCount > 0 && (
             <div className="border-t pt-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Campos</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">{t('builderFields')}</p>
             </div>
           )}
 
@@ -878,7 +885,7 @@ function SortableStep({
             className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-border hover:border-primary/50 rounded-lg text-xs text-muted-foreground hover:text-primary transition-colors"
           >
             <Plus size={13} />
-            Adicionar campo
+            {t('builderAddField')}
           </button>
         </CardContent>
       )}
@@ -896,6 +903,7 @@ interface SettingsCardProps {
 }
 
 function SettingsCard({ config, onChange }: SettingsCardProps) {
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -903,8 +911,8 @@ function SettingsCard({ config, onChange }: SettingsCardProps) {
       {/* Header */}
       <CardHeader className="py-3 px-4 flex-row items-center gap-2 bg-muted/30 rounded-t-lg space-y-0">
         <div className="flex-1">
-          <CardTitle className="text-sm font-medium">Configurações gerais</CardTitle>
-          <p className="text-xs text-muted-foreground">Textos dos botões do formulário</p>
+          <CardTitle className="text-sm font-medium">{t('builderGeneralSettings')}</CardTitle>
+          <p className="text-xs text-muted-foreground">{t('builderButtonTexts')}</p>
         </div>
         <Button
           type="button"
@@ -912,7 +920,7 @@ function SettingsCard({ config, onChange }: SettingsCardProps) {
           size="icon"
           className="h-7 w-7"
           onClick={() => setIsExpanded((v) => !v)}
-          aria-label={isExpanded ? 'Colapsar configurações' : 'Expandir configurações'}
+          aria-label={isExpanded ? t('builderCollapseSettings') : t('builderExpandSettings')}
         >
           {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </Button>
@@ -922,30 +930,27 @@ function SettingsCard({ config, onChange }: SettingsCardProps) {
         <CardContent className="px-4 pb-4 pt-3 space-y-4">
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">
-              Textos dos botoes
+              {t('builderButtonTextsSection')}
             </p>
             <div className="space-y-3">
-              {/* Submit */}
               <I18nInput
-                label="Enviar"
+                label={t('builderSubmitLabel')}
                 value={config.submit}
                 onChange={(val) => onChange({ ...config, submit: val })}
-                placeholder="Enviar"
+                placeholder={t('submit')}
               />
-
-              {/* Next / Back */}
               <div className="grid grid-cols-2 gap-3">
                 <I18nInput
-                  label="Proximo"
+                  label={t('builderNextLabel')}
                   value={config.next}
                   onChange={(val) => onChange({ ...config, next: val })}
-                  placeholder="Proximo"
+                  placeholder={t('next')}
                 />
                 <I18nInput
-                  label="Voltar"
+                  label={t('builderBackLabel')}
                   value={config.back}
                   onChange={(val) => onChange({ ...config, back: val })}
-                  placeholder="Voltar"
+                  placeholder={t('back')}
                 />
               </div>
             </div>
@@ -961,6 +966,7 @@ function SettingsCard({ config, onChange }: SettingsCardProps) {
 // ============================================================================
 
 export default function SmartFormBuilder({ config, onChange }: SmartFormBuilderProps) {
+  const { t } = useLanguage();
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(
     () => new Set(config.steps.length > 0 ? [0] : [])
   );
@@ -1078,10 +1084,12 @@ export default function SmartFormBuilder({ config, onChange }: SmartFormBuilderP
                   {activeDragStepIndex + 1}
                 </span>
                 <span className="text-sm font-medium">
-                  {getI18nPt(activeDragStep.title) || `Tela ${activeDragStepIndex + 1}`}
+                  {getI18nPt(activeDragStep.title) || `${t('builderScreen')} ${activeDragStepIndex + 1}`}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {activeDragStep.fields.length} campos
+                  {activeDragStep.fields.length === 1
+                    ? t('builderOneField')
+                    : t('builderNFields', { n: activeDragStep.fields.length })}
                 </span>
               </CardHeader>
             </Card>
@@ -1096,7 +1104,7 @@ export default function SmartFormBuilder({ config, onChange }: SmartFormBuilderP
         className="w-full flex items-center justify-center gap-2 py-3 border border-dashed border-border hover:border-primary/50 rounded-lg text-sm text-muted-foreground hover:text-primary transition-colors"
       >
         <Plus size={15} />
-        Adicionar tela
+        {t('builderAddScreen')}
       </button>
 
       {/* Card de configurações gerais */}
