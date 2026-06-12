@@ -10,15 +10,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import type { KpiResult, Kpi } from '@/types/api';
+import type { KpiResult } from '@/types/api';
 
 interface KpiTrendChartProps {
   results: KpiResult[];
-  kpis: Kpi[];
   months: number;
 }
 
-export function KpiTrendChart({ results, kpis, months = 6 }: KpiTrendChartProps) {
+export function KpiTrendChart({ results, months = 6 }: KpiTrendChartProps) {
   const { t } = useLanguage();
 
   const getMonthName = (m: number) => {

@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { PdiTask } from '@/types/api';
-import { CheckCircle, Circle, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Circle, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 interface PdiProgressChartProps {

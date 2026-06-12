@@ -10,8 +10,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Cell,
-  ReferenceLine,
 } from 'recharts';
 import type { KpiResult, Kpi } from '@/types/api';
 

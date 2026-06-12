@@ -1,17 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, BookOpen, ListChecks, ExternalLink, Plus, Loader2 } from "lucide-react";
+import { GraduationCap, BookOpen, ListChecks, ExternalLink, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { useAuth } from "@/contexts/AuthContext";
 import { useContentItems } from "@/hooks/api/useContent";
 import type { ContentItem } from "@/types/api";
 
@@ -22,9 +14,6 @@ const TYPE_META: Record<string, { label: string; icon: typeof GraduationCap; col
 };
 
 export default function Content() {
-  const { isAdmin, isGestor } = useAuth();
-  const { toast } = useToast();
-
   const contentQuery = useContentItems();
   const items: ContentItem[] = contentQuery.data ?? [];
 

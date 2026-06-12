@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Mail, Globe, Shield, Building2 } from 'lucide-react';
+import { Mail, Globe, Shield, Building2 } from 'lucide-react';
 
 function getInitials(name: string) {
   return name

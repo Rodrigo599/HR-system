@@ -20,7 +20,7 @@ import { SectorSelect } from '@/components/shared/SectorSelect';
 import { SectorName } from '@/components/shared/SectorName';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import type { SmartFormCategory, SmartFormStatus } from '@/lib/enums';
-import { SMART_FORM_STATUS_LABELS, SMART_FORM_CATEGORY_LABELS } from '@/lib/enums';
+import { SMART_FORM_CATEGORY_LABELS } from '@/lib/enums';
 import type { SmartForm } from '@/types/api';
 
 type ViewMode = 'list' | 'preview' | 'edit';

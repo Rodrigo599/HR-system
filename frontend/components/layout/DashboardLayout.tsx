@@ -43,7 +43,6 @@ export function DashboardLayout() {
       />
       <div className={cn('flex-1 flex flex-col min-h-screen transition-all', !isMobile && !sidebarCollapsed ? 'ml-64' : 'ml-16')}>
         <Header
-          sidebarCollapsed={sidebarCollapsed}
           onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
         <main className="flex-1 p-6">

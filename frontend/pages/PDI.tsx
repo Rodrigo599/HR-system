@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { Breadcrumbs } from '@/components/shared/Breadcrumbs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -27,7 +27,7 @@ function formatDate(d: string | null | undefined) {
 
 export default function PDI() {
   const { isAdmin, isGestor } = useAuth();
-  const { t } = useLanguage();
+
   const { toast } = useToast();
   const { run } = useMutationHandler();
 

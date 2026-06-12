@@ -13,15 +13,14 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { LogOut, User, Globe, Menu, Users, UserCircle, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
 import { useViewMode } from '@/contexts/ViewModeContext';
 
 interface HeaderProps {
-  sidebarCollapsed: boolean;
   onMenuClick: () => void;
 }
 
-export function Header({ sidebarCollapsed, onMenuClick }: HeaderProps) {
+export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
   const profile = user?.profile;
   const roles = user?.roles ?? [];
