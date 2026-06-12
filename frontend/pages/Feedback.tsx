@@ -133,7 +133,7 @@ export default function Feedback() {
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">{t('submit')} ({sent.length})</h2>
+        <h2 className="text-lg font-semibold">{t('feedbackSentSection')} ({sent.length})</h2>
         {sent.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('feedbackNoneSent')}</p>
         ) : sent.map(f => (

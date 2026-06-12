@@ -59,7 +59,7 @@ export default function KPIs() {
     if (!selectedKpi) return;
     const scoreNum = Number(registerScore);
     if (registerScore === '' || isNaN(scoreNum)) {
-      setRegisterScoreError('Informe um valor numérico válido');
+      setRegisterScoreError(t('kpiInvalidScore'));
       return;
     }
     await run(
@@ -98,7 +98,7 @@ export default function KPIs() {
                 )}
               </CardHeader>
               <CardContent>
-                <div className="text-xs text-muted-foreground mb-1">Último registro</div>
+                <div className="text-xs text-muted-foreground mb-1">{t('kpiLastRecord')}</div>
                 <div className="text-2xl font-bold">{currentResult?.score ?? '-'}</div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs text-muted-foreground">{t('target')}: {kpi.target_value}{kpi.unit ? ` ${kpi.unit}` : ''}</span>

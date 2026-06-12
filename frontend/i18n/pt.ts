@@ -381,6 +381,7 @@ export const pt = {
   feedbackReceived: 'Recebidos',
   feedbackNoneReceived: 'Nenhum feedback recebido',
   feedbackNoneReceivedDesc: 'Feedbacks dos seus colegas aparecem aqui.',
+  feedbackSentSection: 'Enviados',
   feedbackNoneSent: 'Nenhum feedback enviado ainda.',
   feedbackRemove: 'Remover',
   feedbackVisibilityWithManager: 'Eu + gestor',
@@ -459,6 +460,7 @@ export const pt = {
   contentTitle: 'Conteúdo',
   contentEmpty: 'Nenhum conteúdo disponível',
   contentEmptyDesc: 'Conteúdos atribuídos aparecem aqui.',
+  contentAccess: 'Acessar',
 
   // Enum labels — feedback types
   feedbackTypeKudos: 'Reconhecimento',
@@ -603,6 +605,22 @@ export const pt = {
   severityHigh: 'Alto',
   severityMedium: 'Médio',
   severityLow: 'Baixo',
+
+  // KPIs
+  kpiLastRecord: 'Último registro',
+  kpiLast6Months: 'Últimos 6 meses',
+  kpiInvalidScore: 'Informe um valor numérico válido',
+
+  // Evaluations
+  formLabel: 'Formulário',
+  typeLabel: 'Tipo',
+  evalNonePending: 'Nenhuma avaliação pendente',
+  evalNonePendingDesc: 'Quando seu líder iniciar uma avaliação, ela aparece aqui.',
+  evalNoneCreated: 'Nenhuma avaliação criada',
+  evalNoneCreatedDesc: 'Crie a primeira avaliação para um liderado.',
+  newEvaluationCta: 'Nova avaliação',
+  collaboratorFallback: 'Colaborador',
+  selectCollaboratorAndForm: 'Selecione colaborador e formulário',
 
   // FirstAccessChecklist
   initialSetup: 'Configuração inicial',

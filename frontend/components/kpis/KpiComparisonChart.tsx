@@ -50,7 +50,7 @@ export function KpiComparisonChart({ results, kpis, currentMonth, currentYear }:
     <Card>
       <CardHeader>
         <CardTitle>{t('kpiComparison')}</CardTitle>
-        <CardDescription>Ultimos 6 meses</CardDescription>
+        <CardDescription>{t('kpiLast6Months')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>

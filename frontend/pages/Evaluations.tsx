@@ -57,7 +57,7 @@ export default function Evaluations() {
 
   const handleCreate = async () => {
     if (!newAssignedTo || !newFormId) {
-      toast({ title: t('error'), description: 'Selecione colaborador e formulário', variant: 'destructive' });
+      toast({ title: t('error'), description: t('selectCollaboratorAndForm'), variant: 'destructive' });
       return;
     }
     await run(
@@ -94,7 +94,7 @@ export default function Evaluations() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Formulário</Label>
+                  <Label>{t('formLabel')}</Label>
                   <SmartFormSelect
                     value={newFormId}
                     onValueChange={setNewFormId}
@@ -102,12 +102,12 @@ export default function Evaluations() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Tipo</Label>
+                  <Label>{t('typeLabel')}</Label>
                   <Select value={newType} onValueChange={v => setNewType(v as EvaluationType)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {EVALUATION_TYPES.map(t => (
-                        <SelectItem key={t} value={t}>{evalTypeLabels[t]}</SelectItem>
+                      {EVALUATION_TYPES.map(et => (
+                        <SelectItem key={et} value={et}>{evalTypeLabels[et]}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -151,7 +151,7 @@ export default function Evaluations() {
 
         <TabsContent value="my" className="space-y-4">
           {myEvaluations.length === 0 ? (
-            <Card><CardContent><EmptyState icon={ClipboardList} title="Nenhuma avaliação pendente" description="Quando seu líder iniciar uma avaliação, ela aparece aqui." /></CardContent></Card>
+            <Card><CardContent><EmptyState icon={ClipboardList} title={t('evalNonePending')} description={t('evalNonePendingDesc')} /></CardContent></Card>
           ) : myEvaluations.map(evaluation => (
             <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-amber-400" onClick={() => setSelectedId(evaluation.id)}>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -168,13 +168,13 @@ export default function Evaluations() {
         {showTeamTab && (
           <TabsContent value="team" className="space-y-4">
             {teamEvaluations.length === 0 ? (
-              <Card><CardContent><EmptyState icon={ClipboardList} title="Nenhuma avaliação criada" description="Crie a primeira avaliação para um liderado." ctaLabel="Nova avaliação" onCtaClick={() => setCreateOpen(true)} /></CardContent></Card>
+              <Card><CardContent><EmptyState icon={ClipboardList} title={t('evalNoneCreated')} description={t('evalNoneCreatedDesc')} ctaLabel={t('newEvaluationCta')} onCtaClick={() => setCreateOpen(true)} /></CardContent></Card>
             ) : teamEvaluations.map(evaluation => {
               return (
                 <Card key={evaluation.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedId(evaluation.id)}>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                      <CardTitle className="text-base">{evaluation.assignee?.name ?? 'Colaborador'}</CardTitle>
+                      <CardTitle className="text-base">{evaluation.assignee?.name ?? t('collaboratorFallback')}</CardTitle>
                       <CardDescription>{evalTypeLabels[evaluation.type as EvaluationType] ?? evaluation.type} · {evaluation.month}/{evaluation.year}</CardDescription>
                     </div>
                     <StatusBadge status={evaluation.status} domain="evaluation" />

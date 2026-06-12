@@ -62,7 +62,7 @@ export function KpiEvolutionChart({ results, kpis, months = 6 }: KpiEvolutionCha
     <Card>
       <CardHeader>
         <CardTitle>{t('kpiEvolution')}</CardTitle>
-        <CardDescription>Ultimos 6 meses</CardDescription>
+        <CardDescription>{t('kpiLast6Months')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>

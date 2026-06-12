@@ -381,6 +381,7 @@ export const es = {
   feedbackReceived: 'Recibidos',
   feedbackNoneReceived: 'Ningún feedback recibido',
   feedbackNoneReceivedDesc: 'Los feedbacks de sus colegas aparecen aquí.',
+  feedbackSentSection: 'Enviados',
   feedbackNoneSent: 'Ningún feedback enviado aún.',
   feedbackRemove: 'Eliminar',
   feedbackVisibilityWithManager: 'Yo + gestor',
@@ -459,6 +460,7 @@ export const es = {
   contentTitle: 'Contenido',
   contentEmpty: 'Ningún contenido disponible',
   contentEmptyDesc: 'Los contenidos asignados aparecen aquí.',
+  contentAccess: 'Acceder',
 
   // Enum labels — feedback types
   feedbackTypeKudos: 'Reconocimiento',
@@ -603,6 +605,22 @@ export const es = {
   severityHigh: 'Alto',
   severityMedium: 'Medio',
   severityLow: 'Bajo',
+
+  // KPIs
+  kpiLastRecord: 'Último registro',
+  kpiLast6Months: 'Últimos 6 meses',
+  kpiInvalidScore: 'Ingrese un valor numérico válido',
+
+  // Evaluations
+  formLabel: 'Formulario',
+  typeLabel: 'Tipo',
+  evalNonePending: 'Ninguna evaluación pendiente',
+  evalNonePendingDesc: 'Cuando su líder inicie una evaluación, aparece aquí.',
+  evalNoneCreated: 'Ninguna evaluación creada',
+  evalNoneCreatedDesc: 'Cree la primera evaluación para un colaborador.',
+  newEvaluationCta: 'Nueva evaluación',
+  collaboratorFallback: 'Colaborador',
+  selectCollaboratorAndForm: 'Seleccione colaborador y formulario',
 
   // FirstAccessChecklist
   initialSetup: 'Configuración inicial',
