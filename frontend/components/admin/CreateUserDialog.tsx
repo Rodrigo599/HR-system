@@ -23,6 +23,7 @@ import { useCreateUser } from '@/hooks/api/useUsers';
 import { UserSelect } from '@/components/shared/UserSelect';
 import { SectorSelect } from '@/components/shared/SectorSelect';
 import type { AppRole } from '@/types/api';
+import type { Language } from '@/i18n/translations';
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -36,7 +37,7 @@ interface FormFields {
   sectorId: string;
   managerId: string;
   role: AppRole;
-  preferredLanguage: 'pt' | 'es';
+  preferredLanguage: Language;
   password: string;
 }
 
@@ -229,7 +230,7 @@ export function CreateUserDialog({
             <Label htmlFor="preferredLanguage">{t('language')}</Label>
             <Select
               value={form.preferredLanguage}
-              onValueChange={value => handleChange('preferredLanguage', value as 'pt' | 'es')}
+              onValueChange={value => handleChange('preferredLanguage', value as Language)}
               disabled={loading}
             >
               <SelectTrigger id="preferredLanguage">
