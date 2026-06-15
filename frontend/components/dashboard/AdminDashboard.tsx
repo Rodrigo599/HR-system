@@ -29,6 +29,7 @@ import { useSectors } from '@/hooks/api/useSectors';
 import { useEvaluations } from '@/hooks/api/useEvaluations';
 import { usePdis } from '@/hooks/api/usePdi';
 import { useKpiResults } from '@/hooks/api/useKpis';
+import { useSmartForms } from '@/hooks/api/useSmartForms';
 
 type Severity = 'critical' | 'high' | 'medium' | 'low';
 
@@ -65,8 +66,9 @@ export function AdminDashboard() {
   const { data: evaluations = [], isLoading: evalsLoading } = useEvaluations();
   const { data: pdis = [], isLoading: pdisLoading } = usePdis();
   const { data: kpiResults = [], isLoading: kpiLoading } = useKpiResults();
+  const { data: smartForms = [], isLoading: formsLoading } = useSmartForms();
 
-  const loading = usersLoading || sectorsLoading || evalsLoading || pdisLoading || kpiLoading;
+  const loading = usersLoading || sectorsLoading || evalsLoading || pdisLoading || kpiLoading || formsLoading;
 
   if (loading) {
     return (
@@ -185,7 +187,7 @@ export function AdminDashboard() {
       <FirstAccessChecklist
         sectorsCount={sectors.length}
         usersCount={activeUsers}
-        formsCount={0}
+        formsCount={smartForms.length}
         evaluationsCount={evalsTotal}
       />
 
