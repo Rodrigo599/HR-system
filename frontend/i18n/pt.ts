@@ -609,6 +609,32 @@ export const pt = {
   severityMedium: 'Médio',
   severityLow: 'Baixo',
 
+  // PDI (success messages)
+  taskAdded: 'Tarefa adicionada',
+  rejectReason: 'Informe o motivo da rejeição',
+
+  // Calendar
+  calendarEvalPrefix: 'Avaliação',
+  daySun: 'Dom',
+  dayMon: 'Seg',
+  dayTue: 'Ter',
+  dayWed: 'Qua',
+  dayThu: 'Qui',
+  dayFri: 'Sex',
+  daySat: 'Sáb',
+
+  // Breadcrumbs / nav labels
+  navEvaluations: 'Avaliações',
+  navKpis: 'KPIs',
+  navPdi: 'PDI',
+  navCalendar: 'Calendário',
+  navHistory: 'Histórico',
+  navAdmin: 'Administração',
+  navSmartforms: 'Formulários',
+  navFeedback: 'Feedbacks',
+  navOneOnOnes: '1:1',
+  navContent: 'Conteúdos',
+
   // KPIs
   kpiLastRecord: 'Último registro',
   kpiLast6Months: 'Últimos 6 meses',

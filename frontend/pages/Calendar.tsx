@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, isSameDay, isToday, addMonths, subMonths } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ptBR, es as esLocale } from "date-fns/locale";
+import type { Language } from "@/i18n/translations";
+
+const DATE_FNS_LOCALE: Record<Language, Locale> = { pt: ptBR, es: esLocale };
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -25,7 +28,8 @@ const COLOR_CLASS: Record<string, string> = {
 };
 
 export default function Calendar() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const dateFnsLocale = DATE_FNS_LOCALE[language];
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const evaluationsQuery = useEvaluations();
@@ -36,7 +40,7 @@ export default function Calendar() {
 
   (evaluationsQuery.data ?? []).forEach(e => {
     if (e.period) {
-      events.push({ type: 'evaluation', title: `Avaliação: ${e.type}`, date: e.period + '-01', color: 'blue' });
+      events.push({ type: 'evaluation', title: `${t('calendarEvalPrefix')}: ${e.type}`, date: e.period + '-01', color: 'blue' });
     }
   });
 
@@ -71,7 +75,7 @@ export default function Calendar() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium w-36 text-center capitalize">
-            {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+            {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocale })}
           </span>
           <Button variant="outline" size="icon" onClick={() => setCurrentDate(addMonths(currentDate, 1))}>
             <ChevronRight className="h-4 w-4" />
@@ -82,7 +86,7 @@ export default function Calendar() {
       <Card>
         <CardContent className="p-0">
           <div className="grid grid-cols-7 border-b">
-            {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => (
+            {([t('daySun'), t('dayMon'), t('dayTue'), t('dayWed'), t('dayThu'), t('dayFri'), t('daySat')]).map(d => (
               <div key={d} className="py-2 text-center text-xs font-medium text-muted-foreground">{d}</div>
             ))}
           </div>

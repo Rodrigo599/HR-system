@@ -1,25 +1,31 @@
 import { useLocation, Link } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { TranslationKey } from '@/i18n/translations';
 
-const ROUTE_LABELS: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/evaluations': 'Avaliações',
-  '/kpis': 'KPIs',
-  '/pdi': 'PDI',
-  '/calendar': 'Calendário',
-  '/history': 'Histórico',
-  '/admin': 'Administração',
-  '/smartforms': 'Formulários',
+const ROUTE_KEYS: Record<string, TranslationKey> = {
+  '/evaluations': 'navEvaluations',
+  '/kpis': 'navKpis',
+  '/pdi': 'navPdi',
+  '/calendar': 'navCalendar',
+  '/history': 'navHistory',
+  '/admin': 'navAdmin',
+  '/smartforms': 'navSmartforms',
+  '/feedback': 'navFeedback',
+  '/one-on-ones': 'navOneOnOnes',
+  '/content': 'navContent',
 };
 
 export function Breadcrumbs() {
   const { pathname } = useLocation();
+  const { t } = useLanguage();
 
   // Nao mostrar no dashboard (e a home)
   if (pathname === '/dashboard' || pathname === '/') return null;
 
   const basePath = '/' + pathname.split('/')[1];
-  const label = ROUTE_LABELS[basePath] || basePath.replace('/', '');
+  const key = ROUTE_KEYS[basePath];
+  const label = key ? t(key) : basePath.replace('/', '');
 
   return (
     <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4">

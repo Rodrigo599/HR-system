@@ -61,7 +61,7 @@ export default function PDI() {
     if (!newPdiTitle.trim()) return;
     await run(
       createPdiMutation.mutateAsync({ title: newPdiTitle, description: newPdiDesc || undefined, end_date: newPdiDue || undefined }),
-      { successMsg: 'PDI criado', onSuccess: (pdi) => { setSelectedPdi(pdi); setNewPdiOpen(false); setNewPdiTitle(''); setNewPdiDesc(''); setNewPdiDue(''); } },
+      { successMsg: t('pdiCreated'), onSuccess: (pdi) => { setSelectedPdi(pdi); setNewPdiOpen(false); setNewPdiTitle(''); setNewPdiDesc(''); setNewPdiDue(''); } },
     );
   };
 
@@ -69,7 +69,7 @@ export default function PDI() {
     if (!newTaskTitle.trim() || !selectedPdi) return;
     await run(
       createTaskMutation.mutateAsync({ title: newTaskTitle, due_date: newTaskDue || undefined }),
-      { successMsg: 'Tarefa adicionada', onSuccess: () => { setNewTaskOpen(false); setNewTaskTitle(''); setNewTaskDue(''); } },
+      { successMsg: t('taskAdded'), onSuccess: () => { setNewTaskOpen(false); setNewTaskTitle(''); setNewTaskDue(''); } },
     );
   };
 
@@ -77,19 +77,19 @@ export default function PDI() {
     if (!selectedPdi) return;
     await run(
       submitTaskMutation.mutateAsync(taskId),
-      { successMsg: 'Tarefa enviada para revisão', onSuccess: () => pdisQuery.refetch() },
+      { successMsg: t('taskSubmitted'), onSuccess: () => pdisQuery.refetch() },
     );
   };
 
   const handleReview = async () => {
     if (!reviewDialog.task || !selectedPdi) return;
     if (reviewDialog.mode === 'reject' && !reviewNotes.trim()) {
-      toast({ title: 'Informe o motivo da rejeição', variant: 'destructive' });
+      toast({ title: t('rejectReason'), variant: 'destructive' });
       return;
     }
     await run(
       reviewTaskMutation.mutateAsync({ taskId: reviewDialog.task.id, status: reviewDialog.mode === 'approve' ? 'approved' : 'rejected', review_notes: reviewNotes }),
-      { successMsg: reviewDialog.mode === 'approve' ? 'Tarefa aprovada' : 'Tarefa rejeitada', onSuccess: () => { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); } },
+      { successMsg: reviewDialog.mode === 'approve' ? t('taskApproved') : t('taskRejected'), onSuccess: () => { setReviewDialog({ open: false, mode: 'approve', task: null }); setReviewNotes(''); } },
     );
   };
 
