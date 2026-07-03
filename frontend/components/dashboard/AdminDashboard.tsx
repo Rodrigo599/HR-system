@@ -104,7 +104,8 @@ export function AdminDashboard() {
 
   const allTasks = pdis.flatMap(p => p.tasks ?? []);
   const tasksPending = allTasks.filter(t => t.status === 'submitted').length;
-  const pdisActive = pdis.filter(p => p.status === 'active').length;
+  // Pdi não tem campo `status`; "ativo" = tem ao menos uma tarefa não concluída.
+  const pdisActive = pdis.filter(p => (p.tasks ?? []).some(t => !t.completed)).length;
 
   const kpiScores = kpiResults
     .filter(r => r.month === currentMonth && r.year === currentYear)
@@ -160,7 +161,7 @@ export function AdminDashboard() {
     const teamUserIds = users.filter(u => u.profile?.manager_id === gestor.id).map(u => u.id);
     const teamPdis = pdis.filter(p => teamUserIds.includes(p.user_id));
     const teamTasks = teamPdis.flatMap(p => p.tasks ?? []);
-    const teamEvals = evaluations.filter(e => teamUserIds.includes(e.assigned_to));
+    const teamEvals = evaluations.filter(e => e.assignee && teamUserIds.includes(e.assignee.id));
     const teamKpiScores = kpiResults
       .filter(r => teamUserIds.includes(r.user_id) && r.month === currentMonth && r.year === currentYear)
       .map(r => Number(r.score));
@@ -168,7 +169,7 @@ export function AdminDashboard() {
     return {
       gestor,
       teamSize,
-      pdisActive: teamPdis.filter(p => p.status === 'active').length,
+      pdisActive: teamPdis.filter(p => (p.tasks ?? []).some(t => !t.completed)).length,
       tasksPendingApproval: teamTasks.filter(t => t.status === 'submitted').length,
       evalsCompleted: teamEvals.filter(e => e.status === 'completed').length,
       evalsTotal: teamEvals.length,

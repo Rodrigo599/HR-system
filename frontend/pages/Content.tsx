@@ -58,8 +58,8 @@ export default function Content() {
                 {item.description && (
                   <CardContent>
                     <CardDescription className="text-xs line-clamp-2">{item.description}</CardDescription>
-                    {item.url && (
-                      <a href={item.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-primary mt-2 hover:underline">
+                    {(item.link_url ?? item.file_url) && (
+                      <a href={item.link_url ?? item.file_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-primary mt-2 hover:underline">
                         <ExternalLink className="h-3 w-3" /> {t('contentAccess')}
                       </a>
                     )}

@@ -27,9 +27,16 @@ class PdiController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        return PdiResource::collection(
-            $this->pdis->forUser($request->user())
-        );
+        // Em visão de time (padrão pra gestor/admin), lista os PDIs dos liderados
+        // (PRD 3.5 "Ver PDIs do time"). Em visão pessoal, os próprios. Mesmo padrão
+        // de avaliações/KPIs; o header X-View-Mode chega pelo apiClient.
+        $user = $request->user();
+
+        $items = !$request->isPersonalView() && $user->hasAnyRole(['admin', 'gestor'])
+            ? $this->pdis->forTeam($user)
+            : $this->pdis->forUser($user);
+
+        return PdiResource::collection($items);
     }
 
     public function store(CreatePdiRequest $request): PdiResource

@@ -16,7 +16,10 @@ function getInitials(name: string) {
 }
 
 export default function Profile() {
-  const { profile, roles } = useAuth();
+  // O contexto de auth expõe `user`; perfil e papéis vivem dentro dele.
+  const { user } = useAuth();
+  const profile = user?.profile;
+  const roles = user?.roles ?? [];
   const { t } = useLanguage();
 
   if (!profile) {
