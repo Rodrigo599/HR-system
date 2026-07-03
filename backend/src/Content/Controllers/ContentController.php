@@ -15,10 +15,14 @@ use Src\Content\Requests\UpdateProgressRequest;
 use Src\Content\Resources\ContentAssignmentResource;
 use Src\Content\Resources\ContentItemResource;
 use Src\Content\Services\ContentService;
+use Src\Organization\Services\HierarchyService;
 
 class ContentController extends Controller
 {
-    public function __construct(private readonly ContentService $content) {}
+    public function __construct(
+        private readonly ContentService $content,
+        private readonly HierarchyService $hierarchy,
+    ) {}
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -46,7 +50,19 @@ class ContentController extends Controller
     {
         $this->authorize('assign', $contentItem);
 
-        $this->content->assign($contentItem, $request->array('user_ids'));
+        // Gestor só atribui conteúdo a membros do próprio time (PRD §5).
+        $user = $request->user();
+        $userIds = $request->array('user_ids');
+        if (! $user->hasRole('admin')) {
+            $teamIds = $this->hierarchy->getTeamUserIds($user);
+            abort_unless(
+                empty(array_diff($userIds, $teamIds)),
+                403,
+                'Só é possível atribuir conteúdo a membros do seu time.'
+            );
+        }
+
+        $this->content->assign($contentItem, $userIds);
 
         return response()->json(['message' => 'Conteúdo atribuído.']);
     }

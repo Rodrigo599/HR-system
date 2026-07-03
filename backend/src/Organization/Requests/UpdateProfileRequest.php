@@ -14,6 +14,7 @@ class UpdateProfileRequest extends FormRequest
             'sector_id' => ['sometimes', 'nullable', 'uuid', 'exists:sectors,id'],
             'manager_id' => ['sometimes', 'nullable', 'uuid', 'exists:profiles,id'],
             'preferred_language' => ['sometimes', 'string', 'in:pt,es'],
+            'birth_date' => ['sometimes', 'nullable', 'date'],
         ];
     }
 }

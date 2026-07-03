@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Src\Organization\DTOs\CreateUserDTO;
 use Src\Organization\Requests\CreateUserRequest;
+use Src\Organization\Requests\UpdateUserRequest;
 use Src\Organization\Resources\UserResource;
 use Src\Organization\Services\UserService;
 
@@ -33,12 +34,12 @@ class UserController extends Controller
         );
     }
 
-    public function update(CreateUserRequest $request, User $user): UserResource
+    public function update(UpdateUserRequest $request, User $user): UserResource
     {
         $this->authorize('update', $user);
 
         return UserResource::make(
-            $this->users->create(CreateUserDTO::fromRequest($request))
+            $this->users->update($user, CreateUserDTO::fromRequest($request))
         );
     }
 

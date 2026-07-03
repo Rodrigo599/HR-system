@@ -7,6 +7,7 @@ use Src\Evaluation\Controllers\EvaluationController;
 use Src\Feedback\Controllers\FeedbackController;
 use Src\KPI\Controllers\KpiController;
 use Src\OneOnOne\Controllers\OneOnOneController;
+use Src\Organization\Controllers\DependentController;
 use Src\Organization\Controllers\ProfileController;
 use Src\Organization\Controllers\SectorController;
 use Src\Organization\Controllers\UserController;
@@ -36,6 +37,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::get('/profile/team', [ProfileController::class, 'team']);
+
+    // Dependentes + aniversários
+    Route::get('/dependents', [DependentController::class, 'index']);
+    Route::post('/dependents', [DependentController::class, 'store']);
+    Route::put('/dependents/{dependent}', [DependentController::class, 'update']);
+    Route::delete('/dependents/{dependent}', [DependentController::class, 'destroy']);
+    Route::get('/birthdays', [DependentController::class, 'birthdays']);
 
     // Avaliações
     Route::get('/evaluations', [EvaluationController::class, 'index']);

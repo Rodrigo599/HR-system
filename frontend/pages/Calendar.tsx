@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, isSameDay, isToday, addMonths, subMonths } from "date-fns";
+import type { Locale } from "date-fns";
 import { ptBR, es as esLocale } from "date-fns/locale";
 import type { Language } from "@/i18n/translations";
 
@@ -39,8 +40,10 @@ export default function Calendar() {
   const events: CalendarEvent[] = [];
 
   (evaluationsQuery.data ?? []).forEach(e => {
-    if (e.period) {
-      events.push({ type: 'evaluation', title: `${t('calendarEvalPrefix')}: ${e.type}`, date: e.period + '-01', color: 'blue' });
+    // Avaliação não tem `period`; o prazo é o 1º dia do mês/ano da avaliação.
+    if (e.year && e.month) {
+      const period = `${e.year}-${String(e.month).padStart(2, '0')}`;
+      events.push({ type: 'evaluation', title: `${t('calendarEvalPrefix')}: ${e.type}`, date: period + '-01', color: 'blue' });
     }
   });
 

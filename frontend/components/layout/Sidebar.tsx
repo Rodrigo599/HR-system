@@ -12,6 +12,7 @@ import {
   Settings,
   FileText,
   MessageSquareHeart,
+  Smile,
   GraduationCap,
   Users,
   ChevronLeft,
@@ -56,7 +57,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     { path: "/pdi", icon: BookOpen, label: t("pdi") },
     { path: "/content", icon: GraduationCap, label: t("contentTitle") },
     { path: "/calendar", icon: CalendarDays, label: t("calendar") },
-    { path: "/feedback", icon: MessageSquareHeart, label: t("climaSurvey") },
+    { path: "/clima", icon: Smile, label: t("climaSurvey") },
+    { path: "/feedback", icon: MessageSquareHeart, label: t("feedback") },
     { path: "/history", icon: History, label: t("history") },
   ];
 

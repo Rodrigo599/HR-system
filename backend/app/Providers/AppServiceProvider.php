@@ -18,8 +18,10 @@ use Src\KPI\Models\Kpi;
 use Src\KPI\Policies\KpiPolicy;
 use Src\OneOnOne\Models\OneOnOne;
 use Src\OneOnOne\Policies\OneOnOnePolicy;
+use Src\Organization\Models\Dependent;
 use Src\Organization\Models\Profile;
 use Src\Organization\Observers\UserObserver;
+use Src\Organization\Policies\DependentPolicy;
 use Src\Organization\Policies\ProfilePolicy;
 use Src\Organization\Policies\UserPolicy;
 use Src\PDI\Models\Pdi;
@@ -57,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Profile::class, ProfilePolicy::class);
+        Gate::policy(Dependent::class, DependentPolicy::class);
         Gate::policy(Evaluation::class, EvaluationPolicy::class);
         Gate::policy(Kpi::class, KpiPolicy::class);
         Gate::policy(Pdi::class, PdiPolicy::class);

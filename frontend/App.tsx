@@ -18,6 +18,7 @@ import Admin from "./pages/Admin";
 import SmartForms from "./pages/SmartForms";
 import Profile from "./pages/Profile";
 import Feedback from "./pages/Feedback";
+import Clima from "./pages/Clima";
 import Content from "./pages/Content";
 import OneOnOnes from "./pages/OneOnOnes";
 import NotFound from "./pages/NotFound";
@@ -70,6 +71,7 @@ const App = () => (
                     element={<Navigate to="/smartforms" replace />}
                   />
                   <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/clima" element={<Clima />} />
                   <Route path="/content" element={<Content />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />

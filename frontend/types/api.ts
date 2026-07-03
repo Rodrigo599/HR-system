@@ -16,6 +16,7 @@ export type Sector    = components['schemas']['SectorResource'];
 export type Profile   = components['schemas']['ProfileResource'];
 export type User      = components['schemas']['UserResource'];
 export type AuthUser  = components['schemas']['AuthUserResource'];
+export type Dependent = components['schemas']['DependentResource'];
 
 // Avaliações
 export type Evaluation         = components['schemas']['EvaluationResource'];

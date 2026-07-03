@@ -17,7 +17,7 @@ import { useMutationHandler } from '@/hooks/useMutation';
 import { Loader2, BookOpen, Plus, Users as UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import { usePdis, useCreatePdi, useCreatePdiTask, useSubmitPdiTask, useReviewPdiTask } from '@/hooks/api/usePdi';
+import { usePdis, useTeamPdis, useCreatePdi, useCreatePdiTask, useSubmitPdiTask, useReviewPdiTask } from '@/hooks/api/usePdi';
 import type { Pdi, PdiTask } from '@/types/api';
 
 function formatDate(d: string | null | undefined) {
@@ -34,6 +34,8 @@ export default function PDI() {
   const { run } = useMutationHandler();
 
   const showTeamTab = isAdmin || isGestor;
+  const teamPdisQuery = useTeamPdis(showTeamTab);
+  const teamPdis = teamPdisQuery.data ?? [];
 
   const pdisQuery = usePdis();
   const pdis: Pdi[] = pdisQuery.data ?? [];
@@ -166,12 +168,8 @@ export default function PDI() {
                               {task.status === 'pending' && (
                                 <Button size="sm" variant="outline" onClick={() => handleSubmitTask(task.id)}>{t('submitTask')}</Button>
                               )}
-                              {showTeamTab && task.status === 'submitted' && (
-                                <>
-                                  <Button size="sm" variant="default" onClick={() => setReviewDialog({ open: true, mode: 'approve', task })}>{t('approveTask')}</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => setReviewDialog({ open: true, mode: 'reject', task })}>{t('rejectTask')}</Button>
-                                </>
-                              )}
+                              {/* Aprovar/rejeitar tarefa do time vive na aba "Time" —
+                                  o gestor não aprova as próprias tarefas (dava 403). */}
                             </div>
                           </div>
                         ))}
@@ -185,8 +183,44 @@ export default function PDI() {
         </TabsContent>
 
         {showTeamTab && (
-          <TabsContent value="team">
-            <Card><CardContent className="pt-4"><p className="text-sm text-muted-foreground">{t('pdiTeamEmpty')}</p></CardContent></Card>
+          <TabsContent value="team" className="space-y-4">
+            {teamPdis.length === 0 ? (
+              <Card><CardContent className="pt-4"><p className="text-sm text-muted-foreground">{t('pdiTeamEmpty')}</p></CardContent></Card>
+            ) : (
+              teamPdis.map(pdi => {
+                const pdiTasks = pdi.tasks ?? [];
+                const done = pdiTasks.filter(tk => tk.status === 'approved').length;
+                return (
+                  <Card key={pdi.id}>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">{pdi.title}</CardTitle>
+                        <span className="text-xs text-muted-foreground">{pdi.user?.profile?.full_name ?? ''}</span>
+                      </div>
+                      <CardDescription>{t('progress')}: {done}/{pdiTasks.length}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {pdiTasks.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">{t('noTasksYet')}</p>
+                      ) : pdiTasks.map(task => (
+                        <div key={task.id} className="flex items-center justify-between rounded-md border p-3">
+                          <p className="text-sm font-medium">{task.title}</p>
+                          <div className="flex items-center gap-2">
+                            <StatusBadge status={task.status} domain="pdi_task" />
+                            {task.status === 'submitted' && (
+                              <>
+                                <Button size="sm" variant="default" onClick={() => setReviewDialog({ open: true, mode: 'approve', task })}>{t('approveTask')}</Button>
+                                <Button size="sm" variant="destructive" onClick={() => setReviewDialog({ open: true, mode: 'reject', task })}>{t('rejectTask')}</Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </TabsContent>
         )}
       </Tabs>

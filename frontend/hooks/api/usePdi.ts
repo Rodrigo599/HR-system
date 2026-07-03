@@ -9,6 +9,19 @@ export function usePdis() {
   });
 }
 
+// PDIs dos liderados — força a visão de time no backend, independente do toggle
+// global. Usado na aba "Time" da página de PDI (gestor/admin).
+export function useTeamPdis(enabled = true) {
+  return useQuery({
+    queryKey: ['pdis', 'team'],
+    enabled,
+    queryFn: () =>
+      apiClient
+        .get<ApiList<Pdi>>('/pdis', { headers: { 'X-View-Mode': 'team' } })
+        .then((r) => r.data.data),
+  });
+}
+
 interface CreatePdiPayload {
   title: string;
   description?: string;

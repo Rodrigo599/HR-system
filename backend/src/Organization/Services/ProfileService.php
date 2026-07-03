@@ -16,6 +16,7 @@ class ProfileService
             'sector_id' => $dto->sectorId,
             'manager_id' => $dto->managerId,
             'preferred_language' => $dto->preferredLanguage,
+            'birth_date' => $dto->birthDate,
         ], fn ($v) => $v !== null);
 
         $user->profile->update($data);

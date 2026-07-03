@@ -13,7 +13,7 @@ interface CreateUserPayload {
   name: string;
   email: string;
   password: string;
-  roles: string[];
+  role: string;
   sector_id?: string;
   manager_id?: string;
 }
@@ -38,6 +38,7 @@ interface UpdateProfilePayload {
   full_name?: string;
   avatar_url?: string;
   preferred_language?: string;
+  birth_date?: string;
 }
 
 export function useUpdateProfile() {

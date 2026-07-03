@@ -21,7 +21,7 @@ class ProfileController extends Controller
     public function show(Request $request): ProfileResource
     {
         return ProfileResource::make(
-            $request->user()->profile->load('sector')
+            $request->user()->profile->load('sector', 'dependents')
         );
     }
 

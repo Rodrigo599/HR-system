@@ -24,16 +24,19 @@ export default function History() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => String(currentYear - i));
 
+  // Avaliação não tem campo `period`; o período é derivado de year/month do backend.
+  const periodOf = (e: Evaluation) => `${e.year}-${String(e.month).padStart(2, '0')}`;
+
   const filtered = evaluations.filter(e => {
     const matchType = filterType === 'all' || e.type === filterType;
-    const matchYear = e.period?.startsWith(filterYear);
+    const matchYear = String(e.year) === filterYear;
     return matchType && matchYear;
   });
 
 
   const exportCSV = () => {
     if (filtered.length === 0) return;
-    const rows = filtered.map(e => [e.type, e.period, e.status].join(','));
+    const rows = filtered.map(e => [e.type, periodOf(e), e.status].join(','));
     const csv = ['tipo,periodo,status', ...rows].join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -83,7 +86,7 @@ export default function History() {
                   <HistoryIcon className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <CardTitle className="text-base">{e.type}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{e.period}</p>
+                    <p className="text-sm text-muted-foreground">{periodOf(e)}</p>
                   </div>
                 </div>
                 <StatusBadge status={e.status} domain="evaluation" />

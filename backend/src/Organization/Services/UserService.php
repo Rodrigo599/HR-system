@@ -32,6 +32,28 @@ class UserService
         });
     }
 
+    public function update(User $user, CreateUserDTO $dto): User
+    {
+        return DB::transaction(function () use ($user, $dto) {
+            $data = ['name' => $dto->name, 'email' => $dto->email];
+            if ($dto->password !== '') {
+                $data['password'] = Hash::make($dto->password);
+            }
+            $user->update($data);
+
+            $user->profile()->update([
+                'email' => $dto->email,
+                'full_name' => $dto->name,
+                'sector_id' => $dto->sectorId,
+                'manager_id' => $dto->managerId,
+            ]);
+
+            $user->roles()->update(['role' => $dto->role]);
+
+            return $user->load('profile', 'roles');
+        });
+    }
+
     public function deactivate(User $user): void
     {
         $user->profile()->update(['active' => false]);
