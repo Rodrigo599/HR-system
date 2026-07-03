@@ -116,6 +116,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dependents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dependent.index"];
+        put?: never;
+        post: operations["dependent.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dependents/{dependent}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["dependent.update"];
+        post?: never;
+        delete: operations["dependent.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/birthdays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dependent.birthdays"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/evaluations": {
         parameters: {
             query?: never;
@@ -777,6 +825,15 @@ export interface components {
             /** Format: uuid */
             manager_id?: string | null;
         };
+        /** DependentResource */
+        DependentResource: {
+            id: string;
+            profile_id: string;
+            name: string;
+            birth_date: string;
+            relationship: string;
+            consent: boolean;
+        };
         /**
          * EvaluationFlowType
          * @enum {string}
@@ -851,11 +908,6 @@ export interface components {
             created_at: string;
             kpi?: components["schemas"]["KpiResource"];
         };
-        /**
-         * KpiUnit
-         * @enum {string}
-         */
-        KpiUnit: "percentual" | "numero" | "moeda" | "tempo" | "custom";
         /** LoginRequest */
         LoginRequest: {
             /** Format: email */
@@ -929,8 +981,10 @@ export interface components {
             sector_id: string;
             manager_id: string;
             preferred_language: string;
+            birth_date: string;
             active: boolean;
             sector?: components["schemas"]["SectorResource"];
+            dependents?: components["schemas"]["DependentResource"][];
         };
         /** ReviewTaskRequest */
         ReviewTaskRequest: {
@@ -978,12 +1032,29 @@ export interface components {
          * @enum {string}
          */
         SmartFormStatus: "draft" | "active" | "archived";
+        /** StoreDependentRequest */
+        StoreDependentRequest: {
+            /**
+             * Format: uuid
+             * @description profile_id opcional: se ausente, o dependente é do próprio usuário.
+             */
+            profile_id?: string;
+            name: string;
+            /** Format: date-time */
+            birth_date: string;
+            relationship: string;
+            consent?: boolean;
+        };
         /** StoreKpiRequest */
         StoreKpiRequest: {
             name: string;
             description?: string | null;
             target_value: number;
-            unit?: components["schemas"]["KpiUnit"];
+            /**
+             * @description Unidade é texto livre: os KPIs reais usam "%", "USD", "pts", "min",
+             *     "experimentos" etc. O enum fechado rejeitava tudo isso (422).
+             */
+            unit?: string | null;
             sector_ids?: string[] | null;
         };
         /** SubmitFormResponseRequest */
@@ -998,6 +1069,14 @@ export interface components {
                 score: number;
             }[];
         };
+        /** UpdateDependentRequest */
+        UpdateDependentRequest: {
+            name?: string;
+            /** Format: date-time */
+            birth_date?: string;
+            relationship?: string;
+            consent?: boolean;
+        };
         /** UpdateProfileRequest */
         UpdateProfileRequest: {
             full_name?: string;
@@ -1009,6 +1088,8 @@ export interface components {
             manager_id?: string | null;
             /** @enum {string} */
             preferred_language?: "pt" | "es";
+            /** Format: date-time */
+            birth_date?: string | null;
         };
         /** UpdateProgressRequest */
         UpdateProgressRequest: {
@@ -1025,6 +1106,18 @@ export interface components {
             config?: {
                 steps?: string[];
             };
+        };
+        /** UpdateUserRequest */
+        UpdateUserRequest: {
+            name: string;
+            /** Format: email */
+            email: string;
+            password?: string | null;
+            role?: components["schemas"]["AppRole"];
+            /** Format: uuid */
+            sector_id?: string | null;
+            /** Format: uuid */
+            manager_id?: string | null;
         };
         /** UpsertKpiResultRequest */
         UpsertKpiResultRequest: {
@@ -1336,6 +1429,147 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "dependent.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `DependentResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DependentResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "dependent.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreDependentRequest"];
+            };
+        };
+        responses: {
+            /** @description `DependentResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DependentResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "dependent.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dependent ID */
+                dependent: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateDependentRequest"];
+            };
+        };
+        responses: {
+            /** @description `DependentResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DependentResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "dependent.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dependent ID */
+                dependent: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        message: "Dependente removido.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "dependent.birthdays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            name: string;
+                            date: string;
+                            days_until: number;
+                            type: string;
+                            relationship: string;
+                            of: string | null;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
     };
     "evaluation.index": {
@@ -1788,6 +2022,21 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example Sem permissão para lançar resultado de KPI deste colaborador.
+                         */
+                        message: string;
+                    };
+                };
+            };
             422: components["responses"]["ValidationException"];
         };
     };
@@ -2597,6 +2846,13 @@ export interface operations {
                     "application/json": {
                         total_responses: number;
                         averages: string;
+                        insufficient: boolean;
+                    } | {
+                        total_responses: number;
+                        averages: string[];
+                        insufficient: boolean;
+                        /** @constant */
+                        min_required: 3;
                     };
                 };
             };
@@ -2670,7 +2926,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateUserRequest"];
+                "application/json": components["schemas"]["UpdateUserRequest"];
             };
         };
         responses: {

@@ -7,6 +7,7 @@ import { Target, ClipboardList, BookOpen } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { KpiSummaryChart } from '@/components/dashboard/KpiSummaryChart';
 import { PdiProgressChart } from '@/components/dashboard/PdiProgressChart';
+import { BirthdayAlerts } from '@/components/dashboard/BirthdayAlerts';
 import { useKpis, useKpiResults } from '@/hooks/api/useKpis';
 import { useEvaluations } from '@/hooks/api/useEvaluations';
 import { usePdis } from '@/hooks/api/usePdi';
@@ -46,6 +47,8 @@ export function ColaboradorDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t('welcomeBack')}, {firstName}</h1>
+
+      <BirthdayAlerts />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate('/kpis')}>

@@ -12,6 +12,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { FirstAccessChecklist } from '../admin/FirstAccessChecklist';
+import { BirthdayAlerts } from '@/components/dashboard/BirthdayAlerts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -184,6 +185,8 @@ export function AdminDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t('welcomeBack')}, {firstName}!</h1>
+
+      <BirthdayAlerts />
 
       <FirstAccessChecklist
         sectorsCount={sectors.length}

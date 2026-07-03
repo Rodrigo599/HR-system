@@ -14,12 +14,12 @@ class Profile extends Model
 
     protected $fillable = [
         'user_id', 'email', 'full_name', 'avatar_url',
-        'sector_id', 'manager_id', 'preferred_language', 'active',
+        'sector_id', 'manager_id', 'preferred_language', 'active', 'birth_date',
     ];
 
     protected function casts(): array
     {
-        return ['active' => 'boolean'];
+        return ['active' => 'boolean', 'birth_date' => 'date'];
     }
 
     public function user(): BelongsTo

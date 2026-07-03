@@ -38,6 +38,7 @@ interface UpdateProfilePayload {
   full_name?: string;
   avatar_url?: string;
   preferred_language?: string;
+  birth_date?: string;
 }
 
 export function useUpdateProfile() {

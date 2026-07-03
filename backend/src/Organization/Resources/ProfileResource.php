@@ -18,8 +18,10 @@ class ProfileResource extends JsonResource
             'sector_id' => $this->sector_id,
             'manager_id' => $this->manager_id,
             'preferred_language' => $this->preferred_language,
+            'birth_date' => $this->birth_date?->format('Y-m-d'),
             'active' => (bool) $this->active,
             'sector' => $this->whenLoaded('sector', fn () => new SectorResource($this->sector)),
+            'dependents' => $this->whenLoaded('dependents', fn () => DependentResource::collection($this->dependents)),
         ];
     }
 }

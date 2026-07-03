@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PendingActions } from '@/components/dashboard/PendingActions';
+import { BirthdayAlerts } from '@/components/dashboard/BirthdayAlerts';
 import { QuickActions } from './QuickActions';
 import { KpiSummaryChart } from '@/components/dashboard/KpiSummaryChart';
 import { PdiProgressChart } from '@/components/dashboard/PdiProgressChart';
@@ -68,6 +69,8 @@ export function GestorDashboard() {
       <h1 className="text-2xl font-bold">
         {t('welcomeBack')}, {firstName}!
       </h1>
+
+      <BirthdayAlerts />
 
       {/* Acoes Rapidas */}
       <QuickActions

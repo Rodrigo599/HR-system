@@ -12,6 +12,7 @@ class UpdateProfileDTO
         public readonly ?string $sectorId,
         public readonly ?string $managerId,
         public readonly ?string $preferredLanguage,
+        public readonly ?string $birthDate,
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -27,6 +28,7 @@ class UpdateProfileDTO
             sectorId: $isAdmin ? $request->input('sector_id') : null,
             managerId: $isAdmin ? $request->input('manager_id') : null,
             preferredLanguage: $request->input('preferred_language'),
+            birthDate: $request->input('birth_date'),
         );
     }
 }

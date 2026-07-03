@@ -12,6 +12,7 @@ const ROUTE_KEYS: Record<string, TranslationKey> = {
   '/admin': 'navAdmin',
   '/smartforms': 'navSmartforms',
   '/feedback': 'navFeedback',
+  '/clima': 'climaSurvey',
   '/one-on-ones': 'navOneOnOnes',
   '/content': 'navContent',
 };
