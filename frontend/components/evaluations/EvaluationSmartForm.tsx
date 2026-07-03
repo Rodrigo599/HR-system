@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SmartFormRenderer } from "@/components/smartforms/SmartFormRenderer";
 import { useSmartForm } from "@/hooks/api/useSmartForms";
 import { useSubmitSelfEvaluation, useSubmitManagerEvaluation } from "@/hooks/api/useEvaluations";
-import { extractScaleFields } from "@/lib/evaluationDataTransform";
+import { extractScaleFields, valuesToScoresPayload } from "@/lib/evaluationDataTransform";
 import { EvaluationRadarChart } from "./EvaluationRadarChart";
 import { useAuth } from "@/contexts/AuthContext";
 import type { SmartFormConfig, I18nText } from "@/types/smartforms";
@@ -70,7 +70,7 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
   const { user, hasRole } = useAuth();
 
   const isGestor = hasRole("gestor") || hasRole("admin");
-  const isBlind = evaluation.flow_type === "blind_simultaneous";
+  const isBlind = evaluation.flow_type === "blind";
 
   const { data: smartForm, isLoading: formLoading } = useSmartForm(evaluation.smart_form_id ?? "");
   const submitSelf = useSubmitSelfEvaluation(evaluation.id);
@@ -91,7 +91,6 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
 
   if (isBlind) {
     const revealed =
-      evaluation.status === "both_submitted" ||
       evaluation.status === "completed" ||
       evaluation.status === "closed";
 
@@ -225,7 +224,7 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
           readOnly={false}
           initialValues={viewSelf ?? {}}
           onSubmit={(values) => {
-            submitSelf.mutate({ responses: values }, {
+            submitSelf.mutate(valuesToScoresPayload(values, config), {
               onSuccess: () => {
                 toast({ title: t("success"), description: t("evaluationUpdated") });
                 onSaved();
@@ -265,7 +264,7 @@ export function EvaluationSmartForm({ evaluation, onSaved, onBack }: EvaluationS
           readOnly={false}
           initialValues={viewManager ?? {}}
           onSubmit={(values) => {
-            submitManager.mutate({ responses: values }, {
+            submitManager.mutate(valuesToScoresPayload(values, config), {
               onSuccess: () => {
                 toast({ title: t("success"), description: t("evaluationUpdated") });
                 onSaved();

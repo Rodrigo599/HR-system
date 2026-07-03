@@ -38,7 +38,7 @@ export function useCreateEvaluation() {
 }
 
 interface SubmitResponsePayload {
-  responses: Record<string, unknown>;
+  scores: Array<{ score: number }>;
 }
 
 export function useSubmitSelfEvaluation(evaluationId: string) {
