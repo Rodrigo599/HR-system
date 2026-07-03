@@ -3,6 +3,7 @@
 namespace Src\OneOnOne\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -15,10 +16,14 @@ use Src\OneOnOne\Resources\OneOnOneNoteResource;
 use Src\OneOnOne\Resources\OneOnOneResource;
 use Src\OneOnOne\Resources\OneOnOneTopicResource;
 use Src\OneOnOne\Services\OneOnOneService;
+use Src\Organization\Services\HierarchyService;
 
 class OneOnOneController extends Controller
 {
-    public function __construct(private readonly OneOnOneService $service) {}
+    public function __construct(
+        private readonly OneOnOneService $service,
+        private readonly HierarchyService $hierarchy,
+    ) {}
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -30,6 +35,19 @@ class OneOnOneController extends Controller
     public function store(CreateOneOnOneRequest $request): OneOnOneResource
     {
         $this->authorize('create', OneOnOne::class);
+
+        // Gestor só agenda 1:1 com o próprio liderado (escopo de time do PRD §5).
+        // Sem isto, um gestor "fabrica" uma relação de 1:1 com qualquer funcionário
+        // e passa a ter acesso permanente às notas/tópicos daquele registro.
+        $user = $request->user();
+        if (! $user->hasRole('admin')) {
+            $target = User::findOrFail($request->input('report_id'));
+            abort_unless(
+                $this->hierarchy->isManagerOf($user, $target),
+                403,
+                'Só é possível agendar 1:1 com membros do seu time.'
+            );
+        }
 
         return OneOnOneResource::make(
             $this->service->create($request->user(), $request->validated())

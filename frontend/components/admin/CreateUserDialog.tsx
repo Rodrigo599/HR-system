@@ -118,7 +118,7 @@ export function CreateUserDialog({
         name: form.fullName.trim(),
         email: form.email.trim(),
         password: form.password,
-        roles: [form.role],
+        role: form.role,
         sector_id: form.sectorId || undefined,
         manager_id: form.managerId === '__none__' ? undefined : (form.managerId || undefined),
       });

@@ -16,11 +16,16 @@ class UpdateProfileDTO
 
     public static function fromRequest(Request $request): self
     {
+        // Setor e gestor são estrutura organizacional: só admin pode alterá-los
+        // (PRD 3.1 "Editar perfil de outro (setor, gestor): admin U"). Um colaborador
+        // NÃO pode se reatribuir a outro gestor/setor pela própria tela de perfil.
+        $isAdmin = $request->user()->hasRole('admin');
+
         return new self(
             fullName: $request->input('full_name'),
             avatarUrl: $request->input('avatar_url'),
-            sectorId: $request->input('sector_id'),
-            managerId: $request->input('manager_id'),
+            sectorId: $isAdmin ? $request->input('sector_id') : null,
+            managerId: $isAdmin ? $request->input('manager_id') : null,
             preferredLanguage: $request->input('preferred_language'),
         );
     }

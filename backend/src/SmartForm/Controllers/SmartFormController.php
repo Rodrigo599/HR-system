@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Src\SmartForm\Enums\SmartFormCategory;
 use Src\SmartForm\Models\SmartForm;
 use Src\SmartForm\Requests\CreateSmartFormRequest;
 use Src\SmartForm\Requests\UpdateSmartFormRequest;
@@ -74,6 +75,13 @@ class SmartFormController extends Controller
     public function indexResponses(Request $request, SmartForm $smartForm): AnonymousResourceCollection
     {
         $this->authorize('viewResponses', $smartForm);
+
+        // Feedback de clima é anônimo: a lista individual (que expõe quem respondeu)
+        // fica restrita ao admin/RH para auditoria. Gestor acompanha pela visão
+        // agregada (/aggregate), que já respeita o piso de anonimato k>=3.
+        if ($smartForm->category === SmartFormCategory::Feedback && ! $request->user()->hasRole('admin')) {
+            abort(403, 'Respostas de clima são anônimas. Use a visão agregada.');
+        }
 
         return SmartFormResponseResource::collection(
             $this->responses->forForm($smartForm, $request->user())

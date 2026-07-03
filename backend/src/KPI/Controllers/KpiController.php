@@ -3,6 +3,7 @@
 namespace Src\KPI\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -14,12 +15,14 @@ use Src\KPI\Resources\KpiResource;
 use Src\KPI\Resources\KpiResultResource;
 use Src\KPI\Services\KpiResultService;
 use Src\KPI\Services\KpiService;
+use Src\Organization\Services\HierarchyService;
 
 class KpiController extends Controller
 {
     public function __construct(
         private readonly KpiService $kpis,
         private readonly KpiResultService $results,
+        private readonly HierarchyService $hierarchy,
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -82,6 +85,19 @@ class KpiController extends Controller
 
     public function upsertResult(UpsertKpiResultRequest $request): KpiResultResource
     {
+        // PRD 3.4: lançar resultado de KPI é Admin (qualquer) ou Gestor (só do seu time).
+        // Colaborador não tem acesso de escrita nenhum. Sem esta checagem, qualquer
+        // usuário autenticado sobrescreveria o KPI de qualquer pessoa (user_id no body).
+        $user = $request->user();
+        $target = User::findOrFail($request->input('user_id', $user->id));
+
+        abort_unless(
+            $user->hasRole('admin')
+                || ($user->hasRole('gestor') && $this->hierarchy->isManagerOf($user, $target)),
+            403,
+            'Sem permissão para lançar resultado de KPI deste colaborador.'
+        );
+
         return KpiResultResource::make(
             $this->results->upsert(UpsertKpiResultDTO::fromRequest($request))->load('kpi')
         );

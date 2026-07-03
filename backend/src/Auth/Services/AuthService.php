@@ -20,6 +20,13 @@ class AuthService
 
         $user->load('profile', 'roles');
 
+        // Usuário desativado (offboarding) não pode mais autenticar — mesmo com senha correta.
+        if ($user->profile && $user->profile->active === false) {
+            throw ValidationException::withMessages([
+                'email' => ['Conta desativada. Fale com o RH.'],
+            ]);
+        }
+
         $token = $user->createToken('api')->plainTextToken;
 
         return compact('user', 'token');
